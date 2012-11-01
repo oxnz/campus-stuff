@@ -42,7 +42,7 @@ usage()
 doOption()
 {
 	case $1 in
-		catalina|configtest|daemon|digest|setclasspath|shutdown|startup|tool-wrapper|version)
+		catalina|configtest|daemon|digest|setclasspath|shutdown|startup|tool-wrapper|version|restart)
 			cmd=${1}.sh
 			if [ -x $cmd ]; then
 				./$cmd
@@ -53,6 +53,12 @@ doOption()
 			tpid=`ps -ef | grep [t]omcat | grep -v status | awk '{print $2}'`
 			[ "$tpid" ] && echo "tomcat is running with pid: $tpid" || echo "tomcat is not running"
 			unset tpid
+			;;
+		restart)
+			tpid=`ps -ef | grep [t]omcat | grep -v status | awk '{print $2}'`
+			[ "$tpid" ] && tomcat shutdown
+			unset tpid
+			tomcat startup
 			;;
 		*)
 			usage
