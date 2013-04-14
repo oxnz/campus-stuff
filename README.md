@@ -5,10 +5,22 @@
 
 ##结构
 
+###OSX
+
+针对OSX平台
+
+###Linux
+
+针对Linux平台
+
 ###FreeBSD
 
 针对FreeBSD平台
 
-###Bin
+###Universal
 
-二进制文件源代码
+平台通用代码
+
+###Others
+
+其他
