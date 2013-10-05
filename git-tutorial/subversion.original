@@ -1,0 +1,136 @@
+svn - Beta
+What is Subversion?
+
+Subversion is a Source Code Management (SCM), a tool for software developers which supports collaborative development of software within a team, and the tracking of changes to software source code over time.
+
+Subversion is used by developers, and advanced users who need the very latest changes to the software (before releases occur). Software users generally do not need Subversion; typically they will download official file releases made available by the project instead.
+
+Developers should familiarize themselves with Subversion by reading Version Control with Subversion.
+Modern SCM facilities
+
+Here's a nice writeup of why you should consider using a Distributed Version Control System (DVCS), and a comparison of the major DVCSs: http://www.infoq.com/articles/dvcs-guide
+Features
+
+SourceForge.net provides the following features in its Subversion offering:
+
+    All standard features of Subversion 1.6.x are supported.
+    Developer (read-write) access is provided via svn+ssh and https.
+    Anonymous (read-only) access is provided via svn+ssh, svn, https and http.
+    Several Subversion clients are supported, including:
+        TortoiseSVN (MS Windows).
+        The official SVN client (MS Windows, Mac OS X, Linux, BSD).
+    Repositories may be viewed via web browser using the Allura code browser.
+
+    Repository access may be granted or revoked from a developer using the Project Admin interface.
+
+    Service usage is not restricted by quotas.
+
+Management
+Creating a repository
+
+Subversion service can be selected to be installed at project creation time. It can also be added to an existing project as follows:
+
+Login as a project administrator and click on the Admin icon in the navigation bar.
+* Click on "Tools".
+* Click on "SVN".
+* Select a name for the label (this will determine the title of the link in the project navigation)
+* Select a mountpoint (this will affect the URL for your repository)
+
+New repositories are created with the recommended branch/tags/trunk format.
+Options
+
+From the tools page, under the installed repository the following options are available:
+Viewable Files
+
+Specify here a space delimited list of filename extensions that should be viewable in the browser (ie., plain-text files)
+Refresh Repository
+
+The code browser typically will be refreshed automatically when there's a new change, but it can also be manually refreshed if necessary
+Permissions
+
+Specific permissions for the repository can be configured here. Fine-grained permissions controls are not supported (e.g. restrict access by specific paths within a repository), if that sort of access control is required, consider creating multiple repositories with different permissions.
+Delete
+
+This will delete the repository on our servers, note that while this is normally very quick, there is occasionally a delay in removal.
+
+Checkout URL
+
+By default the code browser will include a command for users to checkout the trunk of the repository. If a different default checkout location is preferred, this can be specified here.
+Developer Access (Read/Write)
+
+The standard way to modify the contents of your repository is using a Subversion client as detailed in Version Control with Subversion.
+Read/Write access via svn+ssh
+
+svn+ssh will provide faster performance than https. This should be used whenever possible.
+
+To access a Subversion repository over svn+ssh, configure your Subversion client as follows (replace PROJECTNAME with the UNIX group name of the project, and USERNAME with your username):
+
+Hostname: svn.code.sf.net
+Port: 22
+Protocol: SVN + SSH
+Repository Path: /p/PROJECTNAME/code
+
+For clients that use a URL string:
+
+svn+ssh://USERNAME@svn.code.sf.net/p/PROJECTNAME/MOUNTPOINT/
+
+Read/Write access via https
+
+Access over https will not perform as well as svn+ssh, so it should only be used if access using svn+ssh is problematic (eg. if ssh port 22 is blocked)
+
+To access a Subversion repository over https, configure your Subversion client as follows (replace PROJECTNAME with the UNIX group name of the project):
+
+Hostname: svn.code.sf.net
+Port: 443
+Protocol: HTTPS
+Repository Path: /p/PROJECTNAME/MOUNTPOINT
+
+For clients that use a URL string:
+
+https://svn.code.sf.net/p/PROJECTNAME/MOUNTPOINT/
+
+Anonymous Access (Read-only)
+
+The read/write protocols detailed above can also be used for read-only access. In addition, you may also use the svn and http protocols with the same URLs.
+
+For example:
+
+svn://svn.code.sf.net/p/PROJECTNAME/MOUNTPOINT/
+http://svn.code.sf.net/p/PROJECTNAME/MOUNTPOINT/
+
+Authentication
+
+No username and password will be requested when performing read operations.
+
+When performing write operations, you will be prompted for your SourceForge.net username and password. To perform write operations, your project administrator must have granted you write access to the repository.
+Server Certificate Verification Failed
+
+Subversion users accessing their repository over https may occasionally produce an error indicating that the SSL certificate issuer isn't trusted, giving you an option to accept the certificate:
+
+Error validating server certificate for 'https://svn.code.sf.net:443'
+- The certificate is not issued by a trusted authority. Use the fingerprint to validate the certificate manually!
+Certificate information:
+- Hostname: *.svn.code.sf.net
+- Valid: from Tue, 09 Oct 2007 13:15:07 GMT until Mon, 08 Dec 2008 14:15:07 GMT
+- Issuer: Equifax Secure Certificate Authority, Equifax, US
+- Fingerprint: fb:75:6c:40:58:ae:21:8c:63:dd:1b:7b:6a:7d:bb:8c:74:36:e7:8a
+(R)eject, accept (t)emporarily or accept (p)ermanently? p
+
+This typically happens during your first Subversion operation against our servers or when we replace the SSL certificate with a new one.
+
+When you receive this error, we encourage you to validate that the server is the correct server by putting your checkout URL into a trusted web browser (i.e. https://svn.code.sf.net/p/PROJECTNAME/MOUNTPOINT/).
+
+You may then check to make sure your browser accepts the certificate. If it does, you can trust the server much like you would any other HTTPS site, like banks, etc.
+
+Once validated you should go back to your Subversion request and tell the client to permanently store the SSL certificate locally so you won't be prompted again until we update our certificate next.
+Backups
+
+SourceForge.net performs routine backups for all of our servers and will restore from these backups in the event of catastrophic server failure. We encourage projects to make their own backups of Git data as that data restore can be performed by the project in the event of accidental data destruction by a member of the project team.
+
+Backups of a SVN repository may be made using rsync.
+
+Example (replace PROJECTNAME with the UNIX group name of your project):
+
+$ rsync -av svn.code.sf.net::p/PROJECTNAME/MOUNTPOINT .
+
+
