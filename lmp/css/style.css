@@ -1,0 +1,12 @@
+* {
+	margin: 0px;
+	padding: 0px;
+}
+
+body {
+}
+
+div#footer {
+	text-align: center;
+	background:gray;
+}
