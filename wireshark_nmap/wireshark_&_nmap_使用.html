@@ -1,0 +1,263 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<style>
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote {
+    margin: 0;
+    padding: 0;
+}
+body {
+    font-family: "Helvetica Neue", Helvetica, "Hiragino Sans GB", Arial, sans-serif;
+    font-size: 13px;
+    line-height: 18px;
+    color: #737373;
+    background-color: white;
+    margin: 10px 13px 10px 13px;
+}
+table {
+	border: 0px;
+	margin: 10px 0 15px 0;
+	border-collapse: collapse;
+}
+td,th {	
+	border: 1px solid #ddd;
+	padding: 3px 10px;
+}
+th {
+	padding: 5px 10px;	
+}
+
+a {
+    color: #0069d6;
+}
+a:hover {
+    color: #0050a3;
+    text-decoration: none;
+}
+a img {
+    border: none;
+}
+p {
+    margin-bottom: 9px;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: #404040;
+    line-height: 36px;
+}
+h1 {
+    margin-bottom: 18px;
+    font-size: 30px;
+}
+h2 {
+    font-size: 24px;
+}
+h3 {
+    font-size: 18px;
+}
+h4 {
+    font-size: 16px;
+}
+h5 {
+    font-size: 14px;
+}
+h6 {
+    font-size: 13px;
+}
+hr {
+    margin: 0 0 19px;
+    border: 0;
+    border-bottom: 1px solid #ccc;
+}
+blockquote {
+    padding: 13px 13px 21px 15px;
+    margin-bottom: 18px;
+    font-family:georgia,serif;
+    font-style: italic;
+}
+blockquote:before {
+    content:"\201C";
+    font-size:40px;
+    margin-left:-10px;
+    font-family:georgia,serif;
+    color:#eee;
+}
+blockquote p {
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 18px;
+    margin-bottom: 0;
+    font-style: italic;
+}
+code, pre {
+    font-family: Monaco, Andale Mono, Courier New, monospace;
+}
+code {
+    background-color: #fee9cc;
+    color: rgba(0, 0, 0, 0.75);
+    padding: 1px 3px;
+    font-size: 12px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+pre {
+    display: block;
+    padding: 14px;
+    margin: 0 0 18px;
+    line-height: 16px;
+    font-size: 11px;
+    border: 1px solid #d9d9d9;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+pre code {
+    background-color: #fff;
+    color:#737373;
+    font-size: 11px;
+    padding: 0;
+}
+sup {
+    font-size: 0.83em;
+    vertical-align: super;
+    line-height: 0;
+}
+* {
+	-webkit-print-color-adjust: exact;
+}
+@media screen and (min-width: 914px) {
+    body {
+        width: 854px;
+        margin:10px auto;
+    }
+}
+@media print {
+	body,code,pre code,h1,h2,h3,h4,h5,h6 {
+		color: black;
+	}
+	table, pre {
+		page-break-inside: avoid;
+	}
+}
+</style>
+<title>Wireshark & NMap 使用</title>
+
+</head>
+<body>
+<p><br /><br /><br /><br /><br /><br /><br />
+<br /><br /><br /><br /><br /><br /><br />
+<br /><br /><br /><br /><br /><br /><br /></p>
+
+<hr />
+
+
+<h1>Wireshark &amp; NMap 使用</h1>
+
+<hr />
+
+
+<p><br /><br /><br /><br /><br /><br /><br />
+<br /><br /><br /><br /><br /><br /><br /></p>
+<br /><br /><br /><br /><br /><br /><br /></p>
+
+<center>
+	<table>
+<tr><th>学号</th><td>2011302530064</td></tr>
+<tr><th>姓名</th><th>张盼</th></tr>
+</table>
+</center>
+
+
+<p><br /><br /><br /><br /><br /><br /><br />
+<br /><br /><br /><br /><br /><br /><br /></p>
+
+<h3>使用Wireshark和NMap进行抓包实验</h3>
+<h5>开始之前</h5>
+<h5><ol>
+		<li>需要了解基本的nmap指令，还需要了解一些packet filter的syntax，否则抓到的包太多，不利于分析</li>
+		<li>安装wireshark和nmap，ubuntu 系统使用sudo apt-get install {wireshark, nmap} <CR>
+		</li>
+		<li>使用root privilege启动wireshark, 否则软件搜不到网卡接口</li>
+		<li>本篇只展示了基本的nmap指令的使用，更高级的操作可以看<code>man nmap</code></li>
+	</ol>
+</h5>
+<p><br /><br /><br /><br /><br /><br /><br />
+<br /><br /><br /><br /><br /><br /><br /></p>
+<p><br /><br /><br /><br /><br /><br /><br />
+<br /><br /><br /><br /><br /><br /><br /></p>
+<br /><br /><br /><br /><br /><br /><br /><br />
+
+<h4>1. 首先启动wireshark</h4>
+<p>wireshark启动的时候会列出可用的网卡，这里选择eth0作为抓包网卡</p>
+<p>一般Linux发行版中eth＝ethernet，表示以太网卡，后边的0是编号</p>
+<img src="./x/1.png" title="图－1" alt="图－1" /></p></li>
+<h4>2. 设置过滤选项</h4>
+<b>注意选择capture filter，这里只监听192.168.0.105 到 192.168.0.102</b>
+<br />
+<b>去掉promisitic模式,否则会有很多和自己无关的包</b>
+<br /><p>src host 代表源主机，这里我们是要看看扫瞄的时候都会发送什么包内容，<br />
+于是我们只关心自己发送给目标主机dst host的包</p>
+<p>linux中使用ifconfig eth0 | grep inet来获取eth0对应的IP地址，这里我们是105</p>
+<img src="./x/2.png" title="图－2" alt="图－1" /></p></li>
+<h4>3. 观察wireshark界面</h4>
+<p>点击确定后显示空白窗口，因为现在我们还什么都没有做</p>
+<img src="./x/3.png" title="图－1" alt="图－1" /></p>
+
+
+<h4>4. 测试</h4>
+<p>先ping 192.168.0.102 一下作为测试，可以发现收到了抓到了3个相同的包</p>
+<img src="./x/4.png" title="图－4" alt="图－1" /></li>
+
+
+<p><img src="./x/5.png" title="图－1" alt="图－1" /></p>
+
+<h4>5. -SL</h4>
+<p>nmap -sL  192.168.0.102，然后发现主机不在线</p>
+<img src="./x/6.png" title="图－1" alt="图－1" /></li>
+<h4>6. -PE</h4>
+<p>nmap -PE 192.168.0.102,使用ICMP echo试试看，明显露馅了，如果不在线怎么可能会得到mac地址并且发送包呢
+</p>
+<img src="./x/7.png" title="图－1" alt="图－1" /></li>
+<h4>7. 扫瞄不存在的主机</h4>
+<p>试试不存在的主机，验证一下上边所说的,nmap -PE 192.168.0.150</p>
+<img src="./x/10.png" title="图－1" alt="图－1" />
+<br />
+果然，不存在的主机是不会有发包动作的，但是傻傻的nmap还是没看出来，提示我们使用其他的扫描方式
+<h4>7. -PS</h4>
+<p>nmap -PS也不行，只有发送，没有接收</p>
+<img src="./x/00.png" title="图－1" alt="图－1" /></li>
+<h4>8. -sn</h4>
+<p>-sn可以，看来没有禁用ping</p>
+<img src="./x/12.png" title="图－1" alt="图－1" /></li>
+<h4>9. -sX</h4>
+<p>-sX, 看来Xmas扫描可以，那些红色的就是回复咯
+见上图</p>
+<h4>10. 扫瞄其他主机</h4>
+<p>扫描一下其他主机看看，从扫描结果很容易看出是Windows系统咯</p>
+<img src="./x/17.png" title="图－2" alt="图－2" /></li>
+
+<br /><br /><br /><br /><br /><br />
+<h3>总结</h3>
+<ol>
+	<li>首先抓包过程中要先开启wireshark监听，然后再执行扫瞄指令</li>
+	<li>如果包太多，选择一个空闲的主机或者空闲时间短进行扫瞄，以便分析</li>
+	<li>实验中一共扫瞄了两台主机，一台是Mac OS X 10.8.5，IP为192.168.0.102，</br>
+	结果是很多不规则的扫描包都好像进了黑洞一样，看来Mac系统对包的校验比较严格，<br />
+	另外，开放的端口也非常少，而且难以扫瞄，相比之下，Windows8的系统开放的端口比较多，<br />
+	而且扫瞄速度比较快</li>
+</ol>
+</body>
+</html>
