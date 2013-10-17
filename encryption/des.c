@@ -12,6 +12,7 @@
 #include "des.h"
 
 #ifdef DEBUG
+// debug dump function
 void pbin(u8* s, int x) {
 	int i;
 	for (i = 0; i < x; ++i) {
@@ -164,8 +165,8 @@ int main(int argc, char* argv[]) {
 		}
 		else {
 			fprintf(stderr, "invalid parameters: %s %s\n"
-					"key and msg should be 8 bytes long\n",
-					argv[1], argv[2]);
+				"key and msg should be 8 bytes long\n",
+				argv[1], argv[2]);
 			return 1;
 		}
 	}
