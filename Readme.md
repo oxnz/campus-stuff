@@ -26,6 +26,7 @@
 ####[lmp](#lmp)
 ####[Simple-Proxy](#simple-proxy)
 ####[student-manager](#student-manager)
+####[calculator](#calculator)
 
 * * *
 
@@ -82,3 +83,9 @@ land code for WHU OJ
 ##[lmp](id:lmp)
 
 Learn Mysql™ & PHP™ source code
+
+##[calculator](id:calculator)
+
+A simple calculator implemented in Java&tm;
+
+![calculator](./Calculator/calc.png)
