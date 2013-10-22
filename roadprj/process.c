@@ -1,4 +1,5 @@
 #include "process.h"
+#include "types.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
@@ -8,65 +9,8 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-static DIR *dirp;
-
-const char* get_first_file(const char *path) {
-    dirp = opendir(path);
-    if (dirp == NULL) {
-        perror(path);
-        return NULL;
-    }
-    struct dirent *dp;
-    errno = 0;
-    while ((dp = readdir(dirp)) != NULL) {
-        if (dp->d_namlen < 8) {
-            fprintf(stderr, "too short name : %s, skipped\n", dp->d_name);
-            continue;
-        }
-        if (dp->d_type != DT_REG) {
-            fprintf(stderr, "non regular file dected: %s, skipped\n", dp->d_name);
-            continue;
-        }
-        printf("file: %s\n", dp->d_name);
-        return dp->d_name;
-    }
-    if (errno != 0) {
-        perror("error reading directory");
-    }
-    (void) closedir(dirp);
-    dirp = 0;
-    dp = 0;
-    return NULL;
-}
-
-const char *get_next_file() {
-    if (dirp == NULL) {
-        fprintf(stderr, "please call get_first_file first to open the directory\n");
-        return NULL;
-    }
-    struct dirent *dp;
-    errno = 0;
-    while ((dp = readdir(dirp)) != NULL) {
-        if (dp->d_namlen < 8) {
-            fprintf(stderr, "too short name: %s, skipped\n", dp->d_name);
-            continue;
-        }
-        if (dp->d_type != DT_REG) {
-            fprintf(stderr, "non regular file: %s, skipped\n", dp->d_name);
-            continue;
-        }
-        printf("file: %s\n", dp->d_name);
-        return dp->d_name;
-    }
-    if (errno != 0) {
-        perror("error reading directory");
-    }
-    closedir(dirp);
-    dp = 0;
-    dirp = 0;
-    return NULL;
-}
+#include <string.h>
+#include <regex.h>
 
 void* read_file_into_mem(const char *fname, ssize_t *size) {
     unsigned int fd;
@@ -141,3 +85,4 @@ int process_records(const void *buf, size_t len) {
 int process_record_file(const char *fname) {
     return 0;
 }
+

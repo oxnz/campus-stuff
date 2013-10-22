@@ -3,13 +3,13 @@
 # test : for test
 
 CFLAGS	:= -Wall -pipe -O2
-LDFLAGS	:=
+LDFLAGS	:= -lc
 
-OBJS	= main.o process.o test.o
+OBJS	= main.o process.o test.o findfile.o
 
 all: rdpp test
 
-rdpp: main.o process.o
+rdpp: main.o process.o ffind.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@
 
 test: test.o dummy.o
