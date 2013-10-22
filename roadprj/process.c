@@ -69,10 +69,9 @@ void* map_file(const char *fname) {
 }
 
 int process_records(const void *buf, size_t len) {
-    const char *p = buf;
     car_record *record = (car_record *)malloc(sizeof(car_record));
     while (
-           scanf("%u,%u,%u,%lu,%lu,%lu,%u,%u,%u\n", (uint8_t*)&record->id,
+           scanf("%u,%u,%u,%llu,%llu,%llu,%u,%u,%u\n", &record->id,
                  &record->event, &record->status,
                  &record->gps.time, &record->gps.coord.x,
                  &record->gps.coord.y, &record->gps.speed,
@@ -83,6 +82,10 @@ int process_records(const void *buf, size_t len) {
 }
 
 int process_record_file(const char *fname) {
+    printf("processing file %s done\n", fname);
+    for (int i = 0; i < 10000; ++i) {
+        printf("%d", i);
+        sleep(1);
+    }
     return 0;
 }
-

@@ -5,7 +5,7 @@
 CFLAGS	:= -Wall -pipe -O2
 LDFLAGS	:= -lc
 
-OBJS	= main.o process.o test.o findfile.o
+OBJS	= main.o process.o test.o ffind.o dummy.o
 
 all: rdpp test
 
