@@ -1,12 +1,20 @@
+# RoadDataPreProcessor Project Makefile
+# Version: 0.1
+# Author: 0xnz
+# Revision: -*-
+# Last-updated: 2013-10-25 00:01:55 CST
 #
-# rdpp : road data preprocessor
-# test : for test
+
+
+
 CXX	:= g++
 CFLAGS	:= -Wall -pipe -O2
 LDFLAGS	:= -lc
 
 OBJS	= main.o processor.o test.o ffind.o dummy.o
 
+# rdpp : road data preprocessor
+# test : for test
 all: rdpp test
 
 rdpp: main.o processor.o dummy.o
@@ -15,8 +23,8 @@ rdpp: main.o processor.o dummy.o
 test: test.o dummy.o
 	$(CXX) $(CFLAGS) $(LDFLAGS) $^ -o $@
 
-main.o: main.cpp processor.h types.h
-processor.o: processor.cpp processor.h types.h
+main.o: main.cpp processor.h types.h constant.h
+processor.o: processor.cpp processor.h types.h constant.h
 clean:
 	$(RM) $(OBJS)
 	$(RM) test.o
