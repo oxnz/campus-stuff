@@ -1,8 +1,8 @@
 #ifndef RTYPES_H
 #define RTYPES_H
 #include <stdint.h>
-typedef uint32_t car_id;
-typedef uint32_t trigger_event;
+typedef uint16_t car_id;
+typedef uint8_t trigger_event;
 typedef uint32_t car_status;
 typedef uint64_t gps_time;
 typedef uint64_t gps_x;
@@ -29,4 +29,5 @@ typedef struct {
 } car_record;
 typedef uint32_t road_id;
 
+    
 #endif
