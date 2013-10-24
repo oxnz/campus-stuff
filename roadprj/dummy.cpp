@@ -2,10 +2,10 @@
 #include "dummy.h"
 #include <stdio.h>
 
-const static gps_x x0 = 1160000000;
-const static gps_x x1 = 1170000000;
-const static gps_y y0 = 392600000;
-const static gps_y y1 = 410300000;
+const static gps_x x0 = 1150000000;
+const static gps_x x1 = 1180000000;
+const static gps_y y0 = 370000000;
+const static gps_y y1 = 420000000;
 const static gps_x coord_wx = x1-x0;
 const static gps_y coord_wy = y1-y0;
 const static unsigned long count = 500;

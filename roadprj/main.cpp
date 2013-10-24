@@ -41,17 +41,21 @@ int main(int argc, const char *argv[]) {
 
     Processor *p;
     try {
-        p = new Processor(argv[2]);
+        p = new Processor(argv[2], 3); // 3 min
     } catch (bad_alloc& exc) {
         cerr << "alloc error" << endl;
         return -1;
     }
     while (loop) {
-        int ret = p->process(3); // 3 min
+        int ret = p->processTS();
         if (ret != 0) {
             cerr << "Error while processing, error code: " << ret << endl;
             return -1;
         }
+        if (p->hasNextFile()) {
+            cerr << "Error while processing, unknonwn stopping" << endl;
+        } else
+            break;
     }
 
     return 0;
