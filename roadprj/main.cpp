@@ -25,7 +25,21 @@ void signal_handler(int signo, siginfo_t *info, void *ptr) {
     }
 }
 
+int test(void) {
+    int a = 1;
+    int b = 2;
+    int *aa = &a;
+    int *bb = &b;
+    swap(a, b);
+    cout << a << b << endl;
+     cout << aa << bb << endl;
+    swap(aa, bb);
+    cout << aa << bb << endl;
+    return 0;
+}
+
 int main(int argc, const char *argv[]) {
+    //return test();
     if (argc != 3) {
         cerr <<  "Usage:" << endl << argv[0] << " -c <listfname>" << endl;
         return -1;
@@ -43,10 +57,17 @@ int main(int argc, const char *argv[]) {
     Processor *p;
     try {
         p = new Processor(argv[2], 3); // 3 min
-    } catch (bad_alloc& exc) {
+    } catch (bad_alloc& e) {
         cerr << "alloc error" << endl;
         return -1;
+    } catch (runtime_error& e) {
+        cerr << "runtime error:" << e.what() << endl;
+        return -1;
+    } catch (exception& e) {
+        cerr << "unknown error:" << e.what() << endl;
+        return -1;
     }
+
     while (loop) {
         int ret = p->processTS();
         if (ret != 0) {
@@ -54,9 +75,13 @@ int main(int argc, const char *argv[]) {
             return -1;
         }
         if (p->hasNextFile()) {
-            cerr << "Error while processing, unknonwn stopping" << endl;
-        } else
+            //cerr << "Error while processing, unknonwn stopping" << endl;
+            cout << "has next file" << endl;
+            continue;
+        } else {
+            cout << "No more files, process ended" << endl;
             break;
+        }
         getchar();
     }
 

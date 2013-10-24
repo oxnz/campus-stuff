@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-typedef uint16_t car_id;
+typedef uint32_t car_id; // 6 bits decimal
 typedef uint8_t trigger_event;
 typedef uint32_t car_status;
 typedef uint64_t gps_time;
@@ -41,7 +41,7 @@ typedef struct {
 typedef uint32_t road_id;
 
 typedef struct {
-    uint32_t car_id;
+    car_id car_id;
     uint16_t event;
     uint16_t status;
     uint64_t time;
