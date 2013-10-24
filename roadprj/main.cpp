@@ -1,7 +1,8 @@
 #include "processor.h"
+
 #include <unistd.h>
 #include <signal.h>
-#include <syslog.h>
+
 #include <iostream>
 
 using namespace std;
@@ -56,6 +57,7 @@ int main(int argc, const char *argv[]) {
             cerr << "Error while processing, unknonwn stopping" << endl;
         } else
             break;
+        getchar();
     }
 
     return 0;

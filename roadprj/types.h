@@ -1,6 +1,8 @@
 #ifndef RTYPES_H
 #define RTYPES_H
+
 #include <stdint.h>
+
 typedef uint16_t car_id;
 typedef uint8_t trigger_event;
 typedef uint32_t car_status;
@@ -65,9 +67,5 @@ typedef struct {
     uint16_t status;
     uint64_t time;
 } orec_value;
-/*
-inline bool compare_orec_key(const orec_key& lhs, const orec_key& rhs) {
-    return lhs.rid < rhs.rid || (lhs.rid == rhs.rid && lhs.cid < rhs.cid);
-    }*/
 
 #endif

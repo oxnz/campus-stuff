@@ -1,18 +1,8 @@
 #include "processor.h"
 #include "types.h"
 #include "dummy.h"
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/mman.h>
-#include <unistd.h>
-#include <dirent.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <stdlib.h>
-#include <string.h>
-#include <regex.h>
 
-#include <set>
+ #include <set>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -23,7 +13,7 @@ Processor::Processor(const string& listfname, size_t minPerTS)
     : m_nMinPerTS(minPerTS), 
       m_nCRCount(0), m_nCRRepeat(0), m_nCRInvalid(0), m_nCRC(0), m_nCRO(0),
       m_nNRCount(0), m_nNRRepeat(0), m_nNRInvalid(0), m_nNRC(0), m_nNRO(0),
-      m_itsp(0), m_nTransCount(1000);
+      m_itsp(-1), m_nTransCount(1000), m_nCurTransCnt(0), m_bEOF(true)
 {
     ifstream listf;
     listf.open(listfname);
@@ -36,78 +26,120 @@ Processor::Processor(const string& listfname, size_t minPerTS)
         cout << "file: " << fpath << endl;
         m_plFileList->push_back(fpath);
     }
+    if (!m_plFileList->size()) {
+        cerr << "File list contains no file" << endl;
+        return; // FIX: change to throw
+    }
     m_pmCTSRecordPool = new std::map<orec_key, orec_value*>;
     m_pmNTSRecordPool = new std::map<orec_key, orec_value*>;
     m_pFileBuffer = new char[2*1024*1024];
 }
 
-size_t getTSIndex(uint64_t time) {
+size_t Processor::getTSIndex(uint64_t time) {
     uint16_t h = time % 1000000/10000;
     uint16_t m = time % 10000/100;
     uint16_t s = time % 100;
     return (h*60*60+m*60+s)/(m_nMinPerTS*60);
 }
 
-int Processor::process(const char *buf, size_t len) {
-    cout << "reading ..." << endl;
-    size_t tc = 0; // transition count
-    for (struct {const char *p; in_rec irec; } tmp = 
-        { (const char *)m_pFileBuffer, {0, 0, 0, 0, 0, 0, 0, 0, 0}};
-         tmp.p < m_pFileBuffer+len+1 &&
-             sscanf(tmp.p, "%u,%hu,%hu,%llu,%lf,%lf,%hu,%hu,%hu\r\n",
-                    &tmp.irec.car_id, &tmp.irec.event, &tmp.irec.status,
-                    &tmp.irec.time, &tmp.irec.x, &tmp.irec.y,
-                    &tmp.irec.speed, &tmp.irec.direct, &tmp.irec.valid)
-             == 9;
-         tmp.p = strchr(++tmp.p, '\n')) {
-        printf("%u,%u,%u,%llu,%11.7lf,%10.7lf,%u,%u,%u\n",
-               tmp.irec.car_id, tmp.irec.event, tmp.irec.status,
-               tmp.irec.time,
-               tmp.irec.x, tmp.irec.y, tmp.irec.speed, tmp.irec.direct,
-               tmp.irec.valid);
-        ++m_nRCount;
-        if (!tmp.irec.valid) { ++m_nRInvalid; continue; }
-        gps_coord coord = {tmp.irec.x * 10000000, tmp.irec.y * 10000000};
-        orec_key key = {get_road_id(coord), tmp.irec.car_id};
-        if (key.rid == -1) { cerr << "invalid road id" << endl; continue; }
-        size_t ts = getTSIndex(tmp.irec.time);
+int Processor::processOrigRecord(in_rec& rec) {
+    printf("%u,%u,%u,%llu,%11.7lf,%10.7lf,%u,%u,%u\n",
+           rec.car_id, rec.event, rec.status, rec.time,
+           rec.x, rec.y, rec.speed, rec.direct, rec.valid);
+        gps_coord coord = {rec.x * 10000000, rec.y * 10000000};
+        orec_key key = {get_road_id(coord), rec.car_id};
+        /*
+         * @advice: skip the wrong road id
+         */
+        if (key.rid == -1) { cerr << "invalid road id" << endl; return -1; }
+        size_t ts = getTSIndex(rec.time);
         if (m_itsp == -1) m_itsp = ts;
-        map<orec_key, orec_value*> *pcrp; // pointer -> current record pool
+        map<orec_key, orec_value*> *pcrp = 0; // pointer -> current record pool
         if (ts == m_itsp) pcrp = m_pmCTSRecordPool;
-        else if (ts == m_itsp+1) pcrp = m_pmNTSRecordPool;
-        if (m_itsp == ts) {
-        printf("its=%u:%u:%u, its=%u\n", h, m, s, its);
-        getchar();
+        else if (ts == m_itsp+1) {
+            pcrp = m_pmNTSRecordPool;
+            ++m_nCurTransCnt;
+        }
+        else if (ts == m_itsp-1){
+            cerr << "Error: come up with an previous ts: " << ts << ", skipped"
+                    << endl;
+            //return -1;
+            return 0;
+        } else {
+            cerr << "Error: come up with an unexpected ts: " << ts << endl;
+            return 0;
+        }
         orec_value *porecv = new orec_value;
-        porecv->status = tmp.irec.status;
-        porecv->time = tmp.irec.time;
+        porecv->status = rec.status;
+        porecv->time = rec.time;
         pair<map<orec_key, orec_value*>::iterator, bool> ret =
-            m_pmCTSRecordPool->insert(make_pair(key, porecv));
-        if (!ret.second) ++m_nRRepeat;
+            pcrp->insert(make_pair(key, porecv));
+        if (!ret.second) ++m_nCRRepeat;
         printf("road_id: %u, car_id = %u\n", key.rid, key.cid);
-    }
+    
     return 0;
 }
 
+int Processor::processFileBuffer() {
+    for (in_rec irec; m_pCurFBufPos < m_pFileBufEnd &&
+             sscanf(m_pCurFBufPos, "%u,%hu,%hu,%llu,%lf,%lf,%hu,%hu,%hu\r\n",
+                    &irec.car_id, &irec.event, &irec.status,
+                    &irec.time, &irec.x, &irec.y,
+                    &irec.speed, &irec.direct, &irec.valid) == 9;
+         m_pCurFBufPos = strchr(++m_pCurFBufPos, '\n')) {
+        ++m_nCRCount;
+        if (!irec.valid) { ++m_nCRInvalid; continue; }
+        if (processOrigRecord(irec) != 0) {
+            cerr << "process record failed" << endl;
+            return -1;
+        }
+    }
+    m_bEOF = true;
+    getchar();
+    return 0;
+}
+
+ssize_t Processor::readFileIntoMem(const char* fpath) {
+    cout << "reading " << fpath;
+    ifstream infile(fpath);
+    if (!infile.is_open())
+        return -1;
+    infile.seekg(0, ios::end);
+    ssize_t fsize = infile.tellg();
+    m_pFileBufEnd = m_pFileBuffer + fsize;
+    m_pCurFBufPos = m_pFileBuffer;
+    cout << " size: " << fsize;
+    infile.seekg(0, ios::beg);
+    infile.read(m_pFileBuffer, fsize);
+    infile.close();
+    cout << endl;
+    return fsize;
+}
 
 int Processor::processTS(void) {
-    if (m_bEOF) {
-        if (hasNextFile()) {
-            cout << "processing " << m_plFileList->front();
-            ifstream infile(m_plFileList->front().c_str());
-            m_plFileList->pop_front();
-            if (!infile.is_open())
-                return -1;
-            infile.seekg(0, ios::end);
-            ssize_t size = infile.tellg();
-            cout << " size: " << size;
-            infile.seekg(0, ios::beg);
-            infile.read(m_pFileBuffer, size);
-            infile.close();
-            processFileBuffer(m_pFileBuffer, size);
+    m_nCurTransCnt = 0;
+    while (m_pmNTSRecordPool->size() < m_nTransCount) {
+        cout << "cur trans cnt= " << m_nCurTransCnt << endl;
+        if (m_bEOF) {
+            if (hasNextFile()) {
+                cout << "processing " << m_plFileList->front();
+                if(readFileIntoMem(m_plFileList->front().c_str()) <= 0)
+                    return -1;
+            } else {
+                cout << "all files are processed" << endl;
+                getchar();
+                return 0;
+            }
         }
+        if (processFileBuffer() != 0)
+            return -1;
+    }
+    if (m_pmNTSRecordPool->size() == m_nTransCount) {
+        cout << "need transfer" << endl;
+        getchar();
     } else {
-        processFileBuffer();
+        cout << "is this reasonable?" << endl;
+        getchar();
     }
     return 0;
 }
