@@ -6,7 +6,18 @@
 #ifdef WIN32
 typedef int _w64 ssize_t;
 #endif
+enum CAR_STATUS {
+    NON_OCCUPIED = 0,
+    OCCUPIED = 1,
+    HALT = 2,
+    STOPPED = 3,
+    OTHER = 4
+};
 
+enum GPS_STATUS {
+    INVALID = 0,
+    VALID = 1
+};
 
 typedef uint32_t car_id; // 6 bits decimal
 typedef uint8_t trigger_event;
@@ -27,7 +38,11 @@ typedef struct {
     gps_y y;
 } gps_coord;
 typedef uint32_t gps_speed;
+#define MAX_GPS_SPEED 255
+#define MIN_GPS_SPEED 0
 typedef uint32_t gps_direction;
+#define MAX_GPS_DIRECTION 360
+#define MIN_GPS_DIRECTION 0
 typedef uint32_t gps_valid;
 typedef struct {
     gps_time time;
