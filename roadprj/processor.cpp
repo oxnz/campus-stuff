@@ -59,7 +59,7 @@ int Processor::processOrigRecord(const in_rec &rec) {
            rec.car_id, rec.event, rec.status, rec.time,
            rec.x, rec.y, rec.speed, rec.direct, rec.valid);
         gps_coord coord = {rec.x * 10000000, rec.y * 10000000};
-        orec_key key = {get_road_id(coord), rec.car_id};
+        orec_key key = {get_roadseg_id(coord), rec.car_id};
         /*
          * @advice: skip the wrong road id
          */
@@ -89,7 +89,7 @@ int Processor::processOrigRecord(const in_rec &rec) {
         pair<map<orec_key, orec_value*>::iterator, bool> ret =
             pcrp->insert(make_pair(key, porecv));
         if (!ret.second) ++m_nCRRepeat;
-        printf("road_id: %u, car_id = %u\n", key.rid, key.cid);
+        printf("roadseg_id: %u, car_id = %u\n", key.rid, key.cid);
     
     return 0;
 }

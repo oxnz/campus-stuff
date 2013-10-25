@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-road_id get_road_id(gps_coord coord);
+roadseg_id get_roadseg_id(gps_coord coord);
 
 #endif
