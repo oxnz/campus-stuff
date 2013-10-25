@@ -59,7 +59,7 @@ class Processor {
     rec_date m_CurrentDate;    // Current Date;
     int16_t m_itsp;     // time slot pointer, seperate CTS from NTS
 
-    const char* m_pFileBuffer;  // point to file buffer
+    const char* const m_pFileBuffer;  // point to file buffer
     const char* m_pFileBufEnd;  // file buffer end pointer
     char*  m_pCurFBufPos;       // pointer remember position in file buffer
 
