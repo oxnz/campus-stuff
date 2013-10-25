@@ -1,7 +1,7 @@
 /*
  *            File: processor.cpp
  *     Description: Main Pre Processor Source File
- *    Last-updated: 2013-10-25 09:59:54 中国标准时间
+ *    Last-updated: 2013-10-25 22:54:04 CST
  *         Version: 0.1
  */
 
@@ -259,10 +259,20 @@ Processor::~Processor() {
         m_plFileList->pop_front();
     delete m_plFileList;
     if (m_pmCTSRecordPool) {
+        for (map<orec_key, orec_value*>::iterator it =
+                 m_pmCTSRecordPool->begin(); it != m_pmCTSRecordPool->end();
+             ++it) {
+            delete it->second;
+        }
         m_pmCTSRecordPool->clear();
         delete m_pmCTSRecordPool;
     }
     if (m_pmNTSRecordPool) {
+        for (map<orec_key, orec_value*>::iterator it =
+                 m_pmNTSRecordPool->begin(); it != m_pmNTSRecordPool->end();
+             ++it) {
+            delete it->second;
+        }
         m_pmNTSRecordPool->clear();
         delete m_pmNTSRecordPool;
     }
