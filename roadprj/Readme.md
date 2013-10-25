@@ -1,6 +1,11 @@
 Large Scale Data Process Competition Project
 ============================================
 
+TODO:
+        1. add output dir variable
+        2. specify output file format and name
+        3. skip enter to continue
+        
 本文件概要介绍组成 R 应用程序的每个文件的内容。
 
 File Orgnization:
