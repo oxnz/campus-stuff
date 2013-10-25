@@ -153,7 +153,8 @@ int Processor::dumpRecordsToFile() {
              it != m_pmCTSRecordPool->end(); ++it, ++cnt) {
             cout << "saved:(" << it->first.rid << "," << it->first.cid << ")"
                  << "status:" << it->second->status << " time:"
-                    << it->second->time << endl;
+                 << it->second->time << endl;
+            //cout << arch_rec(it->first.rid, *it->second);
         }
         //outfile.close();
         cout << "write " << cnt << " records out" << endl;

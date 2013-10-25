@@ -56,6 +56,7 @@ class Processor {
 
     const size_t m_nMinPerTS; // minute per time slot
 
+    rec_date m_CurrentDate;    // Current Date;
     int16_t m_itsp;     // time slot pointer, seperate CTS from NTS
 
     const char* m_pFileBuffer;  // point to file buffer

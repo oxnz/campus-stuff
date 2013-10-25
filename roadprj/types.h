@@ -6,16 +6,16 @@
 typedef uint32_t car_id; // 6 bits decimal
 typedef uint8_t trigger_event;
 typedef uint32_t car_status;
-typedef uint64_t gps_time;
-/*typedef struct {
+//typedef uint64_t gps_time;
+typedef struct {
     uint8_t year;
     uint8_t month;
     uint8_t day;
     uint8_t hour;
     uint8_t min;
     uint8_t sec;
-    } gps_time;*/
-//typedef uint64_t gps_time;
+    } out_time;
+typedef uint64_t in_time;
 typedef uint64_t gps_x;
 typedef uint64_t gps_y;
 typedef struct {
@@ -26,7 +26,7 @@ typedef uint32_t gps_speed;
 typedef uint32_t gps_direction;
 typedef uint32_t gps_valid;
 typedef struct {
-    uint64_t time;
+    in_time time;
     gps_coord coord;
     gps_speed speed;
     gps_direction direction;
@@ -44,13 +44,14 @@ typedef struct {
     car_id car_id;
     uint16_t event;
     uint16_t status;
-    uint64_t time;
+    in_time time;
     double x;
     double y;
     uint16_t speed;
     uint16_t direct;
     uint16_t valid;
 } in_rec;
+
 struct __orec_key {
     road_id rid;
     car_id cid;
@@ -68,4 +69,16 @@ typedef struct {
     uint64_t time;
 } orec_value;
 
+typedef struct {
+    uint16_t year;
+    uint8_t month;
+    uint8_t day;
+} rec_date;
+
+struct arch_rec {
+    road_id rid;
+    orec_value orecv;
+};// archive record struct for serialization
+
+typedef arch_rec arch_rec;
 #endif
