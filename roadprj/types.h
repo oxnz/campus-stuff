@@ -5,7 +5,7 @@
 
 typedef uint32_t car_id; // 6 bits decimal
 typedef uint8_t trigger_event;
-typedef uint32_t car_status;
+typedef uint16_t car_status;
 typedef uint64_t gps_time;
 typedef struct {
     uint8_t year;
@@ -53,13 +53,13 @@ typedef struct {
 } in_rec;
 
 struct __orec_key {
-    roadseg_id rid;
+    roadseg_id rsid;
     car_id cid;
     bool operator< (const struct __orec_key& k) const {
-        return rid < k.rid || (rid == k.rid && cid < k.cid);
+        return rsid < k.rsid || (rsid == k.rsid && cid < k.cid);
     }
     bool operator == (const struct __orec_key& k) const {
-        return rid == k.rid && cid == k.cid;
+        return rsid == k.rsid && cid == k.cid;
     }
 };
 typedef struct __orec_key orec_key;
@@ -76,7 +76,7 @@ typedef struct {
 } rec_date;
 
 struct arch_rec {
-    roadseg_id rid;
+    roadseg_id rsid;
     orec_value orecv;
 };// archive record struct for serialization
 

@@ -55,15 +55,17 @@ size_t Processor::getTSIndex(const uint64_t time) {
 }
 
 int Processor::processOrigRecord(const in_rec &rec) {
+#ifdef DEBUG
     printf("%u,%u,%u,%llu,%11.7lf,%10.7lf,%u,%u,%u\n",
            rec.car_id, rec.event, rec.status, rec.time,
            rec.x, rec.y, rec.speed, rec.direct, rec.valid);
+#endif
         gps_coord coord = {rec.x * 10000000, rec.y * 10000000};
         orec_key key = {get_roadseg_id(coord), rec.car_id};
         /*
          * @advice: skip the wrong road id
          */
-        if (key.rid == -1) { cerr << "invalid road id" << endl; return -1; }
+        if (key.rsid == -1) { cerr << "invalid road id" << endl; return -1; }
         size_t ts = getTSIndex(rec.time);
         if (m_itsp == -1) m_itsp = ts;
         map<orec_key, orec_value*> *pcrp = 0; // pointer -> current record pool
@@ -89,7 +91,9 @@ int Processor::processOrigRecord(const in_rec &rec) {
         pair<map<orec_key, orec_value*>::iterator, bool> ret =
             pcrp->insert(make_pair(key, porecv));
         if (!ret.second) ++m_nCRRepeat;
-        printf("roadseg_id: %u, car_id = %u\n", key.rid, key.cid);
+#ifdef DEBUG
+        printf("roadseg_id: %u, car_id = %u\n", key.rsid, key.cid);
+#endif
     
     return 0;
 }
@@ -148,15 +152,22 @@ int Processor::dumpRecordsToFile() {
     if (m_pmCTSRecordPool) {
         size_t cnt = 0;
         // TODO
-        //ifstream outfile("outfile", ios::out|ios::binary);
+        ofstream outfile("outfile", ios::out|ios::app|ios::binary);
         for (map<orec_key, orec_value*>::iterator it = m_pmCTSRecordPool->begin();
              it != m_pmCTSRecordPool->end(); ++it, ++cnt) {
-            cout << "saved:(" << it->first.rid << "," << it->first.cid << ")"
+#ifdef DEBUG
+            cout << "saved:(" << it->first.rsid << "," << it->first.cid << ")"
                  << "status:" << it->second->status << " time:"
                  << it->second->time << endl;
-            //cout << arch_rec(it->first.rid, *it->second);
+#endif
+            outfile.write(reinterpret_cast<const char*>(&it->first.rsid),
+                          sizeof(roadseg_id));
+            outfile.write(reinterpret_cast<const char*>(&it->second->status),
+                          sizeof(car_status));
+            outfile.write(reinterpret_cast<const char*>(&it->second->time),
+                          sizeof(gps_time));
         }
-        //outfile.close();
+        outfile.close();
         cout << "write " << cnt << " records out" << endl;
     }
     return 0;
@@ -227,6 +238,7 @@ int Processor::processTS(void) {
             cout << "after transfer" << endl;
             getchar();
             cout << "next sz=" << m_pmNTSRecordPool->size() << endl;
+            return 0;
             break;
         default:
             cerr << "unexpected return value" << endl;
