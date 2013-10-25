@@ -1,9 +1,23 @@
-# Large Scale Data Process Competition Project
+Large Scale Data Process Competition Project
+============================================
 
-## File Orgnization:
+本文件概要介绍组成 R 应用程序的每个文件的内容。
+
+File Orgnization:
+-----------------
 
 -------\__  input : containts input file for test
        |__  output: output directory for test
+
+R.vcxproj
+    这是使用应用程序向导生成的 VC++ 项目的主项目文件，其中包含生成该文件的 Visual C++ 的版本信息，以及有关使用应用程序向导选择的平台、配置和项目功能的信息。
+
+R.vcxproj.filters
+    这是使用“应用程序向导”生成的 VC++ 项目筛选器文件。它包含有关项目文件与筛选器之间的关联信息。在 IDE 中，通过这种关联，在特定节点下以分组形式显示具有相似扩展名的文件。例如，“.cpp”文件与“源文件”筛选器关联。
+
+R.cpp
+    这是主应用程序源文件。
+
 
 TODO: update two lines below:
 Latitude:       39.2600000~41.0300000
@@ -38,3 +52,7 @@ first 4 bytes: 0052 0b00 = rsid 741888
 second 2 bytes: 0200 0000 0000 0000 = status 2
 third 8 bytes: a4e3 13cf 4c12 0000 = time 20121101001636
 
+
+##References:
+
+1. [`/clr 限制`](http://msdn.microsoft.com/zh-cn/beginner/ffkc918h.aspx)

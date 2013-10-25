@@ -1,6 +1,10 @@
 #include "processor.h"
 
+#ifdef WIN32
+#include <Windows.h>
+#else
 #include <unistd.h>
+#endif
 #include <signal.h>
 
 #include <iostream>
@@ -12,6 +16,32 @@ using namespace std;
  */
 static int loop = 1;
 
+#ifdef WIN32
+BOOL CtrlHandler( DWORD fdwCtrlType ) {
+    switch (fdwCtrlType) {
+        /* Handle the CTRL-C signal. */
+    case CTRL_C_EVENT:
+        printf("CTRL_C_EVENT \n");
+        break;
+    case CTRL_CLOSE_EVENT:
+        printf("CTRL_CLOSE_EVENT \n");
+        break;
+    case CTRL_BREAK_EVENT:
+        printf("CTRL_BREAK_EVENT \n");
+        break;
+    case CTRL_LOGOFF_EVENT:
+        printf("CTRL_LOGOFF_EVENT \n");
+        break;
+    case CTRL_SHUTDOWN_EVENT:
+        printf("CTRL_SHUTDOWN_EVENT \n");
+        break;
+    default:
+        return FALSE;
+    }
+    loop = 0;
+    return (TRUE);
+}
+#else
 void signal_handler(int signo, siginfo_t *info, void *ptr) {
     printf("signal handling\n");
     switch (signo) {
@@ -24,26 +54,26 @@ void signal_handler(int signo, siginfo_t *info, void *ptr) {
         break;
     }
 }
+#endif
 
+#include "dummy.h"
 int test(void) {
-    int a = 1;
-    int b = 2;
-    int *aa = &a;
-    int *bb = &b;
-    swap(a, b);
-    cout << a << b << endl;
-     cout << aa << bb << endl;
-    swap(aa, bb);
-    cout << aa << bb << endl;
-    return 0;
+	gps_coord c = {0, 1};
+	roadseg_id* prsid = 0;
+	ssize_t cnt = get_roadseg_id(c, prsid);
+	cout << "rsid cnt=" << cnt << endl;
+	return 0;
 }
 
 int main(int argc, const char *argv[]) {
-    //return test();
+    return test();
     if (argc != 3) {
         cerr <<  "Usage:" << endl << argv[0] << " -c <listfname>" << endl;
         return -1;
     }
+#ifdef WIN32
+	SetConsoleCtrlHandler((PHANDLER_ROUTINE)CtrlHandler, TRUE);
+#else
     struct sigaction action;
     action.sa_sigaction = signal_handler;
     sigemptyset(&action.sa_mask);
@@ -53,12 +83,12 @@ int main(int argc, const char *argv[]) {
         perror("sigaction");
         return -1;
     }
-
+#endif
     Processor *p;
     try {
         p = new Processor(argv[2], 3); // 3 min
     } catch (bad_alloc& e) {
-        cerr << "alloc error" << endl;
+        cerr << "alloc error:" << e.what() << endl;
         return -1;
     } catch (runtime_error& e) {
         cerr << "runtime error:" << e.what() << endl;
@@ -66,8 +96,11 @@ int main(int argc, const char *argv[]) {
     } catch (exception& e) {
         cerr << "unknown error:" << e.what() << endl;
         return -1;
+    } catch (...) {
+        cerr << "Unknown error happened, exit" << endl;
+        return -1;
     }
-
+    
     while (loop) {
         int ret = p->processTS();
         if (ret != 0) {
@@ -84,6 +117,6 @@ int main(int argc, const char *argv[]) {
         }
         getchar();
     }
-
+    
     return 0;
 }

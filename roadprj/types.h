@@ -3,6 +3,11 @@
 
 #include <stdint.h>
 
+#ifdef WIN32
+typedef int _w64 ssize_t;
+#endif
+
+
 typedef uint32_t car_id; // 6 bits decimal
 typedef uint8_t trigger_event;
 typedef uint16_t car_status;

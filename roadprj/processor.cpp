@@ -1,7 +1,7 @@
 /*
  *            File: processor.cpp
  *     Description: Main Pre Processor Source File
- *    Last-updated: 2013-10-25 00:01:55 CST
+ *    Last-updated: 2013-10-25 09:59:54 中国标准时间
  *         Version: 0.1
  */
 
@@ -48,7 +48,7 @@ Processor::Processor(const string& listfname, size_t minPerTS)
  * @description: get time slot index
  */
 size_t Processor::getTSIndex(const uint64_t time) {
-    uint16_t h = time % 1000000/10000;
+    uint16_t h = static_cast<uint16_t>(time % 1000000/10000);
     uint16_t m = time % 10000/100;
     uint16_t s = time % 100;
     return (h*60*60+m*60+s)/(m_nMinPerTS*60);
@@ -60,39 +60,39 @@ int Processor::processOrigRecord(const in_rec &rec) {
            rec.car_id, rec.event, rec.status, rec.time,
            rec.x, rec.y, rec.speed, rec.direct, rec.valid);
 #endif
-        gps_coord coord = {rec.x * 10000000, rec.y * 10000000};
-        orec_key key = {get_roadseg_id(coord), rec.car_id};
-        /*
-         * @advice: skip the wrong road id
-         */
-        if (key.rsid == -1) { cerr << "invalid road id" << endl; return -1; }
-        size_t ts = getTSIndex(rec.time);
-        if (m_itsp == -1) m_itsp = ts;
-        map<orec_key, orec_value*> *pcrp = 0; // pointer -> current record pool
-        if (ts == m_itsp) {
-            pcrp = m_pmCTSRecordPool;
-        }
-        else if (ts == m_itsp+1) {
-            pcrp = m_pmNTSRecordPool;
-            //++m_nCurTransCnt;
-        }
-        else if (ts == m_itsp-1){
-            cerr << "Error: come up with an previous ts: " << ts << ", skipped"
-                    << endl;
-            //return -1;
-            return 0;
-        } else {
-            cerr << "Error: come up with an unexpected ts: " << ts << endl;
-            return 0;
-        }
-        orec_value *porecv = new orec_value; // pointer -> orec_value
-        porecv->status = rec.status;
-        porecv->time = rec.time;
-        pair<map<orec_key, orec_value*>::iterator, bool> ret =
-            pcrp->insert(make_pair(key, porecv));
-        if (!ret.second) ++m_nCRRepeat;
+    gps_coord coord = {static_cast<gps_x>(rec.x * 10000000), static_cast<gps_y>(rec.y * 10000000)};
+    orec_key key = {get_roadseg_id(coord), rec.car_id};
+    /*
+     * @advice: skip the wrong road id
+     */
+    if (key.rsid == -1) { cerr << "invalid road id" << endl; return -1; }
+    size_t ts = getTSIndex(rec.time);
+    if (m_itsp == -1) m_itsp = ts;
+    map<orec_key, orec_value*> *pcrp = 0; // pointer -> current record pool
+    if (ts == m_itsp) {
+        pcrp = m_pmCTSRecordPool;
+    }
+    else if (ts == m_itsp+1) {
+        pcrp = m_pmNTSRecordPool;
+        //++m_nCurTransCnt;
+    }
+    else if (ts == m_itsp-1){
+        cerr << "Error: come up with an previous ts: " << ts << ", skipped"
+             << endl;
+        //return -1;
+        return 0;
+    } else {
+        cerr << "Error: come up with an unexpected ts: " << ts << endl;
+        return 0;
+    }
+    orec_value *porecv = new orec_value; // pointer -> orec_value
+    porecv->status = rec.status;
+    porecv->time = rec.time;
+    pair<map<orec_key, orec_value*>::iterator, bool> ret =
+        pcrp->insert(make_pair(key, porecv));
+    if (!ret.second) ++m_nCRRepeat;
 #ifdef DEBUG
-        printf("roadseg_id: %u, car_id = %u\n", key.rsid, key.cid);
+    printf("roadseg_id: %u, car_id = %u\n", key.rsid, key.cid);
 #endif
     
     return 0;
@@ -100,7 +100,11 @@ int Processor::processOrigRecord(const in_rec &rec) {
 
 int Processor::processFileBuffer() {
     for (in_rec irec; m_pCurFBufPos < m_pFileBufEnd &&
+#ifdef WIN32
+             sscanf_s(m_pCurFBufPos, "%u,%hu,%hu,%llu,%lf,%lf,%hu,%hu,%hu\r\n",
+#else
              sscanf(m_pCurFBufPos, "%u,%hu,%hu,%llu,%lf,%lf,%hu,%hu,%hu\r\n",
+#endif
                     &irec.car_id, &irec.event, &irec.status,
                     &irec.time, &irec.x, &irec.y,
                     &irec.speed, &irec.direct, &irec.valid) == 9;
@@ -133,7 +137,7 @@ ssize_t Processor::readFileIntoMem(const char* fpath) {
         return -1;
     }
     infile.seekg(0, ios::end);
-    ssize_t fsize = infile.tellg();
+    ssize_t fsize = static_cast<ssize_t>(infile.tellg());
     if (fsize > RFBUF_MAXLEN) {
         cerr << "file size too large" << endl;
         return -1;
@@ -202,13 +206,13 @@ int Processor::transferToNextTS() {
 int Processor::processTS(void) {
     while (m_pmNTSRecordPool->size() <= m_nTransCount) {
         cout << "next time slot size= " << m_pmNTSRecordPool->size() << endl;
-        if (m_bEOF) {
+        if (m_bEOF) { // test if current file processed done
             if (hasNextFile()) {
                 cout << "processing " << m_plFileList->front();
                 if(readFileIntoMem(m_plFileList->front().c_str()) <= 0)
                     return -1;
                 m_plFileList->pop_front();
-            } else {
+            } else {  // no more file exsits
                 cout << "all files are processed" << endl;
                 if (dumpRecordsToFile() != 0) {
                     cout << "dump error" << endl;

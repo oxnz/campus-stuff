@@ -36,6 +36,8 @@ int test_read_preped_file(const char *fpath) {
     return 0;
 }
 
+
+/*
 int main(int argc, char *argv[]) {
     printf("testing get_roadseg_id:\n");
     //test_get_roadseg_id();
@@ -45,3 +47,4 @@ int main(int argc, char *argv[]) {
 
     return -1;
 }
+*/

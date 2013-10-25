@@ -1,5 +1,6 @@
 #include "types.h"
 #include "dummy.h"
+#include "constant.h"
 #include <stdio.h>
 
 const static gps_x x0 = 1150000000;
@@ -15,5 +16,29 @@ roadseg_id get_roadseg_id(gps_coord coord) {
         //fprintf(stderr, "invalid gps y\n");
         getchar();
     }
-    return ((coord.x >> 9) << 32) | (coord.y >> 9);
+    return static_cast<roadseg_id>(((coord.x >> 9) << 32) | (coord.y >> 9));
+}
+
+#using "C:\Users\xinyi\Documents\Visual Studio 2012\Projects\TestCall\TestCall\bin\Debug\TestCall.dll"
+using namespace TestCall;
+static roadseg_id __rsid[RSID_MAXCNT];
+ssize_t get_roadseg_id(gps_coord coord, roadseg_id* rsid) {
+	ssize_t cnt = -1;
+	try {
+        CR ^r = gcnew CR();
+        r->Name = "zzj"; 
+        printf("%s\n", r->Name); 
+        r->showDialog();
+        cli::array<System::UInt32, 1>^ %b = r->getRsID(123, 123);
+	
+        if (b->Length <= 0)
+            return -1;
+        cnt = b->Length > RSID_MAXCNT ? RSID_MAXCNT : b->Length;
+        for (ssize_t i = 0; i < cnt; ++i) {
+            __rsid[i] = b[i];
+        }
+	}  catch(...) {
+		return -1;
+	}
+	return cnt;
 }
