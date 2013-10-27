@@ -1,0 +1,247 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<style>
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote {
+    margin: 0;
+    padding: 0;
+}
+body {
+    font-family: "SimSun", Helvetica, "Hiragino Sans GB", Arial, sans-serif;
+    font-size: 13px;
+    line-height: 18px;
+    color: #737373;
+    background-color: white;
+    margin: 10px 13px 10px 13px;
+}
+table {
+	border: 0px;
+	margin: 10px 0 15px 0;
+	border-collapse: collapse;
+}
+td,th {	
+	border: 1px solid #ddd;
+	padding: 3px 10px;
+}
+th {
+	padding: 5px 10px;	
+}
+
+a {
+    color: #0069d6;
+}
+a:hover {
+    color: #0050a3;
+    text-decoration: none;
+}
+a img {
+    border: none;
+}
+p {
+    margin-bottom: 9px;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: #404040;
+    line-height: 36px;
+}
+h1 {
+    margin-bottom: 18px;
+    font-size: 30px;
+}
+h2 {
+    font-size: 24px;
+}
+h3 {
+    font-size: 18px;
+}
+h4 {
+    font-size: 16px;
+}
+h5 {
+    font-size: 14px;
+}
+h6 {
+    font-size: 13px;
+}
+hr {
+    margin: 0 0 19px;
+    border: 0;
+    border-bottom: 1px solid #ccc;
+}
+blockquote {
+    padding: 13px 13px 21px 15px;
+    margin-bottom: 18px;
+    font-family:georgia,serif;
+    font-style: italic;
+}
+blockquote:before {
+    content:"\201C";
+    font-size:40px;
+    margin-left:-10px;
+    font-family:georgia,serif;
+    color:#eee;
+}
+blockquote p {
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 18px;
+    margin-bottom: 0;
+    font-style: italic;
+}
+code, pre {
+    font-family: Monaco, Andale Mono, Courier New, monospace;
+}
+code {
+    background-color: #fee9cc;
+    color: rgba(0, 0, 0, 0.75);
+    padding: 1px 3px;
+    font-size: 12px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+pre {
+    display: block;
+    padding: 14px;
+    margin: 0 0 18px;
+    line-height: 16px;
+    font-size: 11px;
+    border: 1px solid #d9d9d9;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+pre code {
+    background-color: #fff;
+    color:#737373;
+    font-size: 11px;
+    padding: 0;
+}
+sup {
+    font-size: 0.83em;
+    vertical-align: super;
+    line-height: 0;
+}
+* {
+	-webkit-print-color-adjust: exact;
+}
+@media screen and (min-width: 914px) {
+    body {
+        width: 854px;
+        margin:10px auto;
+    }
+}
+@media print {
+	body,code,pre code,h1,h2,h3,h4,h5,h6 {
+		color: black;
+	}
+	table, pre {
+		page-break-inside: avoid;
+	}
+}
+</style>
+<title>MetaSploit 实验报告</title>
+
+</head>
+<body>
+<p><br /><br /><br /><br /><br /><br /><br />
+<br /><br /><br /><br /><br /><br /><br />
+<br /><br /><br /><br /><br /><br /><br /></p>
+
+<hr />
+
+
+<h1>MetaSlpoit 实验报告</h1>
+
+<hr />
+
+
+<p><br /><br /><br /><br /><br /><br /><br />
+<br /><br /><br /><br /><br /><br /><br /></p>
+<br /><br /><br /><br /><br /><br /><br /></p>
+<br /><br /><br /><br /><br /><br /><br /></p>
+<br /><br /><br /><br /><br /><br /><br /></p>
+<br /><br /><br /><br /><br /><br /><br /></p>
+<br /><br /><br /><br /><br /><br /><br /></p>
+<center>
+	<table>
+<tr><th>学号</th><td>2011302530064</td></tr>
+<tr><th>姓名</th><th>张盼</th></tr>
+</table>
+</center>
+
+
+<p><br /><br /><br /><br /><br /><br /><br />
+<br /><br /><br /><br /><br /><br /><br /></p>
+
+<h3>使用 MetaSlpoit 进行攻击实验</h3>
+<h5>开始之前</h5>
+<h5><ol>
+		<li>需要了解基本的nmap指令，还需要了解一些packet filter的
+		  syntax</li>
+        <li>需要了解linux的一些基本指令，否则安装都不一定成功</li>
+		<li>由于攻击过程中需要绑定到80端口，所以需要以root权限运行metasploit<CR>
+		</li>
+		<li>由于攻击是利用IE漏洞形成堆喷射，所以有可能一次并不能成功，
+		要多试几次</li>
+		
+	</ol>
+</h5>
+<p><br /><br /><br /><br /><br /><br /><br />
+<br /><br /><br /><br /><br /><br /><br /></p>
+<p><br /><br /><br /><br /><br /><br /><br />
+<br /><br /><br /><br /><br /><br /><br /></p>
+<br /><br /><br /><br /><br /><br /><br /><br />
+<br /><br /><br /><br /><br /><br /><br /></p>
+<br /><br /><br /><br /><br /><br /><br /></p>
+<br /><br /><br /><br /><br /><br /><br /></p>
+<br /><br /><br /><br /><br /><br /><br /></p>
+<h4>1. 首先启动MetaSploit</h4>
+<p>第一次启动的时候忘记sudo，截图如下</p>
+<img src="./1.png" title="图－1" alt="图－1" /></p></li>
+<h4>2. 设置攻击参数</h4>
+<b>如果不知道参数，可以使用show options来查看，因为是被动攻击，所以并
+  不需要制定目标主机</b>
+<br />
+<img src="./2.png" title="图－2" alt="图－1" /></p></li>
+<h4>3. 进入虚拟机打开链接，模拟被攻击用户，如下图所示：</h4>
+<li>打开的时候鼠标会显示为小漏斗状，此时浏览器正被攻击，但是时间太短，
+  来不及截图</li>
+<img src="./3.png" title="图－1" alt="图－1" /></p>
+
+
+<h4>4. 命令行反馈显示内存崩溃，此次失败，如下图：</h4>
+<img src="./4.png" title="图－4" alt="图－1" /></li>
+<h4>5. 再试一次，成功，此次我们删除目标主机的一个文件测试，如下图：</h4>
+
+<p><img src="./5.png" title="图－1" alt="图－1" /></p>
+
+
+<p>6. 删除之后使用dir查看，结果喝预期相同</p>
+<img src="./6.png" title="图－1" alt="图－1" /></li>
+<h4>6. -PE</h4>
+
+<br /><br /><br /><br /><br /><br />
+<h3>总结</h3>
+<ol>
+	<li>首先在ubuntu13.10下安装metasploit比较麻烦，需要耐心来解决依赖
+	关系</li>
+	<li>实验并不能一次就成功，需要多试几次</li>
+    <li>注意实时保存现阶段结果，系统奔溃之后攻击很难再现</li>
+
+</ol>
+</body>
+</html>
