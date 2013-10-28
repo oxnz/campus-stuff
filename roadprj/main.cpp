@@ -1,4 +1,4 @@
-#include "processor.h"
+#include "RProcessor.h"
 
 #ifdef WIN32
 #include <Windows.h>
@@ -9,7 +9,9 @@
 
 #include <iostream>
 
-using namespace std;
+using std::cout;
+using std::cerr;
+using std::endl;
 /*
  * @descritpion: control processing loop, 0 will cause return after
  * finish current file
@@ -56,17 +58,17 @@ void signal_handler(int signo, siginfo_t *info, void *ptr) {
 }
 #endif
 
-#include "dummy.h"
+#include "RSIDGen.h"
 int test(void) {
 	gps_coord c = {0, 1};
 	roadseg_id* prsid = 0;
-	ssize_t cnt = get_roadseg_id(c, prsid);
+	ssize_t cnt = get_roadseg_id(c, &prsid);
 	cout << "rsid cnt=" << cnt << endl;
 	return 0;
 }
 
 int main(int argc, const char *argv[]) {
-    return test();
+    test();
     if (argc != 3) {
         cerr <<  "Usage:" << endl << argv[0] << " -c <listfname>" << endl;
         return -1;
@@ -87,13 +89,13 @@ int main(int argc, const char *argv[]) {
     Processor *p;
     try {
         p = new Processor(argv[2], 3); // 3 min
-    } catch (bad_alloc& e) {
+    } catch (std::bad_alloc& e) {
         cerr << "alloc error:" << e.what() << endl;
         return -1;
-    } catch (runtime_error& e) {
+    } catch (std::runtime_error& e) {
         cerr << "runtime error:" << e.what() << endl;
         return -1;
-    } catch (exception& e) {
+    } catch (std::exception& e) {
         cerr << "unknown error:" << e.what() << endl;
         return -1;
     } catch (...) {

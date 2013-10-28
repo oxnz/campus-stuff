@@ -1,6 +1,10 @@
 #pragma once
 
-#include "types.h"
+
+#include "RType.h"
+#include "InRecord.h"
+#include "OutRecord.h"
+#include "RTime.h"
 #include <iostream>
 #include <list>
 #include <map>
@@ -38,8 +42,12 @@ class Processor {
     int process(uint32_t nTimeSlot);
     ~Processor();
  private:
+	 Processor(const Processor& p); // disable copy constructor
+	 Processor& operator= (const Processor& p); // disable copy-assign
+private:
     ssize_t readFileIntoMem(const char* fpath);
     int processFileBuffer();
+	int processRecord(const in_rec& rec);
     int processOrigRecord(const in_rec& rec);
     int transferToNextTS(void);
     int dumpRecordsToFile();
