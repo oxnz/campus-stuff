@@ -1,5 +1,5 @@
-CC	=	gcc
-FLAGS	=	-Wall
+CC	:=	gcc
+CFLAGS	:=	-Wall
 OBJS	=	main.o \
 		database.o \
 		new.o \
@@ -13,7 +13,11 @@ $(TARGET): $(OBJS)
 	$(CC) -o $@ $^ $(FLAGS)
 %.c.o:
 	$(CC) -c
-.PHONY: clean
+
 
 clean:
-	-rm $(OBJS)
+	$(RM) $(OBJS)
+distclean:
+	$(RM) $(TARGET)
+#	$(RM) TAGS Makefile config.status
+.PHONY: clean dist-clean

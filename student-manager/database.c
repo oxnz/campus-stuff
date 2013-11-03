@@ -77,7 +77,7 @@ static int Database_differ(const void* a, const void* b)
 	const struct Database *first = a;
 	const struct Database *second = b;
 
-	return strcmp(first->name, first->name);
+	return strcmp(first->name, second->name);
 }
 
 static const struct Class __Database =
@@ -97,7 +97,7 @@ const void* Database = &__Database;
 void* add(void* __self, const void* __element)
 {
 	struct Database *self = __self;
-	struct Node* root = self->root;
+    // struct Node* root = self->root;
 	struct Node* tmp = malloc(sizeof(struct Node));
 
 	tmp->data = (void *)__element;
@@ -166,7 +166,7 @@ void save(void* __self)
 {
 	struct Database* self = __self;
 	struct Node* tmp = self->root;
-	struct Item *item;
+	// struct Item *item;
 	char buf[X_BUF_SIZE];
 	FILE *fp;
 

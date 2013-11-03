@@ -61,6 +61,7 @@ int differ(const Object __self, const Object b)
 
 	if (__self && *cp && (* cp)->differ)
 		return (*cp)->differ(__self, b);
+    return 1;
 }
 
 int puto(Object __self, FILE *fp)

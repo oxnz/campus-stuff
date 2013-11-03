@@ -35,7 +35,9 @@ void optDB(void* db, Choice* mask)
 	void* aa= new(Person, "John", 12, 'M');
 	void* b = new(Person, "Mirson", 21, 'F');
 	void* c= new(Student, "Happy",  5, 'M', 10101);
-	void* d = new(Student, "Friend", 6, 'F', 20101); void* e = new(Student, "Friend", 6, 'F', 20101); Choice choice;
+	void* d = new(Student, "Friend", 6, 'F', 20101);
+    void* e = new(Student, "Friend", 6, 'F', 20101);
+    Choice choice;
 
 	while ((choice = getOpt(mainMenu, 9)) != 0)
 	{
@@ -110,7 +112,7 @@ void optDB(void* db, Choice* mask)
 void optRecord(Choice* mask)
 {
 	Choice choice;
-	while (choice = getOpt(subMenu, 5) != 0)
+	while ((choice = getOpt(subMenu, 5)) != 0)
 	{
 		switch(getOpt(subMenu, 5))
 		{
