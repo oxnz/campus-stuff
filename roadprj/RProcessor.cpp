@@ -5,11 +5,11 @@
  *         Version: 0.1
  */
 
-#include "processor.h"
-#include "types.h"
-#include "dummy.h"
+
+#include "RProcessor.h"
+#include "RType.h"
+#include "RSIDGen.h"
 #include "constant.h"
-#include "RTime.h"
 
 #include <iostream>
 #include <fstream>
@@ -18,7 +18,7 @@
 using namespace std;
 
 Processor::Processor(const string& listfname, size_t minPerTS)
-    : m_nMinPerTS(minPerTS), 
+    : m_nMinPerTS(minPerTS), m_CurrentDate(0),
       m_nCRCount(0), m_nCRRepeat(0), m_nCRInvalid(0), m_nCRC(0), m_nCRO(0),
       m_nNRCount(0), m_nNRRepeat(0), m_nNRInvalid(0), m_nNRC(0), m_nNRO(0),
       m_itsp(-1), m_nTransCount(1000), m_bEOF(true)
@@ -55,7 +55,52 @@ size_t Processor::getTSIndex(const uint64_t time) {
     return (h*60*60+m*60+s)/(m_nMinPerTS*60);
 }
 
-int Processor::processOrigRecord(const in_rec &rec) {
+int Processor::processRecord(const in_rec& rec) {
+	gps_coord coord = {static_cast<gps_x>(rec.x * 10000000), static_cast<gps_y>(rec.y * 10000000)};
+	roadseg_id* prsid = 0;
+	ssize_t cnt = get_roadseg_id(coord, &prsid);
+	if (cnt < 1) {
+		cerr << "can't get roadseg id from c# version" << endl;
+		return -1;
+	}
+	RTime t(rec.time);
+	rec_date d = t.getRecordDate();
+	if (m_CurrentDate == 0)
+		m_CurrentDate = d;
+	else if (m_CurrentDate+1 == d)
+		++m_CurrentDate;
+	else if (m_CurrentDate == d+1) {
+		cerr << "Error: come up with an previous day record" << endl;
+		return -1;
+	}
+	size_t ts = getTSIndex(rec.time);
+	if (m_itsp == -1) m_itsp = ts;
+	map<orec_key, orec_value*> *pcrp = 0;
+	if (ts == m_itsp) pcrp = m_pmCTSRecordPool;
+	else if (ts == m_itsp+1) pcrp = m_pmNTSRecordPool;
+	else if (ts == m_itsp-1) {
+		cerr << "Error: come up with an previous ts: " << ts << ", skipped" << endl;
+		return 0;
+	}
+	else {
+		cerr << "Error: come up with an unexpected ts: " << ts << endl;
+		return 0;
+	}
+	for (ssize_t i = 0; i < cnt; ++i) {
+		orec_key key = {prsid[i], rec.car_id};
+		orec_value *porecv = new orec_value; // pointer -> orec_value
+		porecv->status = rec.status;
+		porecv->time = rec.time;
+		pair<map<orec_key, orec_value*>::iterator, bool> ret =
+			pcrp->insert(make_pair(key, porecv));
+		if (!ret.second) ++m_nCRRepeat;
+	}
+
+	return 0;
+}
+
+
+int Processor::processOrigRecord(const in_rec& rec) {
 #ifdef DEBUG
     printf("%u,%u,%u,%llu,%11.7lf,%10.7lf,%u,%u,%u\n",
            rec.car_id, rec.event, rec.status, rec.time,
@@ -93,7 +138,7 @@ int Processor::processOrigRecord(const in_rec &rec) {
         pcrp->insert(make_pair(key, porecv));
     if (!ret.second) ++m_nCRRepeat;
 #ifdef DEBUG
-    printf("roadseg_id: %u, car_id = %u\n", key.rsid, key.cid);
+	cout << "roadseg_id: " << key.rsid << " car_id: " << key.cid << endl;
 #endif
     
     return 0;
@@ -112,7 +157,8 @@ int Processor::processFileBuffer() {
          m_pCurFBufPos = strchr(++m_pCurFBufPos, '\n')) {
         ++m_nCRCount;
         if (!irec.valid) { ++m_nCRInvalid; continue; }
-        if (processOrigRecord(irec) != 0) {
+        //if (processOrigRecord(irec) != 0) {
+		if (processRecord(irec) != 0) {
             cerr << "process record failed" << endl;
             return -1;
         }
@@ -156,8 +202,9 @@ ssize_t Processor::readFileIntoMem(const char* fpath) {
 int Processor::dumpRecordsToFile() {
     if (m_pmCTSRecordPool) {
         size_t cnt = 0;
-        // TODO
-        ofstream outfile("outfile", ios::out|ios::app|ios::binary);
+        char fname[_MAX_PATH];
+		sprintf_s(fname, "%lu.dat", m_CurrentDate);
+        ofstream outfile(fname, ios::out|ios::app|ios::binary);
         for (map<orec_key, orec_value*>::iterator it = m_pmCTSRecordPool->begin();
              it != m_pmCTSRecordPool->end(); ++it, ++cnt) {
 #ifdef DEBUG
@@ -279,4 +326,3 @@ Processor::~Processor() {
     }
     delete m_pFileBuffer;
 }
-

@@ -1,5 +1,6 @@
-#include "dummy.h"
-#include "types.h"
+#include "RSIDGen.h"
+#include "RType.h"
+#include "OutRecord.h"
 
 #include <iostream>
 #include <fstream>
