@@ -67,8 +67,9 @@ int test(void) {
 	return 0;
 }
 
+
 int main(int argc, const char *argv[]) {
-    test();
+    //test();
     if (argc != 3) {
         cerr <<  "Usage:" << endl << argv[0] << " -c <listfname>" << endl;
         return -1;

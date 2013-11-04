@@ -21,7 +21,7 @@ Processor::Processor(const string& listfname, size_t minPerTS)
     : m_nMinPerTS(minPerTS), m_CurrentDate(0),
       m_nCRCount(0), m_nCRRepeat(0), m_nCRInvalid(0), m_nCRC(0), m_nCRO(0),
       m_nNRCount(0), m_nNRRepeat(0), m_nNRInvalid(0), m_nNRC(0), m_nNRO(0),
-      m_itsp(-1), m_nTransCount(1000), m_bEOF(true)
+      m_itsp(-1), m_nTransCount(5000), m_bEOF(true)
 {
     ifstream listf(listfname);
     if (!listf.is_open()) {
@@ -169,6 +169,7 @@ int Processor::processFileBuffer() {
             cout << "greater than trans count, how ?!" << endl;
             return 0;
         }
+		
     }
     m_bEOF = true;
     cout << "one file finished, press enter to process next" << endl;
@@ -235,6 +236,11 @@ int Processor::transferToNextTS() {
         return -1;
     }
     swap(m_pmCTSRecordPool, m_pmNTSRecordPool);
+	for (map<orec_key, orec_value*>::iterator it =
+                 m_pmNTSRecordPool->begin(); it != m_pmNTSRecordPool->end();
+             ++it) {
+            delete it->second;
+        }
     m_pmNTSRecordPool->clear();
     m_nCRCount = m_nNRCount;
     m_nNRCount = 0;
@@ -281,13 +287,12 @@ int Processor::processTS(void) {
             return -1;
             break;
         case 1:
-            cout << "need transfer to next TS" << endl;
-            getchar();
+            cout << "Transfer to next TS ...";
             if (transferToNextTS() == -1) {
-                cout << "transfer to next TS failed" << endl;
+                cout << " failed" << endl;
                 getchar();
             }
-            cout << "after transfer" << endl;
+            cout << "succeed" << endl;
             getchar();
             cout << "next sz=" << m_pmNTSRecordPool->size() << endl;
             return 0;
