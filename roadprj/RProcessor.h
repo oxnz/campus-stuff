@@ -45,11 +45,10 @@ class Processor {
 private:
     ssize_t readFileIntoMem(const char* fpath);
     int processFileBuffer();
-	int processRecord(const in_rec& rec);
     int processOrigRecord(const in_rec& rec);
     int transferToNextTS(void);
     int dumpRecordsToFile();
-    size_t getTSIndex(const uint64_t time);
+    inline size_t getTSIndex(const uint64_t time);
  private:
     std::list<std::string> *m_plFileList;   // contains fpath
 

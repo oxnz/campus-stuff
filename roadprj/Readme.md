@@ -3,10 +3,10 @@ Large Scale Data Process Competition Project
 
 TODO:
         1. add output dir variable
-        2. specify output file format and name
-        3. skip enter to continue
+        2. specify output file format and name [DONE]
+        3. skip enter to continue [DONE]
         
-本文件概要介绍组成 R 应用程序的每个文件的内容。
+概要介绍组成应用程序的每个文件的内容:
 
 File Orgnization:
 -----------------
@@ -28,8 +28,12 @@ TODO: update two lines below:
 Latitude:       39.2600000~41.0300000
 Longitude:      116.0000000~117.0000000
 
-out file format:
+##out file format:
 
+#file name:
+    最后一个文件不完整,给time slot index 加1000标记, 例如本来应该是20121101-0005,
+    转换之后的文件名为20111101-10005
+#file contents:
 
 0000000: 0052 0b00 0200 a4e3 13cf 4c12 0000 8aad  .R........L.....
 0000010: 0b00 0000 f3e3 13cf 4c12 0000 54c2 0b00  ........L...T...
@@ -58,6 +62,12 @@ second 2 bytes: 0200 0000 0000 0000 = status 2
 third 8 bytes: a4e3 13cf 4c12 0000 = time 20121101001636
 
 
+##Usage:
+    rdpp -c listfile
+        listfile 包含每个输入文件的绝对路径, 这些文件按照时间先后顺序排列
+
+
 ##References:
 
 1. [`/clr 限制`](http://msdn.microsoft.com/zh-cn/beginner/ffkc918h.aspx)
+

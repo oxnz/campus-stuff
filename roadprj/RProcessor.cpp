@@ -47,7 +47,7 @@ Processor::Processor(const string& listfname, size_t minPerTS)
 /*
  * @description: get time slot index
  */
-size_t Processor::getTSIndex(const uint64_t time) {
+inline size_t Processor::getTSIndex(const uint64_t time) {
     uint16_t h = static_cast<uint16_t>(time % 1000000/10000);
     uint16_t m = time % 10000/100;
     uint16_t s = time % 100;
@@ -67,12 +67,12 @@ int Processor::processOrigRecord(const in_rec& rec) {
      */
     if (key.rsid == -1) { cerr << "invalid road id" << endl; return 0; }
     size_t ts = getTSIndex(rec.time);
-    if (m_itsp == -1) m_itsp = ts;
+    //if (m_itsp == -1) m_itsp = ts;
     map<orec_key, orec_value*> *pcrp = 0; // pointer -> current record pool
     if (ts == m_itsp) {
         pcrp = m_pmCTSRecordPool;
     }
-    else if (ts == m_itsp+1) {
+    else if (ts == m_itsp+1 || (ts == 0 && m_itsp-1 == 24*60/m_nMinPerTS)) {
         pcrp = m_pmNTSRecordPool;
         //++m_nCurTransCnt;
     }
@@ -107,6 +107,8 @@ int Processor::processFileBuffer() {
          m_pCurFBufPos = strchr(++m_pCurFBufPos, '\n')) {
         ++m_nCRCount;
         if (!irec.valid) { ++m_nCRInvalid; continue; }
+        if (irec.status != NON_OCCUPIED) { ++m_nCRC; continue; }
+        if (m_itsp == -1) m_itsp = getTSIndex(irec.time);
         if (processOrigRecord(irec) != 0) {
         //if (processRecord(irec) != 0) {
             cerr << "process record failed" << endl;
@@ -128,6 +130,9 @@ int Processor::processFileBuffer() {
 
 ssize_t Processor::readFileIntoMem(const char* fpath) {
     cout << "reading " << fpath;
+    char buf[9] = {0};
+    snprintf(buf, 9, strrchr(fpath, '/')+1);
+    m_CurrentDate = atoi(buf);
     ifstream infile(fpath);
     if (!infile.is_open()) {
         cerr << "open file failed" << endl;
@@ -153,8 +158,8 @@ int Processor::dumpRecordsToFile() {
     if (m_pmCTSRecordPool) {
         size_t cnt = 0;
         char fname[MAXPATHLEN];
-        sprintf(fname, "%u.dat", m_CurrentDate);
-        ofstream outfile(fname, ios::out|ios::app|ios::binary);
+        sprintf(fname, "%08d-%04d.dat", m_CurrentDate, m_itsp);
+        ofstream outfile(fname, ios::out|ios::binary);
         for (map<orec_key, orec_value*>::iterator it = m_pmCTSRecordPool->begin();
              it != m_pmCTSRecordPool->end(); ++it, ++cnt) {
 #ifdef DEBUG
@@ -164,13 +169,16 @@ int Processor::dumpRecordsToFile() {
 #endif
             outfile.write(reinterpret_cast<const char*>(&it->first.rsid),
                           sizeof(roadseg_id));
+            /*
             outfile.write(reinterpret_cast<const char*>(&it->second->status),
                           sizeof(car_status));
             outfile.write(reinterpret_cast<const char*>(&it->second->time),
                           sizeof(gps_time));
+                          */
         }
         outfile.close();
-        cout << "write " << cnt << " records out" << endl;
+        cout << "write " << cnt << " records to file ["
+             << fname << "]" << endl;
     }
     return 0;
 }
@@ -182,7 +190,7 @@ int Processor::transferToNextTS() {
     }
     if (++m_itsp == 24*60/m_nMinPerTS) {
         cout << "current day processed done" << endl;
-        return -1;
+        m_itsp = 0;
     }
     swap(m_pmCTSRecordPool, m_pmNTSRecordPool);
 	for (map<orec_key, orec_value*>::iterator it =
@@ -216,6 +224,8 @@ int Processor::processTS(void) {
                     return -1;
                 m_plFileList->pop_front();
             } else {  // no more file exsits, dump to file & notify main by return 1
+                //m_itsp = 24*60/m_nMinPerTS;
+                m_itsp += 1000; // indicate that is the last dump which is incomplete
                 if (dumpRecordsToFile() != 0) {
                     cout << "dump to file failed" << endl;
                     return -1;
