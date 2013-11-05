@@ -1,10 +1,7 @@
 #pragma once
 
 
-#include "RType.h"
-#include "InRecord.h"
-#include "OutRecord.h"
-#include "RTime.h"
+#include "RTypes.h"
 #include <iostream>
 #include <list>
 #include <map>

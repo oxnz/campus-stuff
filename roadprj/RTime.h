@@ -10,7 +10,7 @@
     uint8_t day;
 } rec_date; */
 
-typedef uint32_t rec_date;
+//typedef uint32_t rec_date;
 //typedef uint32_t rec_time;
 
 class RTime
@@ -40,3 +40,4 @@ typedef struct {
     uint8_t min;
     uint8_t sec;
 } out_time;
+

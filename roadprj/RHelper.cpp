@@ -51,3 +51,10 @@ int find_file_finish(void) {
 }
 
 */
+
+#include "RHelper.h"
+
+using namespace std;
+int find_first_file(const char *path, const char* pattern, vector<string>& ovec) {
+    return 0;
+}

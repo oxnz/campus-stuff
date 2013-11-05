@@ -6,7 +6,7 @@ TODO:
         2. specify output file format and name
         3. skip enter to continue
         
-���ļ���Ҫ������� R Ӧ�ó����ÿ���ļ������ݡ�
+本文件概要介绍组成 R 应用程序的每个文件的内容。
 
 File Orgnization:
 -----------------
@@ -15,13 +15,13 @@ File Orgnization:
        |__  output: output directory for test
 
 R.vcxproj
-    ����ʹ��Ӧ�ó��������ɵ� VC++ ��Ŀ������Ŀ�ļ������а������ɸ��ļ��� Visual C++ �İ汾��Ϣ���Լ��й�ʹ��Ӧ�ó�����ѡ���ƽ̨�����ú���Ŀ���ܵ���Ϣ��
+    这是使用应用程序向导生成的 VC++ 项目的主项目文件，其中包含生成该文件的 Visual C++ 的版本信息，以及有关使用应用程序向导选择的平台、配置和项目功能的信息。
 
 R.vcxproj.filters
-    ����ʹ�á�Ӧ�ó����򵼡����ɵ� VC++ ��Ŀɸѡ���ļ����������й���Ŀ�ļ���ɸѡ��֮��Ĺ�����Ϣ���� IDE �У�ͨ�����ֹ��������ض��ڵ����Է�����ʽ��ʾ����������չ�����ļ������磬��.cpp���ļ��롰Դ�ļ���ɸѡ��������
+    这是使用“应用程序向导”生成的 VC++ 项目筛选器文件。它包含有关项目文件与筛选器之间的关联信息。在 IDE 中，通过这种关联，在特定节点下以分组形式显示具有相似扩展名的文件。例如，“.cpp”文件与“源文件”筛选器关联。
 
 R.cpp
-    ������Ӧ�ó���Դ�ļ���
+    这是主应用程序源文件。
 
 
 TODO: update two lines below:
@@ -60,4 +60,4 @@ third 8 bytes: a4e3 13cf 4c12 0000 = time 20121101001636
 
 ##References:
 
-1. [`/clr ����`](http://msdn.microsoft.com/zh-cn/beginner/ffkc918h.aspx)
+1. [`/clr 限制`](http://msdn.microsoft.com/zh-cn/beginner/ffkc918h.aspx)

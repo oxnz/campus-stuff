@@ -1,5 +1,4 @@
-#ifndef RTYPES_H
-#define RTYPES_H
+#pragma once
 
 #include <stdint.h>
 
@@ -23,14 +22,6 @@ typedef uint32_t car_id; // 6 bits decimal
 typedef uint8_t trigger_event;
 typedef uint16_t car_status;
 typedef uint64_t gps_time;
-typedef struct {
-    uint8_t year;
-    uint8_t month;
-    uint8_t day;
-    uint8_t hour;
-    uint8_t min;
-    uint8_t sec;
-    } out_time;
 typedef uint64_t gps_x;
 typedef uint64_t gps_y;
 typedef struct {
@@ -60,7 +51,10 @@ typedef struct {
 
 typedef uint32_t roadseg_id;
 
-typedef struct {
+typedef uint32_t rec_date;
+
+struct InRecord
+{
     car_id car_id;
     uint16_t event;
     uint16_t status;
@@ -70,35 +64,39 @@ typedef struct {
     uint16_t speed;
     uint16_t direct;
     uint16_t valid;
-} in_rec;
+};
 
-struct __orec_key {
+typedef InRecord in_rec;
+
+class OutRecord
+{
+public:
+    OutRecord(void);
+    virtual ~OutRecord(void);
+};
+
+typedef struct OutRecordKey
+{
     roadseg_id rsid;
     car_id cid;
-    bool operator< (const struct __orec_key& k) const {
-        return rsid < k.rsid || (rsid == k.rsid && cid < k.cid);
+    /*
+     * This operator must be implemented, or std::map will complain about it
+     */
+    inline bool operator< (const struct OutRecordKey& rhs) const {
+        return rsid < rhs.rsid || (rsid == rhs.rsid && cid < rhs.cid);
     }
-    bool operator == (const struct __orec_key& k) const {
-        return rsid == k.rsid && cid == k.cid;
+    inline bool operator == (const struct OutRecordKey& rhs) const {
+        return rsid == rhs.rsid && cid == rhs.cid;
     }
-};
-typedef struct __orec_key orec_key;
+} orec_key;
 
 typedef struct {
     uint16_t status;
     uint64_t time;
 } orec_value;
 
-typedef struct {
-    uint16_t year;
-    uint8_t month;
-    uint8_t day;
-} rec_date;
 
-struct arch_rec {
+typedef struct ArchiveRecord {
     roadseg_id rsid;
     orec_value orecv;
-};// archive record struct for serialization
-
-typedef arch_rec arch_rec;
-#endif
+} arch_rec;// archive record struct for serialization
