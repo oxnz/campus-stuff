@@ -3,7 +3,9 @@
 #include <unistd.h>
 #include <signal.h>
 
+#include <cstdio>
 #include <iostream>
+#include <stdexcept>
 
 using std::cout;
 using std::cerr;
