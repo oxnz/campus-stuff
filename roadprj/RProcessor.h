@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RTypes.h"
+
 #include <iostream>
 #include <list>
 #include <map>
@@ -21,7 +22,7 @@ class Processor {
      *             if listfname open fails, will throw out runtime_error
      *             exception
      */
-    Processor(const std::string& listfname, size_t minPerTimeSlot);
+    Processor(const char* indir, const char* outdir, size_t minPerTimeSlot);
     /*
      * @description: process one time slot each time
      *
@@ -29,7 +30,7 @@ class Processor {
      */
     int processTS(void);
     bool hasNextFile(void) const {
-        return m_plFileList->size() > 0;
+        return m_fileList.size() > 0;
     }
     /*
      * @description: process n time slot each time
@@ -50,7 +51,8 @@ private:
     int dumpRecordsToFile();
     inline size_t getTSIndex(const uint64_t time);
  private:
-    std::list<std::string> *m_plFileList;   // contains fpath
+    std::list<std::string> m_fileList;   // contains fpath
+    std::string m_outdir;
 
     /*
      * Current Time Slot Record Pool &
@@ -69,6 +71,4 @@ private:
     char*  m_pCurFBufPos;       // pointer remember position in file buffer
 
     const size_t m_nTransCount; // Transition records count from cur->next
-
-//    bool m_bEOF;        // end of file
 };

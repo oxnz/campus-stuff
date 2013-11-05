@@ -2,15 +2,15 @@
 # Version: 0.1
 # Author: 0xnz
 # Revision: -*-
-# Last-updated: 2013-11-05 15:20:00 CST
+# Last-updated: 2013-11-05 22:45:32 CST
 #
 
 
 CC	:= gcc
 CXX	:= g++
 CFLAGS	:= -Wall -pipe -O2
-CXXFLAGS:= -Wall -pipe -O2 -p
-LDFLAGS	:= -p
+CXXFLAGS:= -Wall -pipe -O2
+LDFLAGS	:=
 
 OBJS	= main.o test.o RProcessor.o RTest.o RHelper.o
 TARGETS = rdpp test

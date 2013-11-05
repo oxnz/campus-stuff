@@ -39,9 +39,9 @@ int test_read_preped_file(const char *fpath) {
 }
 
 int test_find_files(void) {
-	vector<string> files;
-	int ret = find_files("../../input", "2012", files);
-	for (vector<string>::iterator it = files.begin(); it != files.end(); ++it)
+	list<string> files;
+	int ret = find_files("/Users/oxnz/Desktop/input", "2012", files);
+	for (list<string>::iterator it = files.begin(); it != files.end(); ++it)
 		cout << "file: " << *it << endl;
 	cout << "found " << ret << " files" << endl;
 	return 0;

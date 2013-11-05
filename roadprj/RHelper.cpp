@@ -54,7 +54,7 @@ int find_file_finish(void) {
 #include <algorithm>
 using namespace std;
 
-int find_files(const char *path, const char* pattern, vector<string>& ovec) {
+int find_files(const char *path, const char* pattern, list<string>& olist) {
 	string fpath(path);
 	if (find_file_init(path, "2012")) {
 		cerr << "find file init failed" << endl;
@@ -63,16 +63,16 @@ int find_files(const char *path, const char* pattern, vector<string>& ovec) {
 	const char* fname;
 	int cnt = 0;
 	if (find_first_file(&fname)) {
-		ovec.push_back(fpath + "/" + fname);
+		olist.push_back(fpath + "/" + fname);
 		++cnt;
 	}
 	while (find_next_file(&fname)) {
 		++cnt;
-		ovec.push_back(fpath + "/" + fname);
+		olist.push_back(fpath + "/" + fname);
 	}
 	if (find_file_finish()) {
 		cerr << "find file finish failed" << endl;
 	}
-	sort(ovec.begin(), ovec.end());
+    olist.sort();
     return cnt;
 }

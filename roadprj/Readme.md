@@ -5,6 +5,7 @@ TODO:
         1. add output dir variable
         2. specify output file format and name [DONE]
         3. skip enter to continue [DONE]
+        4. 简化两个map结构，除去值，只保留键，键取64位整数
         
 概要介绍组成应用程序的每个文件的内容:
 

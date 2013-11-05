@@ -1,7 +1,8 @@
 /*
  *            File: processor.cpp
  *     Description: Main Pre Processor Source File
- *    Last-updated: 2013-10-25 22:54:04 CST
+ *    Last-updated: 2013-11-06 00:15:34 CST
+ *          Author: Oxnz
  *         Version: 0.1
  */
 
@@ -9,6 +10,7 @@
 #include "RProcessor.h"
 #include "RsidGen.h"
 #include "RConstant.h"
+#include "RHelper.h"
 
 #include <cstring>
 #include <cstdlib>
@@ -17,28 +19,18 @@
 #include <string>
 #include <exception>
 #include <stdexcept>
+#include <algorithm>
 
 using namespace std;
 
-Processor::Processor(const string& listfname, size_t minPerTS)
-    : m_nMinPerTS(minPerTS), m_CurrentDate(-1), m_itsp(0xFF),
-      m_nTransCount(15000)//, m_bEOF(true)
+Processor::Processor(const char* indir, const char* outdir, size_t minPerTS)
+    : m_outdir(outdir), m_nMinPerTS(minPerTS), m_CurrentDate(-1),
+      m_itsp(0xFF), m_nTransCount(15000)
 {
-    ifstream listf(listfname.c_str());
-    if (!listf.is_open())
-        throw runtime_error("can't open file: " + listfname);
-    m_plFileList = new list<string>;
-    string fpath;
-    while (listf >> fpath) {
-#ifdef DEBUG
-        cout << "file: " << fpath << endl;
-#endif
-        m_plFileList->push_back(fpath);
-    }
-    if (!m_plFileList->size()) {
-        cerr << "File list contains no file" << endl;
-        return; // FIX: change to throw
-    }
+    int cnt = find_files(indir, "2012", m_fileList);
+    if (cnt == 0) throw runtime_error("no file found");
+    else if (cnt < 0) throw runtime_error("find_files error");
+
     m_pmCTSRecordPool = new std::map<orec_key, orec_value*>;
     m_pmNTSRecordPool = new std::map<orec_key, orec_value*>;
     m_pFileBuffer = new char[RFBUF_MAXLEN];
@@ -214,7 +206,7 @@ int Processor::dumpRecordsToFile() {
     if (m_pmCTSRecordPool) {
         size_t cnt = 0;
         char fname[MAXPATHLEN];
-        sprintf(fname, "%08d-%04d.dat", m_CurrentDate, m_itsp);
+        sprintf(fname, "%08d-%04lu.dat", m_CurrentDate, m_itsp);
         ofstream outfile(fname, ios::out|ios::binary);
         for (map<orec_key, orec_value*>::iterator it = m_pmCTSRecordPool->begin();
              it != m_pmCTSRecordPool->end(); ++it, ++cnt) {
@@ -261,11 +253,11 @@ int Processor::transferToNextTS() {
 
 int Processor::processTS(void) {
 	while (hasNextFile()) {
-		cout << "========> processing [" << m_plFileList->front()
+		cout << "========> processing [" << m_fileList.front()
 			 << "]" << endl;
-		if(readFileIntoMem(m_plFileList->front().c_str()) <= 0)
+		if(readFileIntoMem(m_fileList.front().c_str()) <= 0)
 			return -1;
-		m_plFileList->pop_front();
+		m_fileList.pop_front();
 		int ret = processFileBuffer();
 		if (ret == 1) { // 1 indicate needs transfer to next TS
 			if (transferToNextTS()) {
@@ -295,64 +287,8 @@ int Processor::processTS(void) {
 	return 1; // indicate there's no more files to be processed
 }
 		
-/*
-    while (m_pmNTSRecordPool->size() < m_nTransCount) {
-        cout << "next time slot size= " << m_pmNTSRecordPool->size() << endl;
-//        if (m_bEOF) { // test if current file processed done
-            if (hasNextFile()) {
-                cout << "========> processing [" << m_plFileList->front()
-                     << "]" << endl;
-                if(readFileIntoMem(m_plFileList->front().c_str()) <= 0)
-                    return -1;
-                m_plFileList->pop_front();
-            } else {  // no more file exsits, dump to file & notify main by return 1
-                //m_itsp = 24*60/m_nMinPerTS;
-                m_itsp += 1000; // indicate that is the last dump which is incomplete
-				if (transferToNextTS() == -1) {
-                    cout << "dump last incomplete part failed" << endl;
-                    return -1;
-                }
-				if (dumpRecordsToFile()) {
-					cerr << "dump to file failed" << endl;
-					return -1;
-				}
-                cout << "dump to file succeed" << endl;
-                return 1;
-            }
-        //}
-        switch (processFileBuffer()) {
-        case 0:
-            cout << "return 0 from pro file buf" << endl;
-            continue;
-            break;
-        case -1:
-            cout << "process file buffer failed" << endl;
-            return -1;
-            break;
-        case 1:
-            cout << "Transfer to next TS ==> ";
-            if (transferToNextTS() == -1) {
-                cout << " failed" << endl;
-                getchar();
-            }
-            cout << "succeed" << endl;
-            return 0;
-            break;
-        default: // should never reach here
-            cerr << "unexpected return value" << endl;
-            return -1;
-        }
-
-    }
-
-    return 0;
-}
-*/
-
 Processor::~Processor() {
-    while (m_plFileList->size())
-        m_plFileList->pop_front();
-    delete m_plFileList;
+    m_fileList.clear();
     if (m_pmCTSRecordPool) {
         for (map<orec_key, orec_value*>::iterator it =
                  m_pmCTSRecordPool->begin(); it != m_pmCTSRecordPool->end();
@@ -371,5 +307,4 @@ Processor::~Processor() {
         m_pmNTSRecordPool->clear();
         delete m_pmNTSRecordPool;
     }
-    delete m_pFileBuffer;
 }

@@ -30,7 +30,8 @@ void signal_handler(int signo, siginfo_t *info, void *ptr) {
 
 int main(int argc, const char *argv[]) {
     if (argc != 3) {
-        cerr <<  "Usage:" << endl << argv[0] << " -c <listfname>" << endl;
+        cerr <<  "Usage:" << endl
+             << argv[0] << " <input dir> <output dir>" << endl;
         return -1;
     }
     struct sigaction action;
@@ -44,7 +45,7 @@ int main(int argc, const char *argv[]) {
 
     Processor *p;
     try {
-        p = new Processor(argv[2], 3); // 3 min
+        p = new Processor(argv[1], argv[2], 3); // 3 min
     } catch (std::bad_alloc& e) {
         cerr << "alloc error:" << e.what() << endl;
         return -1;
