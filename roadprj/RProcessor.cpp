@@ -7,20 +7,24 @@
 
 
 #include "RProcessor.h"
-#include "RSIDGen.h"
+#include "RsidGen.h"
 #include "RConstant.h"
 
+#include <cstring>
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <exception>
+#include <stdexcept>
 
 using namespace std;
 
 Processor::Processor(const string& listfname, size_t minPerTS)
-    : m_nMinPerTS(minPerTS), m_CurrentDate(-1), m_itsp(-1),
+    : m_nMinPerTS(minPerTS), m_CurrentDate(-1), m_itsp(0xFF),
       m_nTransCount(10000), m_bEOF(true)
 {
-    ifstream listf(listfname);
+    ifstream listf(listfname.c_str());
     if (!listf.is_open()) {
         cerr << "error: unable to open file: " << listfname << endl;
         throw runtime_error("can't open file: " + listfname);
@@ -52,14 +56,14 @@ inline size_t Processor::getTSIndex(const uint64_t time) {
     return (h*60*60+m*60+s)/(m_nMinPerTS*60);
 }
 
-int Processor::processOrigRecord(const in_rec& rec) {
+inline int Processor::processOrigRecord(const in_rec& rec) {
 #ifdef DEBUG
     printf("%u,%u,%u,%llu,%11.7lf,%10.7lf,%u,%u,%u\n",
            rec.car_id, rec.event, rec.status, rec.time,
            rec.x, rec.y, rec.speed, rec.direct, rec.valid);
 #endif
     gps_coord coord = {static_cast<gps_x>(rec.x * 10000000), static_cast<gps_y>(rec.y * 10000000)};
-    orec_key key = {get_rsid(coord), rec.car_id};
+    orec_key key = {get_rsid(coord), rec.cid};
     /*
      * @advice: skip the wrong road id
      */
@@ -100,13 +104,13 @@ int Processor::processOrigRecord(const in_rec& rec) {
 int Processor::processFileBuffer() {
     for (in_rec irec; m_pCurFBufPos < m_pFileBufEnd &&
              sscanf(m_pCurFBufPos, "%u,%hu,%hu,%llu,%lf,%lf,%hu,%hu,%hu\r\n",
-                    &irec.car_id, &irec.event, &irec.status,
+                    &irec.cid, &irec.event, &irec.status,
                     &irec.time, &irec.x, &irec.y,
                     &irec.speed, &irec.direct, &irec.valid) == 9;
          m_pCurFBufPos = strchr(++m_pCurFBufPos, '\n')) {
         if (!irec.valid) continue;
         if (irec.status != NON_OCCUPIED) continue;
-        if (m_itsp == -1) m_itsp = getTSIndex(irec.time);
+        if (m_itsp == 0xFF) m_itsp = getTSIndex(irec.time);
         if (processOrigRecord(irec) != 0) {
         //if (processRecord(irec) != 0) {
             cerr << "process record failed" << endl;
@@ -196,7 +200,7 @@ int Processor::transferToNextTS() {
         cout << "dump file error" << endl;
         return -1;
     }
-    if (++m_itsp == 24*60/m_nMinPerTS) {
+    if (++m_itsp == static_cast<int16_t>(24*60/m_nMinPerTS)) {
         cout << "current day processed done" << endl;
         m_itsp = 0;
     }

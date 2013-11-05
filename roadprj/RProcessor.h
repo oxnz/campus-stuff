@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "RTypes.h"
 #include <iostream>
 #include <list>
@@ -45,7 +44,7 @@ private:
 private:
     ssize_t readFileIntoMem(const char* fpath);
     int processFileBuffer();
-    int processOrigRecord(const in_rec& rec);
+    inline int processOrigRecord(const in_rec& rec);
     int transferToNextTS(void);
     int dumpRecordsToFile();
     inline size_t getTSIndex(const uint64_t time);
@@ -62,7 +61,7 @@ private:
     const size_t m_nMinPerTS; // minute per time slot
 
     rec_date m_CurrentDate;    // Current Date;
-    int16_t m_itsp;     // time slot pointer, seperate CTS from NTS
+    uint16_t m_itsp;     // time slot pointer, seperate CTS from NTS
 
     const char* m_pFileBuffer;  // point to file buffer
     const char* m_pFileBufEnd;  // file buffer end pointer

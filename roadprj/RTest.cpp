@@ -1,4 +1,4 @@
-#include "RSIDGen.h"
+#include "RsidGen.h"
 #include "RTypes.h"
 
 #include <iostream>
@@ -8,11 +8,9 @@
 using namespace std;
 
 int test_get_roadseg_id(void) {
-	double x,y,x1,y1;
-	x=116.3284302;
-	y=39.9685555;
-	x1=123.0;
-	y1=123.0;
+	uint32_t x,y;
+	x=1163284302;
+	y=399685555;
 
     gps_coord c = {x, y};
     roadseg_id rsid = get_rsid(c);

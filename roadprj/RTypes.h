@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-
+#include <sys/types.h>
 #ifdef WIN32
 typedef int _w64 ssize_t;
 #endif
@@ -55,7 +55,7 @@ typedef uint32_t rec_date;
 
 struct InRecord
 {
-    car_id car_id;
+    car_id cid;
     uint16_t event;
     uint16_t status;
     gps_time time;

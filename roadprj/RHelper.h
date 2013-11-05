@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <string>
 /*
  * @description: find file specified path that matches pattern
  *
