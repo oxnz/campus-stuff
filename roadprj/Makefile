@@ -33,5 +33,6 @@ RProcessor.o: RProcessor.cpp RProcessor.h RTypes.h RConstant.h
 clean:
 	$(RM) $(OBJS)
 	$(RM) $(TARGETS)
+	$(RM) 201211*.dat gmon.out
 
 .PHONY: all clean

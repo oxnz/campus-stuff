@@ -22,7 +22,7 @@ using namespace std;
 
 Processor::Processor(const string& listfname, size_t minPerTS)
     : m_nMinPerTS(minPerTS), m_CurrentDate(-1), m_itsp(0xFF),
-      m_nTransCount(15000), m_bEOF(true)
+      m_nTransCount(15000)//, m_bEOF(true)
 {
     ifstream listf(listfname.c_str());
     if (!listf.is_open()) {
@@ -58,9 +58,10 @@ inline size_t Processor::getTSIndex(const uint64_t time) {
 
 inline int Processor::processOrigRecord(const in_rec& rec) {
 #ifdef DEBUG
-    printf("%u,%u,%u,%llu,%11.7lf,%10.7lf,%u,%u,%u\n",
-           rec.cid, rec.event, rec.status, rec.time,
-           rec.x, rec.y, rec.speed, rec.direct, rec.valid);
+	cout << "(" << rec.cid << "," << rec.event << ","
+		<< rec.status << "," << rec.time << ","
+		<< rec.x << "," << rec.y << "," << rec.speed << ","
+		<< rec.direct << "," << rec.valid << ")" << endl;
 #endif
     gps_coord coord = {static_cast<gps_x>(rec.x * 10000000), static_cast<gps_y>(rec.y * 10000000)};
     orec_key key = {get_rsid(coord), rec.cid};
@@ -137,10 +138,10 @@ int Processor::processFileBuffer() {
             return -1;
         }
 	}
-	m_bEOF = true;
+	//m_bEOF = true;
 	if (m_pmNTSRecordPool->size() >= m_nTransCount) {
 		cout << "reach the max transition count ("
-			<< m_pmNTSRecordPool->size() << m_nTransCount << endl;
+			<< m_pmNTSRecordPool->size() << m_nTransCount << ")" << endl;
 		return 1;
 	}
 	return 0;
@@ -170,7 +171,7 @@ int Processor::processFileBuffer2() {
         }
 		
     }
-    m_bEOF = true;
+    //m_bEOF = true;
     cout << "one file finished, about to process next" << endl;
     return 0;
 }
@@ -261,9 +262,45 @@ int Processor::transferToNextTS() {
 }
 
 int Processor::processTS(void) {
-    while (m_pmNTSRecordPool->size() <= m_nTransCount) {
+	while (hasNextFile()) {
+		cout << "========> processing [" << m_plFileList->front()
+			 << "]" << endl;
+		if(readFileIntoMem(m_plFileList->front().c_str()) <= 0)
+			return -1;
+		m_plFileList->pop_front();
+		int ret = processFileBuffer();
+		if (ret == 1) { // 1 indicate needs transfer to next TS
+			if (transferToNextTS()) {
+				cerr << "transfer to next TS failed!" << endl;
+				return -1;
+			}
+		} else if (ret == -1) {
+			cerr << "process file buffer failed!" << endl;
+			return -1;
+		} else
+			return 0;
+	}
+	/* if reach here, no more files can be supplied,
+	 * dump the incomplete file and return
+	 */
+	m_itsp += 1000; // indicate that is the last 2 files are incomplete
+	if (transferToNextTS() == -1) {
+		cout << "dump last incomplete part failed" << endl;
+		return -1;
+	}
+	if (dumpRecordsToFile()) {
+		cerr << "dump to file failed" << endl;
+		return -1;
+	}
+	cout << "dump to file succeed" << endl;
+
+	return 1; // indicate there's no more files to be processed
+}
+		
+/*
+    while (m_pmNTSRecordPool->size() < m_nTransCount) {
         cout << "next time slot size= " << m_pmNTSRecordPool->size() << endl;
-        if (m_bEOF) { // test if current file processed done
+//        if (m_bEOF) { // test if current file processed done
             if (hasNextFile()) {
                 cout << "========> processing [" << m_plFileList->front()
                      << "]" << endl;
@@ -273,14 +310,18 @@ int Processor::processTS(void) {
             } else {  // no more file exsits, dump to file & notify main by return 1
                 //m_itsp = 24*60/m_nMinPerTS;
                 m_itsp += 1000; // indicate that is the last dump which is incomplete
-                if (dumpRecordsToFile() != 0) {
-                    cout << "dump to file failed" << endl;
+				if (transferToNextTS() == -1) {
+                    cout << "dump last incomplete part failed" << endl;
                     return -1;
                 }
+				if (dumpRecordsToFile()) {
+					cerr << "dump to file failed" << endl;
+					return -1;
+				}
                 cout << "dump to file succeed" << endl;
                 return 1;
             }
-        }
+        //}
         switch (processFileBuffer()) {
         case 0:
             cout << "return 0 from pro file buf" << endl;
@@ -308,6 +349,7 @@ int Processor::processTS(void) {
 
     return 0;
 }
+*/
 
 Processor::~Processor() {
     while (m_plFileList->size())

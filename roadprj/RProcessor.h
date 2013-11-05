@@ -70,5 +70,5 @@ private:
 
     const size_t m_nTransCount; // Transition records count from cur->next
 
-    bool m_bEOF;        // end of file
+//    bool m_bEOF;        // end of file
 };

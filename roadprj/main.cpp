@@ -66,7 +66,7 @@ int main(int argc, const char *argv[]) {
     }
     while (loop) {
         int ret = p->processTS();
-        if (ret != 0) {
+        if (ret) {
             if (p->hasNextFile()) {
             cerr << "Error occured while processing, aborted with error code: "
                  << ret << endl;
