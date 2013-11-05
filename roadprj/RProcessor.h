@@ -43,7 +43,8 @@ private:
 	 Processor& operator= (const Processor& p); // disable copy-assign
 private:
     ssize_t readFileIntoMem(const char* fpath);
-    int processFileBuffer();
+    int processFileBuffer(); // strto{ul,ull,d} version
+    int processFileBuffer2(); // sscanf version, too slow on linux sys
     inline int processOrigRecord(const in_rec& rec);
     int transferToNextTS(void);
     int dumpRecordsToFile();
@@ -61,7 +62,7 @@ private:
     const size_t m_nMinPerTS; // minute per time slot
 
     rec_date m_CurrentDate;    // Current Date;
-    uint16_t m_itsp;     // time slot pointer, seperate CTS from NTS
+    size_t m_itsp;     // time slot pointer, seperate CTS from NTS
 
     const char* m_pFileBuffer;  // point to file buffer
     const char* m_pFileBufEnd;  // file buffer end pointer

@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <sys/types.h>
+
 #ifdef WIN32
 typedef int _w64 ssize_t;
 #endif
@@ -49,11 +50,11 @@ typedef struct {
     gps_info gps;
 } car_record;
 
-typedef uint32_t roadseg_id;
+typedef int32_t roadseg_id;
 
 typedef uint32_t rec_date;
 
-struct InRecord
+typedef struct InRecord
 {
     car_id cid;
     uint16_t event;
@@ -64,9 +65,7 @@ struct InRecord
     uint16_t speed;
     uint16_t direct;
     uint16_t valid;
-};
-
-typedef InRecord in_rec;
+} in_rec;
 
 class OutRecord
 {

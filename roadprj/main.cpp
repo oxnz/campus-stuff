@@ -1,15 +1,11 @@
 #include "RProcessor.h"
-
 #include <unistd.h>
 #include <signal.h>
 
 #include <cstdio>
 #include <iostream>
-<<<<<<< HEAD
 #include <stdexcept>
-=======
 #include <exception>
->>>>>>> 2bc968181fd3e0cee57bb9f90425d8f89edad73a
 
 using std::cout;
 using std::cerr;

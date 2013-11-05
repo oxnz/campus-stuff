@@ -22,7 +22,7 @@ using namespace std;
 
 Processor::Processor(const string& listfname, size_t minPerTS)
     : m_nMinPerTS(minPerTS), m_CurrentDate(-1), m_itsp(0xFF),
-      m_nTransCount(10000), m_bEOF(true)
+      m_nTransCount(15000), m_bEOF(true)
 {
     ifstream listf(listfname.c_str());
     if (!listf.is_open()) {
@@ -59,7 +59,7 @@ inline size_t Processor::getTSIndex(const uint64_t time) {
 inline int Processor::processOrigRecord(const in_rec& rec) {
 #ifdef DEBUG
     printf("%u,%u,%u,%llu,%11.7lf,%10.7lf,%u,%u,%u\n",
-           rec.car_id, rec.event, rec.status, rec.time,
+           rec.cid, rec.event, rec.status, rec.time,
            rec.x, rec.y, rec.speed, rec.direct, rec.valid);
 #endif
     gps_coord coord = {static_cast<gps_x>(rec.x * 10000000), static_cast<gps_y>(rec.y * 10000000)};
@@ -74,11 +74,11 @@ inline int Processor::processOrigRecord(const in_rec& rec) {
     if (ts == m_itsp) {
         pcrp = m_pmCTSRecordPool;
     }
-    else if (ts == m_itsp+1 || (ts == 0 && m_itsp-1 == 24*60/m_nMinPerTS)) {
+    else if (ts == m_itsp+1 || (ts == 0 && m_itsp == 24*60/m_nMinPerTS-1)) {
         pcrp = m_pmNTSRecordPool;
         //++m_nCurTransCnt;
     }
-    else if (ts == m_itsp-1){
+    else if (ts+1 == m_itsp){
         //cerr << "Error: come up with an previous ts: " << ts << ", skipped"
           //   << endl;
         //return -1;
@@ -102,6 +102,51 @@ inline int Processor::processOrigRecord(const in_rec& rec) {
 }
 
 int Processor::processFileBuffer() {
+	char* p;
+	int i = 0;
+	for (in_rec irec; m_pCurFBufPos < m_pFileBufEnd - 1; ++m_pCurFBufPos) {
+		irec.cid = strtoul(m_pCurFBufPos, &p, 10);
+		m_pCurFBufPos = p;
+		irec.event = strtoul(++m_pCurFBufPos, &p, 10);
+		m_pCurFBufPos = p;
+		irec.status = strtoul(++m_pCurFBufPos, &p, 10);
+		m_pCurFBufPos = p;
+		irec.time = strtoull(++m_pCurFBufPos, &p, 10);
+		m_pCurFBufPos = p;
+		irec.x = strtod(++m_pCurFBufPos, &p);
+		m_pCurFBufPos = p;
+		irec.y = strtod(++m_pCurFBufPos, &p);
+		m_pCurFBufPos = p;
+		irec.speed = strtoul(++m_pCurFBufPos, &p, 10);
+		m_pCurFBufPos = p;
+		irec.direct = strtoul(++m_pCurFBufPos, &p, 10);
+		m_pCurFBufPos = p;
+		irec.valid = strtoul(++m_pCurFBufPos, &p, 10);
+		m_pCurFBufPos = p;
+#ifndef DEBUG
+		if (++i == 1 || i == 20200)
+			cout << "(" << irec.cid << "," << irec.event << ","
+				<< irec.status << "," << irec.time << ","
+				<< irec.x << "," << irec.y << "," << irec.speed << ","
+				<< irec.direct << "," << irec.valid << ")" << endl;
+#endif
+		if (!irec.valid || irec.status != NON_OCCUPIED) continue;
+        if (m_itsp == 0xFF) m_itsp = getTSIndex(irec.time);
+        if (processOrigRecord(irec)) {
+            cerr << "process record failed" << endl;
+            return -1;
+        }
+	}
+	m_bEOF = true;
+	if (m_pmNTSRecordPool->size() >= m_nTransCount) {
+		cout << "reach the max transition count ("
+			<< m_pmNTSRecordPool->size() << m_nTransCount << endl;
+		return 1;
+	}
+	return 0;
+}
+
+int Processor::processFileBuffer2() {
     for (in_rec irec; m_pCurFBufPos < m_pFileBufEnd &&
              sscanf(m_pCurFBufPos, "%u,%hu,%hu,%llu,%lf,%lf,%hu,%hu,%hu\r\n",
                     &irec.cid, &irec.event, &irec.status,
@@ -200,7 +245,7 @@ int Processor::transferToNextTS() {
         cout << "dump file error" << endl;
         return -1;
     }
-    if (++m_itsp == static_cast<int16_t>(24*60/m_nMinPerTS)) {
+    if (++m_itsp == 24*60/m_nMinPerTS) {
         cout << "current day processed done" << endl;
         m_itsp = 0;
     }
