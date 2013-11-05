@@ -5,7 +5,11 @@
 
 #include <cstdio>
 #include <iostream>
+<<<<<<< HEAD
 #include <stdexcept>
+=======
+#include <exception>
+>>>>>>> 2bc968181fd3e0cee57bb9f90425d8f89edad73a
 
 using std::cout;
 using std::cerr;
@@ -17,14 +21,13 @@ using std::endl;
 static int loop = 1;
 
 void signal_handler(int signo, siginfo_t *info, void *ptr) {
-    printf("signal handling\n");
     switch (signo) {
     case SIGINT:
         loop = 0;
-        printf("INT\n");
+        cout << "catch INT signal, please wait a moment" << endl;
         break;
     default:
-        printf("uknonw signal: %d\n", signo);
+	cout << "unkonwn signal: " << signo << endl;
         break;
     }
 }
@@ -46,6 +49,7 @@ int main(int argc, const char *argv[]) {
     Processor *p;
     try {
         p = new Processor(argv[2], 3); // 3 min
+/*
     } catch (std::bad_alloc& e) {
         cerr << "alloc error:" << e.what() << endl;
         return -1;
@@ -59,7 +63,11 @@ int main(int argc, const char *argv[]) {
         cerr << "Unknown error happened, exit" << endl;
         return -1;
     }
-
+*/
+    } catch (std::exception& e) {
+	cout << e.what() << endl;
+	return -1;
+    }
     while (loop) {
         int ret = p->processTS();
         if (ret != 0) {

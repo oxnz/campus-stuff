@@ -9,8 +9,8 @@
 CC	:= gcc
 CXX	:= g++
 CFLAGS	:= -Wall -pipe -O2
-CXXFLAGS:= -Wall -pipe -O2
-LDFLAGS	:=
+CXXFLAGS:= -Wall -pipe -O2 -p
+LDFLAGS	:= -p
 
 OBJS	= main.o test.o RProcessor.o RTest.o RHelper.o
 TARGETS = rdpp test
