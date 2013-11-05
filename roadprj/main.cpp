@@ -45,7 +45,6 @@ int main(int argc, const char *argv[]) {
     Processor *p;
     try {
         p = new Processor(argv[2], 3); // 3 min
-/*
     } catch (std::bad_alloc& e) {
         cerr << "alloc error:" << e.what() << endl;
         return -1;
@@ -58,11 +57,6 @@ int main(int argc, const char *argv[]) {
     } catch (...) {
         cerr << "Unknown error happened, exit" << endl;
         return -1;
-    }
-*/
-    } catch (std::exception& e) {
-	cout << e.what() << endl;
-	return -1;
     }
     while (loop) {
         int ret = p->processTS();

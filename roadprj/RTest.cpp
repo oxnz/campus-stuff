@@ -1,5 +1,6 @@
 #include "RsidGen.h"
 #include "RTypes.h"
+#include "RHelper.h"
 
 #include <iostream>
 #include <fstream>
@@ -37,8 +38,18 @@ int test_read_preped_file(const char *fpath) {
     return 0;
 }
 
+int test_find_files(void) {
+	vector<string> files;
+	int ret = find_files("../../input", "2012", files);
+	for (vector<string>::iterator it = files.begin(); it != files.end(); ++it)
+		cout << "file: " << *it << endl;
+	cout << "found " << ret << " files" << endl;
+	return 0;
+}
+
 
 int main(int argc, char *argv[]) {
+	return test_find_files();
     printf("testing get_roadseg_id:\n");
     test_get_roadseg_id();
 	return 0;

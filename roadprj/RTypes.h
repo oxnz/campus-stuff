@@ -6,6 +6,7 @@
 #ifdef WIN32
 typedef int _w64 ssize_t;
 #endif
+
 enum CAR_STATUS {
     NON_OCCUPIED = 0,
     OCCUPIED = 1,

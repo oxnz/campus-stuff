@@ -6,11 +6,12 @@
  * @description: find file specified path that matches pattern
  *
  * @parameters:
- *  -in
+ *  -in		path		specify the path to look up
+ *  -in		pattern		a string the file name contains
+ *  -out	ovec		vector to store file paths, elements
+ *  					are in ascending order
  * @returns:
- * 1 stands for found, 0 for end, and negtive for error
+ *  int		stands for found file count, 0 for end, and -1 for error
  */
-int find_first_file(const char *path, const char* pattern,
+int find_files(const char *path, const char* pattern,
                     std::vector<std::string>& out);
-
-

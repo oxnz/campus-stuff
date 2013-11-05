@@ -25,10 +25,8 @@ Processor::Processor(const string& listfname, size_t minPerTS)
       m_nTransCount(15000)//, m_bEOF(true)
 {
     ifstream listf(listfname.c_str());
-    if (!listf.is_open()) {
-        cerr << "error: unable to open file: " << listfname << endl;
+    if (!listf.is_open())
         throw runtime_error("can't open file: " + listfname);
-    }
     m_plFileList = new list<string>;
     string fpath;
     while (listf >> fpath) {

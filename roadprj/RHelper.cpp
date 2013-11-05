@@ -1,11 +1,9 @@
-/*
 #include <stdio.h>
 #include <unistd.h>
 #include <dirent.h>
 #include <errno.h>
 #include <string.h>
 
-#include "ffind.h"
 
 static DIR *dirp;
 static const char *regexp;
@@ -50,11 +48,31 @@ int find_file_finish(void) {
     return 0;
 }
 
-*/
 
 #include "RHelper.h"
-
+#include <iostream>
+#include <algorithm>
 using namespace std;
-int find_first_file(const char *path, const char* pattern, vector<string>& ovec) {
-    return 0;
+
+int find_files(const char *path, const char* pattern, vector<string>& ovec) {
+	string fpath(path);
+	if (find_file_init(path, "2012")) {
+		cerr << "find file init failed" << endl;
+		return -1;
+	}
+	const char* fname;
+	int cnt = 0;
+	if (find_first_file(&fname)) {
+		ovec.push_back(fpath + "/" + fname);
+		++cnt;
+	}
+	while (find_next_file(&fname)) {
+		++cnt;
+		ovec.push_back(fpath + "/" + fname);
+	}
+	if (find_file_finish()) {
+		cerr << "find file finish failed" << endl;
+	}
+	sort(ovec.begin(), ovec.end());
+    return cnt;
 }

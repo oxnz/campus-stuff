@@ -23,7 +23,7 @@ all: $(TARGETS)
 rdpp: main.o RProcessor.o RHelper.o
 	$(CXX) $(CFLAGS) $(LDFLAGS) $^ -o $@
 
-test: RTest.o
+test: RTest.o RHelper.o
 	$(CXX) $(CFLAGS) $(LDFLAGS) $^ -o $@
 
 RProcessor.o RTest.o: RsidGen.h
