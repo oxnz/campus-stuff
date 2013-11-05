@@ -17,9 +17,7 @@
 using namespace std;
 
 Processor::Processor(const string& listfname, size_t minPerTS)
-    : m_nMinPerTS(minPerTS), m_CurrentDate(0), m_itsp(-1),
-      m_nCRCount(0), m_nCRRepeat(0), m_nCRInvalid(0), m_nCRC(0), m_nCRO(0),
-      m_nNRCount(0), m_nNRRepeat(0), m_nNRInvalid(0), m_nNRC(0), m_nNRO(0),
+    : m_nMinPerTS(minPerTS), m_CurrentDate(-1), m_itsp(-1),
       m_nTransCount(10000), m_bEOF(true)
 {
     ifstream listf(listfname);
@@ -88,9 +86,10 @@ int Processor::processOrigRecord(const in_rec& rec) {
     orec_value *porecv = new orec_value; // pointer -> orec_value
     porecv->status = rec.status;
     porecv->time = rec.time;
-    pair<map<orec_key, orec_value*>::iterator, bool> ret =
+    //pair<map<orec_key, orec_value*>::iterator, bool> ret =
         pcrp->insert(make_pair(key, porecv));
-    if (!ret.second) ++m_nCRRepeat;
+    //if (!ret.second)
+        //++m_nRepeat;
 #ifdef DEBUG
 	cout << "roadseg_id: " << key.rsid << " car_id: " << key.cid << endl;
 #endif
@@ -105,9 +104,8 @@ int Processor::processFileBuffer() {
                     &irec.time, &irec.x, &irec.y,
                     &irec.speed, &irec.direct, &irec.valid) == 9;
          m_pCurFBufPos = strchr(++m_pCurFBufPos, '\n')) {
-        ++m_nCRCount;
-        if (!irec.valid) { ++m_nCRInvalid; continue; }
-        if (irec.status != NON_OCCUPIED) { ++m_nCRC; continue; }
+        if (!irec.valid) continue;
+        if (irec.status != NON_OCCUPIED) continue;
         if (m_itsp == -1) m_itsp = getTSIndex(irec.time);
         if (processOrigRecord(irec) != 0) {
         //if (processRecord(irec) != 0) {
@@ -130,9 +128,19 @@ int Processor::processFileBuffer() {
 
 ssize_t Processor::readFileIntoMem(const char* fpath) {
     cout << "reading " << fpath;
+    const char* p = strrchr(fpath, '/');
+    if (p)
+        ++p;
+    else
+        p = fpath;
     char buf[9] = {0};
-    snprintf(buf, 9, strrchr(fpath, '/')+1);
-    m_CurrentDate = atoi(buf);
+    for (int i = 0; i < 8; ++i)
+        buf[i] = p[i];
+    m_CurrentDate = strtol(buf, NULL, 10);
+    if (m_CurrentDate < 20121101 && m_CurrentDate > 20121131) {
+        cerr << "error date in filename: " << m_CurrentDate << endl;
+        return -1;
+    }
     ifstream infile(fpath);
     if (!infile.is_open()) {
         cerr << "open file failed" << endl;
@@ -199,16 +207,6 @@ int Processor::transferToNextTS() {
             delete it->second;
         }
     m_pmNTSRecordPool->clear();
-    m_nCRCount = m_nNRCount;
-    m_nNRCount = 0;
-    m_nCRRepeat = m_nNRRepeat;
-    m_nNRRepeat = 0;
-    m_nCRInvalid = m_nNRInvalid;
-    m_nNRInvalid = 0;
-    m_nCRC = m_nNRC;
-    m_nNRC = 0;
-    m_nCRO = m_nNRO;
-    m_nNRO = 0;
 
     return 0;
 }

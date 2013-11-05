@@ -39,7 +39,7 @@ class Processor {
      */
     int process(uint32_t nTimeSlot);
     ~Processor();
- private:
+private:
 	 Processor(const Processor& p); // disable copy constructor
 	 Processor& operator= (const Processor& p); // disable copy-assign
 private:
@@ -68,18 +68,7 @@ private:
     const char* m_pFileBufEnd;  // file buffer end pointer
     char*  m_pCurFBufPos;       // pointer remember position in file buffer
 
-    size_t m_nCRCount;  // Current Record Count
-    size_t m_nCRRepeat; // Repeat Record Count
-    size_t m_nCRInvalid;// Invalid Record Count
-    size_t m_nCRC;      // Non-occupied Count
-    size_t m_nCRO;      // Occupied Count
-
     const size_t m_nTransCount; // Transition records count from cur->next
 
-    size_t m_nNRCount;  // Next Record Count
-    size_t m_nNRRepeat; // Repeat Record Count
-    size_t m_nNRInvalid;// Invalid Record Count
-    size_t m_nNRC;      // Non-occupied Count
-    size_t m_nNRO;      // Occupied Count
     bool m_bEOF;        // end of file
 };

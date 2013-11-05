@@ -6,8 +6,8 @@
 #
 
 
-CC	:= clang
-CXX	:= clang++
+CC	:= gcc
+CXX	:= g++
 CFLAGS	:= -Wall -pipe -O2
 CXXFLAGS:= -Wall -pipe -O2
 LDFLAGS	:=
