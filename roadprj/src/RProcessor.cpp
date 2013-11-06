@@ -1,7 +1,7 @@
 /*
  *            File: processor.cpp
  *     Description: Main Pre Processor Source File
- *    Last-updated: 2013-11-06 16:29:12 CST
+ *    Last-updated: 2013-11-06 19:44:32 CST
  *          Author: Oxnz
  *         Version: 0.1
  */
@@ -54,11 +54,11 @@ inline int Processor::processOrigRecord(const in_rec& rec) {
 		<< rec.direct << "," << rec.valid << ")" << endl;
 #endif
     gps_coord coord = {static_cast<gps_x>(rec.x * 10000000), static_cast<gps_y>(rec.y * 10000000)};
-    orec_key key = {get_rsid(coord), rec.cid};
+    orec_key key = {get_rsid2(coord), rec.cid};
     /*
      * @advice: skip the wrong road id
      */
-    if (key.rsid == -1) { cerr << "invalid road id" << endl; return 0; }
+    if (key.rsid == 0) { cerr << "invalid road id" << endl; return 0; }
     size_t ts = getTSIndex(rec.time);
     //if (m_itsp == -1) m_itsp = ts;
     map<orec_key, orec_value*> *pcrp = 0; // pointer -> current record pool

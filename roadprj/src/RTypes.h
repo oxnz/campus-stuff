@@ -51,7 +51,7 @@ typedef struct {
     gps_info gps;
 } car_record;
 
-typedef int32_t roadseg_id;
+typedef uint32_t roadseg_id;
 
 typedef uint32_t rec_date;
 

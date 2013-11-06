@@ -5,25 +5,20 @@
 #include <iostream>
 
 namespace GPS {
-    const static gps_x x0 = 1150000000;
-    const static gps_x x1 = 1180000000;
-    const static gps_y y0 = 370000000;
-    const static gps_y y1 = 420000000;
-    
-    const static gps_x GPS_X_MIN(1153748770);
-    const static gps_x GPS_X_MAX(1175000130);
-    const static gps_x GPS_X_SCALE(GPS_X_MAX-GPS_X_MIN);
-    const static gps_y GPS_Y_MIN(394166530);
-    const static gps_y GPS_Y_MAX(410832710);
-    const static gps_y GPS_Y_SCALE(GPS_Y_MAX-GPS_Y_MIN);
-    const static size_t GPS_X_CNT(7);
-    const static gps_x GPS_X_REGION[GPS_X_CNT] = {
+    const  gps_x GPS_X_MIN(1153748770);
+    const  gps_x GPS_X_MAX(1175000130);
+    const  gps_x GPS_X_SCALE(GPS_X_MAX-GPS_X_MIN);
+    const  gps_y GPS_Y_MIN(394166530);
+    const  gps_y GPS_Y_MAX(410832710);
+    const  gps_y GPS_Y_SCALE(GPS_Y_MAX-GPS_Y_MIN);
+    const  size_t GPS_X_CNT(7);
+    const  gps_x GPS_X_REGION[GPS_X_CNT] = {
         GPS_X_MIN, 1157277820, 1161560850, 1166281140, 1168806310, 1171340430,
         GPS_X_MAX };
     const static size_t GPS_Y_CNT(6);
     const static gps_y GPS_Y_REGION[GPS_Y_CNT] = {
         GPS_Y_MIN, 397479450, 400570710, 402664640, 405814250, GPS_Y_MAX };
-    const static roadseg_id INVALID_RSID(-1);
+    const static roadseg_id INVALID_RSID(0);
 }
 
 using namespace GPS;
@@ -60,16 +55,17 @@ inline roadseg_id get_rsid2(const gps_coord& coord) {
         ++yi;
     if (!yi || yi == GPS_Y_CNT)
         return INVALID_RSID;
-    
-    switch ((xi << 8) | yi) {
-    case (1 << 8) | 1:
-        if (coord.x >= 1155800000 && coord.y >= 395000000)
-            //            return roadseg_id((1155800000 >> 9) << 16);
-        break;
-    case (2 << 8) | 1:
-        break;
-    case (3 << 8) | 1:
-        break;        
+
+    if (xi ==1 || xi == 6 || yi == 5) { // 2 km
+        return roadseg_id((((((coord.x-GPS_X_MIN)<<8)/GPS_X_SCALE)<<16) |
+                           (((coord.y-GPS_Y_MIN)<<8)/GPS_Y_SCALE))|(1<<31));
+    } else if (xi == 3 && yi == 2) { // 128 m
+        return roadseg_id(((((coord.x-GPS_X_MIN)<<11)/GPS_X_SCALE)<<16) |
+                          (((coord.y-GPS_Y_MIN)<<11)/GPS_Y_SCALE)|(1<<15));
+    } else { // 256 m
+        return roadseg_id(((((coord.x-GPS_X_MIN)<<10)/GPS_X_SCALE)<<16) |
+                          (((coord.y-GPS_Y_MIN)<<10)/GPS_Y_SCALE)|(1<<31)|
+                          (1<<15));
     }
-	return INVALID_RSID;
+    return INVALID_RSID;
 }

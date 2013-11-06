@@ -13,7 +13,7 @@ int test_get_roadseg_id(void) {
     for (int i = 0; i < 14; ++i) {
         for (int j = 0; j < 10; ++j) {
             gps_coord c = {x, y};
-            cout << "rsid (" << x << "," << y << ") = " << get_rsid(c) << endl;
+            cout << "rsid (" << x << "," << y << ") = " << get_rsid2(c) << endl;
             y += 2000000;
         }
         y -= 20000000;
@@ -61,4 +61,3 @@ int main(int argc, char *argv[]) {
 
     return -1;
 }
-
