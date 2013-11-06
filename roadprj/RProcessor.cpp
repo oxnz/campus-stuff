@@ -1,7 +1,7 @@
 /*
  *            File: processor.cpp
  *     Description: Main Pre Processor Source File
- *    Last-updated: 2013-11-06 13:36:50 CST
+ *    Last-updated: 2013-11-06 16:29:12 CST
  *          Author: Oxnz
  *         Version: 0.1
  */
@@ -25,7 +25,7 @@ using namespace std;
 
 Processor::Processor(const char* indir, const char* outdir, size_t minPerTS)
     : m_outdir(outdir), m_nMinPerTS(minPerTS), m_CurrentDate(-1),
-      m_itsp(0xFF), m_nTransCount(15000)
+      m_itsp(0xFF), m_nTransCount(10000)
 {
     int cnt = find_files(indir, "2012", m_fileList);
     if (cnt == 0) throw runtime_error("no file found");
@@ -70,8 +70,8 @@ inline int Processor::processOrigRecord(const in_rec& rec) {
         //++m_nCurTransCnt;
     }
     else if (ts+1 == m_itsp){
-        //cerr << "Error: come up with an previous ts: " << ts << ", skipped"
-          //   << endl;
+        cerr << "Error: come up with an previous ts: " << ts << ", skipped"
+             << endl;
         //return -1;
         return 0;
     } else {

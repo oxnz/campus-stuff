@@ -9,14 +9,16 @@
 using namespace std;
 
 int test_get_roadseg_id(void) {
-	uint32_t x,y;
-	x=1163284302;
-	y=399685555;
-
-    gps_coord c = {x, y};
-    roadseg_id rsid = get_rsid(c);
-    cout <<rsid << endl;
-
+	uint32_t x(1150000000), y(394000000);
+    for (int i = 0; i < 14; ++i) {
+        for (int j = 0; j < 10; ++j) {
+            gps_coord c = {x, y};
+            cout << "rsid (" << x << "," << y << ") = " << get_rsid(c) << endl;
+            y += 2000000;
+        }
+        y -= 20000000;
+        x += 2000000;
+    }
     return 0;
 }
 
@@ -49,7 +51,7 @@ int test_find_files(void) {
 
 
 int main(int argc, char *argv[]) {
-	return test_find_files();
+	// return test_find_files();
     printf("testing get_roadseg_id:\n");
     test_get_roadseg_id();
 	return 0;
