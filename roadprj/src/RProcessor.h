@@ -48,7 +48,7 @@ private:
     int processFileBuffer2(); // sscanf version, too slow on linux sys
     inline int processOrigRecord(const in_rec& rec);
     int transferToNextTS(void);
-    int dumpRecordsToFile();
+    int dumpRecords();
     inline size_t getTSIndex(const gps_time& time);
  private:
     std::list<std::string> m_fileList;   // contains fpath

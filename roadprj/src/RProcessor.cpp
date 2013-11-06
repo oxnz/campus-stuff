@@ -1,7 +1,7 @@
 /*
  *            File: processor.cpp
  *     Description: Main Pre Processor Source File
- *    Last-updated: 2013-11-06 19:57:08 CST
+ *    Last-updated: 2013-11-06 21:45:33 CST
  *          Author: Oxnz
  *         Version: 0.1
  */
@@ -65,7 +65,7 @@ inline int Processor::processOrigRecord(const in_rec& rec) {
     if (ts == m_itsp) {
         pcrp = m_pmCTSRecordPool;
     }
-    else if (ts == m_itsp+1 || (ts == 0 && m_itsp == 24*60/m_nMinPerTS-1)) {
+    else if (ts == m_itsp+1) {
         pcrp = m_pmNTSRecordPool;
         //++m_nCurTransCnt;
     }
@@ -78,11 +78,14 @@ inline int Processor::processOrigRecord(const in_rec& rec) {
         //cerr << "Error: come up with an unexpected ts: " << ts << endl;
         return 0;
     }
+    /*
     orec_value *porecv = new orec_value; // pointer -> orec_value
     porecv->status = rec.status;
     porecv->time = rec.time;
-    //pair<map<orec_key, orec_value*>::iterator, bool> ret =
-            pcrp->insert(make_pair(key, porecv));
+    pair<map<orec_key, orec_value*>::iterator, bool> ret =
+    pcrp->insert(make_pair(key, porecv));
+    */
+    pcrp->insert(make_pair(key, static_cast<orec_value*>(NULL)));
     //if (!ret.second)
         //++m_nRepeat;
 #ifdef DEBUG
@@ -94,7 +97,7 @@ inline int Processor::processOrigRecord(const in_rec& rec) {
 
 int Processor::processFileBuffer() {
 	char* p;
-	int i = 0;
+	//int i = 0;
 	for (in_rec irec; m_pCurFBufPos < m_pFileBufEnd - 1; ++m_pCurFBufPos) {
 		irec.cid = strtoul(m_pCurFBufPos, &p, 10);
 		m_pCurFBufPos = p;
@@ -114,7 +117,7 @@ int Processor::processFileBuffer() {
 		m_pCurFBufPos = p;
 		irec.valid = strtoul(++m_pCurFBufPos, &p, 10);
 		m_pCurFBufPos = p;
-#ifndef DEBUG
+#ifdef DEBUG
 		if (++i == 1 || i == 20200)
 			cout << "(" << irec.cid << "," << irec.event << ","
 				<< irec.status << "," << irec.time << ","
@@ -131,7 +134,8 @@ int Processor::processFileBuffer() {
 	//m_bEOF = true;
 	if (m_pmNTSRecordPool->size() >= m_nTransCount) {
 		cout << "reach the max transition count ("
-			<< m_pmNTSRecordPool->size() << m_nTransCount << ")" << endl;
+             << m_pmNTSRecordPool->size() << ", "
+             << m_nTransCount << ")" << endl;
 		return 1;
 	}
 	return 0;
@@ -202,7 +206,7 @@ ssize_t Processor::readFileIntoMem(const char* fpath) {
     return fsize;
 }
 
-int Processor::dumpRecordsToFile() {
+int Processor::dumpRecords() {
     if (m_pmCTSRecordPool) {
         size_t cnt = 0;
         char fname[MAXPATHLEN];
@@ -232,7 +236,7 @@ int Processor::dumpRecordsToFile() {
 }
 
 int Processor::transferToNextTS() {
-    if (dumpRecordsToFile() != 0) {
+    if (dumpRecords() != 0) {
         cout << "dump file error" << endl;
         return -1;
     }
@@ -278,7 +282,7 @@ int Processor::processTS(void) {
 		cout << "dump last incomplete part failed" << endl;
 		return -1;
 	}
-	if (dumpRecordsToFile()) {
+	if (dumpRecords()) {
 		cerr << "dump to file failed" << endl;
 		return -1;
 	}
