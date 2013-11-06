@@ -6,6 +6,11 @@ TODO:
         2. specify output file format and name [DONE]
         3. skip enter to continue [DONE]
         4. 简化两个map结构，除去值，只保留键，键取64位整数
+        5. 具体化查找文件和写文件的文件夹不存在错误检测
+        6. 检测m_itsp是否达到一天的最后一个时间片，控制不完整输出文件
+        个数
+        7. 统一调试信息输出接口，使得后期检错更方便
+        8. 增加测试case
         
 概要介绍组成应用程序的每个文件的内容:
 
