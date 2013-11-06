@@ -57,7 +57,7 @@ using namespace std;
 int find_files(const char *path, const char* pattern, list<string>& olist) {
 	string fpath(path);
 	if (find_file_init(path, "2012")) {
-		cerr << "find file init failed" << endl;
+		cerr << "open directory init failed" << endl;
 		return -1;
 	}
 	const char* fname;

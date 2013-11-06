@@ -1,7 +1,7 @@
 /*
  *            File: processor.cpp
  *     Description: Main Pre Processor Source File
- *    Last-updated: 2013-11-06 00:15:34 CST
+ *    Last-updated: 2013-11-06 13:36:50 CST
  *          Author: Oxnz
  *         Version: 0.1
  */
@@ -82,7 +82,7 @@ inline int Processor::processOrigRecord(const in_rec& rec) {
     porecv->status = rec.status;
     porecv->time = rec.time;
     //pair<map<orec_key, orec_value*>::iterator, bool> ret =
-        pcrp->insert(make_pair(key, porecv));
+            pcrp->insert(make_pair(key, porecv));
     //if (!ret.second)
         //++m_nRepeat;
 #ifdef DEBUG
