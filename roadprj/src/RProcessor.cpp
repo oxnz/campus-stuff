@@ -1,7 +1,7 @@
 /*
  *            File: processor.cpp
  *     Description: Main Pre Processor Source File
- *    Last-updated: 2013-11-06 19:44:32 CST
+ *    Last-updated: 2013-11-06 19:57:08 CST
  *          Author: Oxnz
  *         Version: 0.1
  */
@@ -25,7 +25,7 @@ using namespace std;
 
 Processor::Processor(const char* indir, const char* outdir, size_t minPerTS)
     : m_outdir(outdir), m_nMinPerTS(minPerTS), m_CurrentDate(-1),
-      m_itsp(0xFF), m_nTransCount(10000)
+      m_itsp(0xFF), m_nTransCount(10000), m_tsp(0)
 {
     int cnt = find_files(indir, "2012", m_fileList);
     if (cnt == 0) throw runtime_error("no file found");
@@ -39,7 +39,7 @@ Processor::Processor(const char* indir, const char* outdir, size_t minPerTS)
 /*
  * @description: get time slot index
  */
-inline size_t Processor::getTSIndex(const uint64_t time) {
+inline size_t Processor::getTSIndex(const gps_time& time) {
     uint16_t h = static_cast<uint16_t>(time % 1000000/10000);
     uint16_t m = time % 10000/100;
     uint16_t s = time % 100;

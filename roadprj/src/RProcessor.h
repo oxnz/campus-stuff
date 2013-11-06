@@ -49,7 +49,7 @@ private:
     inline int processOrigRecord(const in_rec& rec);
     int transferToNextTS(void);
     int dumpRecordsToFile();
-    inline size_t getTSIndex(const uint64_t time);
+    inline size_t getTSIndex(const gps_time& time);
  private:
     std::list<std::string> m_fileList;   // contains fpath
     std::string m_outdir;
@@ -65,6 +65,7 @@ private:
 
     rec_date m_CurrentDate;    // Current Date;
     size_t m_itsp;     // time slot pointer, seperate CTS from NTS
+    gps_time m_tsp; // time slot pointer, indicate current time
 
     const char* m_pFileBuffer;  // point to file buffer
     const char* m_pFileBufEnd;  // file buffer end pointer
