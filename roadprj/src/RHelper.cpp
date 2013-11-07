@@ -99,4 +99,52 @@ int find_files(const char* path, const char* pattern, vector<string>& ovec) {
     sort(ovec.begin(), ovec.end());
     return cnt;
 }
-        
+
+#include <fstream>
+ssize_t readFileIntoMem(char* const pbuf,
+                        const size_t capacity,
+                        const char* fpath) {
+    ssize_t size;
+    cout << "INFO: reading [" << fpath << "] ..." << endl;
+    ifstream infile(fpath);
+    if (!infile.is_open()) {
+        cerr << "ERROR: open file [" << fpath << " ] failed" << endl;
+        return -1;
+    }
+    infile.seekg(0, ios::end);
+    size = static_cast<ssize_t>(infile.tellg());
+    cout << "INFO: file size: " << size << endl;
+    if (size > capacity) {
+        cerr << "ERROR: file size larger than capacity size" << endl;
+        return -1;
+    }
+    infile.seekg(0, ios::beg);
+    infile.read(pbuf, size);
+    infile.close();
+    return size;
+}
+
+ssize_t readFileIntoMem(char* const pbuf,
+                        const size_t capacity,
+                        list<string>& flist) {
+    ssize_t size(0);
+    int ret;
+    char* const p = pbuf;
+    while (flist.size()) {
+        cout << "INFO: reading " << flist.front() << " ..." << endl;
+        ret = readFileIntoMem(p, capacity - size, flist.front().c_str());
+
+        if (ret) {
+            flist.pop_front();
+            size += ret;
+        } else if (ret == 0) {
+            cout << "INFO: Capacity reached" << endl;
+            return size;
+        } else {
+            cerr << "ERROR: an error occured while reading file into memory"
+                 << endl;
+            return -1;
+        }
+    }
+    return size;
+}

@@ -8,6 +8,50 @@
 
 using namespace std;
 
+#include <unistd.h>
+
+int output_html(void) {
+    ofstream outfile("./out/test.html", ios::out);
+    if (!outfile.is_open()) {
+        cerr << "ERROR: cannot write to file test.html" << endl;
+        return -1;
+    }
+    outfile << "<html>" << endl;
+    outfile.close();
+    return 0;
+}
+
+int test_output_html() {
+    return output_html();
+}
+
+void printProgress(size_t percent) {
+    int n = percent;
+    char buf[51] = {0};
+    int i = 80;
+    if (!percent)
+        return;
+    while (--i)
+        cout << "\b";
+    i = -1;
+    while (--n)
+        if (n % 2)
+            buf[++i] = '=';
+    while (++i < 50)
+        buf[i] = '-';
+    cout << "Progress: ";
+    cout << buf << to_string(percent) << '\%';
+    if (percent == 100)
+        cout << endl;
+    usleep(900);
+}
+
+int test_print_progress(void) {
+    for (int i = 2; i < 480; ++i)
+        printProgress(i*100/480+1);
+    return 0;
+}
+
 int test_get_roadseg_id(void) {
 	uint32_t x(1150000000), y(394000000);
     for (int i = 0; i < 14; ++i) {
@@ -66,6 +110,8 @@ int test_get_ts_index(void) {
 }
 
 int main(int argc, char *argv[]) {
+    return test_output_html();
+    return test_print_progress();
     return test_get_ts_index();
 	// return test_find_files();
     printf("testing get_roadseg_id:\n");

@@ -92,3 +92,8 @@ typedef struct {
     uint16_t status;
     uint64_t time;
 } orec_value;
+
+typedef struct {
+    roadseg_id rsid;
+    orec_value orecv;
+} arch_rec;

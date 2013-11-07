@@ -1,7 +1,7 @@
 /*
  *            File: processor.cpp
  *     Description: Main Pre Processor Source File
- *    Last-updated: 2013-11-07 15:25:53 CST
+ *    Last-updated: 2013-11-07 21:54:41 CST
  *          Author: Oxnz
  *         Version: 0.1
  */
@@ -71,13 +71,21 @@ inline int Processor::processOrigRecord(const in_rec& rec) {
     /*
      * @advice: skip the wrong road id
      */
-    if (key.rsid == 0) { cerr << "WARNING: invalid road id" << endl; return 0; }
-    if (abs(static_cast<int64_t>((rec.time - m_tsp)/10000))) {
+    if (key.rsid == 0) {
 #ifdef WARNING
-        cout << "WARNING: invalid timestamp : " << rec.time
-             << " current time: " << m_tsp << endl;
+        cerr << "WARNING: invalid road id" << endl;
 #endif
         return 0;
+    }
+    if (abs(static_cast<int64_t>(rec.time - m_tsp)/10000)) {
+#ifdef WARNING
+        cout << "WARNING: invalid timestamp : " << rec.time
+             << " current time: " << m_tsp << " compare: "
+             << abs(static_cast<int64_t>(rec.time - m_tsp)/10000) << endl;
+#endif
+        return 0;
+    } else {
+        m_tsp = rec.time;
     }
      
     m_pTSPool[getTSIndex(rec.time)
@@ -136,7 +144,9 @@ int Processor::processFileBuffer() {
 }
 
 ssize_t Processor::readFileIntoMem(const char* fpath) {
+#ifdef INFO
     cout << "INFO: reading [" << fpath << "] ..." << endl;
+#endif
     ifstream infile(fpath);
     if (!infile.is_open()) {
         cerr << "ERROR: open file [" << fpath << " ] failed" << endl;
@@ -150,7 +160,9 @@ ssize_t Processor::readFileIntoMem(const char* fpath) {
     }
     m_pFileBufEnd = m_pFileBuffer + fsize;
     m_pCurFBufPos = (char *)m_pFileBuffer;
+#ifdef INFO
     cout << "INFO: file size: " << fsize << endl;
+#endif
     infile.seekg(0, ios::beg);
     infile.read((char *)m_pFileBuffer, fsize);
     infile.close();
@@ -164,6 +176,13 @@ int Processor::dumpRecords() {
         cerr << "CRITICAL: can't open file [" << fpath << "]" << endl;
         return -1;
     }
+    ofstream outjson(fpath.append(".js").c_str(), ios::out|ios::app);
+    if (!outjson.is_open()) {
+        cerr << "CIRITCAL: cannot open file [" << fpath.append(".js")
+             << "]" << endl;
+        return -1;
+    }
+    outjson << "var data = new Array(";
     cout << "INFO: dumping to file [" << fpath << "] ...";
     size_t cnt;
     roadseg_id x;
@@ -185,34 +204,68 @@ int Processor::dumpRecords() {
         x = roadseg_id(cnt);
         outfile.write(reinterpret_cast<const char*>(&x),
                       sizeof(roadseg_id));
-        if (i % 10 == 0)
-            cout << endl << setw(6) << setfill('0') << left << i;
+        if (i % 10 == 0) {
+            cout << endl << setw(6) << setfill('0') << left << i << "  ";
+            outjson << endl;
+        }
         cout << setw(6) << setfill(' ') << left << cnt << " ";
+        outjson << cnt << ",";
     }
     cout << endl << "INFO: dump to file [" << fpath << "] successfully" << endl;
     outfile.close();
+    outjson << ");" << endl;
+    outjson.close();
     return 0;
 }
 
-int Processor::process(uint32_t date, size_t len) {
+void printProgress(size_t percent) {
+    int n = percent;
+    char buf[51] = {0};
+    int i = 80;
+    if (!percent)
+        return;
+    while (--i)
+        cout << "\b";
+    i = -1;
+    while (--n)
+        if (n % 2)
+            buf[++i] = '=';
+    while (++i < 50)
+        buf[i] = '-';
+    cout << "Progress: [" << buf << "] " << to_string(percent) << '\%';
+    if (percent == 100)
+        cout << endl;
+}
+
+int Processor::process(uint32_t date, size_t len, bool progbar) {
     string indir;
     int ret;
-    for (size_t i = 0; i < len; ++i) {
-        m_tsp = (date+i) * 1000000;
+    int fcnt;
+    for (size_t i = 0; i < len; ++i, ++date) {
+        m_tsp = date;
+        m_tsp *= 1000000;
         indir = m_indir + to_string(date);
-        ret = find_files((m_indir + to_string(date)).c_str(),
+        ret = find_files(indir.c_str(),
                          to_string(date/100).c_str(),
                          m_fileList);
         if (ret == -1) {
             cerr << "FATAL ERROR: find files error" << endl;
             return -1;
         } else if (!ret) {
-            cerr << "ERROR: no file was found" << endl;
-            return -1;
+            cerr << "WARNING: no file was found" << endl;
+            return 1;
+        } else {
+            cout << "INFO: processing day " << date << ", " << ret
+                 << " files" << "m_tsp = " << m_tsp << endl;
         }
 
+        fcnt = m_fileList.size();
         while (m_fileList.size()) {
+            if (progbar)
+                printProgress((fcnt - m_fileList.size())*100/fcnt);
+#ifdef INFO
             cout << "INFO: ========> processing " << m_fileList.front() << endl;
+#endif
             if (readFileIntoMem(m_fileList.front().c_str()) <= 0) {
                 cerr << "ERROR: read file into mem failed" << endl;
                 return -1;
@@ -230,8 +283,8 @@ int Processor::process(uint32_t date, size_t len) {
             return -1;
         }
 	}
-    
-	return 0; // indicate there's no more files to be processed
+
+	return 0;
 }
 
 Processor::~Processor() {
@@ -242,4 +295,5 @@ Processor::~Processor() {
             m_pTSPool[i].clear();
     }
     delete[] m_pTSPool;
+    delete[] m_pFileBuffer;
 }

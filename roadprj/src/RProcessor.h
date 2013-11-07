@@ -11,7 +11,7 @@ class Processor {
     Processor(const char* indir, const char* outdir,
               size_t minPerTimeSlot = 3,
               size_t bufsize = 2*1024*1024);
-    int process(uint32_t date, size_t len = 1);
+    int process(uint32_t date, size_t len = 1, bool progbar = true);
     ~Processor();
 private:
 	 Processor(const Processor& p); // disable copy constructor
