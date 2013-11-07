@@ -6,7 +6,6 @@
 #include <list>
 #include <map>
 
-
 class Processor {
  public:
     /*
@@ -38,6 +37,7 @@ class Processor {
      * @notice: unimplemented yet
      */
     int process(uint32_t nTimeSlot);
+    int process(rec_date start, rec_date stop);
     ~Processor();
 private:
 	 Processor(const Processor& p); // disable copy constructor
@@ -53,23 +53,18 @@ private:
  private:
     std::list<std::string> m_fileList;   // contains fpath
     std::string m_outdir;
-
-    /*
-     * Current Time Slot Record Pool &
-     * Next Time Slot Record Pool
-     */
-    std::map<orec_key, orec_value*> *m_pmCTSRecordPool;
-    std::map<orec_key, orec_value*> *m_pmNTSRecordPool;
-
+    
+    std::map<const orec_key, void*>* m_pTSPool;
+    
     const size_t m_nMinPerTS; // minute per time slot
-
+    const size_t m_nTSCnt;
+    
     rec_date m_CurrentDate;    // Current Date;
-    size_t m_itsp;     // time slot pointer, seperate CTS from NTS
     gps_time m_tsp; // time slot pointer, indicate current time
-
+    
     const char* m_pFileBuffer;  // point to file buffer
     const char* m_pFileBufEnd;  // file buffer end pointer
     char*  m_pCurFBufPos;       // pointer remember position in file buffer
 
-    const size_t m_nTransCount; // Transition records count from cur->next
+    //const size_t m_nTransCount; // Transition records count from cur->next
 };

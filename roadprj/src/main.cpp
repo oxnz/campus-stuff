@@ -59,6 +59,7 @@ int main(int argc, const char *argv[]) {
         cerr << "Unknown error happened, exit" << endl;
         return -1;
     }
+
     while (loop) {
         int ret = p->processTS();
         if (ret) {

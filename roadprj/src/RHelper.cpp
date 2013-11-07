@@ -56,7 +56,7 @@ using namespace std;
 
 int find_files(const char *path, const char* pattern, list<string>& olist) {
 	string fpath(path);
-	if (find_file_init(path, "2012")) {
+	if (find_file_init(path, pattern)) {
 		cerr << "open directory init failed" << endl;
 		return -1;
 	}
@@ -76,3 +76,27 @@ int find_files(const char *path, const char* pattern, list<string>& olist) {
     olist.sort();
     return cnt;
 }
+
+int find_files(const char* path, const char* pattern, vector<string>& ovec) {
+    string fpath(path);
+    if (find_file_init(path, pattern)) {
+        cerr << "open directory failed!" << endl;
+        return -1;
+    }
+    const char* fname;
+    int cnt = 0;
+    if (find_first_file(&fname)) {
+        ovec.push_back(fpath + "/" + fname);
+        ++cnt;
+    }
+    while (find_next_file(&fname)) {
+        ++cnt;
+        ovec.push_back(fpath + "/" + fname);
+    }
+    if (find_file_finish()) {
+        cerr << "find file finish failed!" << endl;
+    }
+    sort(ovec.begin(), ovec.end());
+    return cnt;
+}
+        

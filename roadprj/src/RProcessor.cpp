@@ -1,7 +1,7 @@
 /*
  *            File: processor.cpp
  *     Description: Main Pre Processor Source File
- *    Last-updated: 2013-11-06 21:45:33 CST
+ *    Last-updated: 2013-11-07 13:57:27 CST
  *          Author: Oxnz
  *         Version: 0.1
  */
@@ -13,8 +13,8 @@
 #include "RHelper.h"
 
 #include <cstring>
-#include <cstdlib>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <string>
 #include <exception>
@@ -24,16 +24,18 @@
 using namespace std;
 
 Processor::Processor(const char* indir, const char* outdir, size_t minPerTS)
-    : m_outdir(outdir), m_nMinPerTS(minPerTS), m_CurrentDate(-1),
-      m_itsp(0xFF), m_nTransCount(10000), m_tsp(0)
+    : m_outdir(outdir),
+      m_nMinPerTS(minPerTS),
+      m_nTSCnt(24*60/minPerTS),
+      m_tsp(strtoul(indir, NULL, 10)*1000000)
 {
-    int cnt = find_files(indir, "2012", m_fileList);
+    int cnt = find_files(indir, "201211", m_fileList);
     if (cnt == 0) throw runtime_error("no file found");
     else if (cnt < 0) throw runtime_error("find_files error");
-
-    m_pmCTSRecordPool = new std::map<orec_key, orec_value*>;
-    m_pmNTSRecordPool = new std::map<orec_key, orec_value*>;
+    if (*m_outdir.rbegin() != '/')
+        m_outdir.append("/");
     m_pFileBuffer = new char[RFBUF_MAXLEN];
+    m_pTSPool = new map<const orec_key, void*>[24*60/minPerTS];
 }
 
 /*
@@ -53,41 +55,23 @@ inline int Processor::processOrigRecord(const in_rec& rec) {
 		<< rec.x << "," << rec.y << "," << rec.speed << ","
 		<< rec.direct << "," << rec.valid << ")" << endl;
 #endif
-    gps_coord coord = {static_cast<gps_x>(rec.x * 10000000), static_cast<gps_y>(rec.y * 10000000)};
+    gps_coord coord = {static_cast<gps_x>(rec.x * 10000000),
+                       static_cast<gps_y>(rec.y * 10000000)};
     orec_key key = {get_rsid2(coord), rec.cid};
     /*
      * @advice: skip the wrong road id
      */
     if (key.rsid == 0) { cerr << "invalid road id" << endl; return 0; }
-    size_t ts = getTSIndex(rec.time);
-    //if (m_itsp == -1) m_itsp = ts;
-    map<orec_key, orec_value*> *pcrp = 0; // pointer -> current record pool
-    if (ts == m_itsp) {
-        pcrp = m_pmCTSRecordPool;
-    }
-    else if (ts == m_itsp+1) {
-        pcrp = m_pmNTSRecordPool;
-        //++m_nCurTransCnt;
-    }
-    else if (ts+1 == m_itsp){
-        cerr << "Error: come up with an previous ts: " << ts << ", skipped"
-             << endl;
-        //return -1;
-        return 0;
-    } else {
-        //cerr << "Error: come up with an unexpected ts: " << ts << endl;
+    if (abs(static_cast<int64_t>((rec.time - m_tsp)/10000))) {
+        /*
+        cerr << "invalid timestamp : " << rec.time << " current time: "
+             << m_tsp << endl;
+        */
         return 0;
     }
-    /*
-    orec_value *porecv = new orec_value; // pointer -> orec_value
-    porecv->status = rec.status;
-    porecv->time = rec.time;
-    pair<map<orec_key, orec_value*>::iterator, bool> ret =
-    pcrp->insert(make_pair(key, porecv));
-    */
-    pcrp->insert(make_pair(key, static_cast<orec_value*>(NULL)));
-    //if (!ret.second)
-        //++m_nRepeat;
+     
+    m_pTSPool[getTSIndex(rec.time)
+              ].insert(make_pair(key, static_cast<void*>(0)));
 #ifdef DEBUG
 	cout << "roadseg_id: " << key.rsid << " car_id: " << key.cid << endl;
 #endif
@@ -125,66 +109,17 @@ int Processor::processFileBuffer() {
 				<< irec.direct << "," << irec.valid << ")" << endl;
 #endif
 		if (!irec.valid || irec.status != NON_OCCUPIED) continue;
-        if (m_itsp == 0xFF) m_itsp = getTSIndex(irec.time);
-        if (processOrigRecord(irec)) {
+        if(processOrigRecord(irec)) {
             cerr << "process record failed" << endl;
             return -1;
         }
 	}
-	//m_bEOF = true;
-	if (m_pmNTSRecordPool->size() >= m_nTransCount) {
-		cout << "reach the max transition count ("
-             << m_pmNTSRecordPool->size() << ", "
-             << m_nTransCount << ")" << endl;
-		return 1;
-	}
-	return 0;
-}
 
-int Processor::processFileBuffer2() {
-    for (in_rec irec; m_pCurFBufPos < m_pFileBufEnd &&
-             sscanf(m_pCurFBufPos, "%u,%hu,%hu,%llu,%lf,%lf,%hu,%hu,%hu\r\n",
-                    &irec.cid, &irec.event, &irec.status,
-                    &irec.time, &irec.x, &irec.y,
-                    &irec.speed, &irec.direct, &irec.valid) == 9;
-         m_pCurFBufPos = strchr(++m_pCurFBufPos, '\n')) {
-        if (!irec.valid) continue;
-        if (irec.status != NON_OCCUPIED) continue;
-        if (m_itsp == 0xFF) m_itsp = getTSIndex(irec.time);
-        if (processOrigRecord(irec) != 0) {
-        //if (processRecord(irec) != 0) {
-            cerr << "process record failed" << endl;
-            return -1;
-        }
-        if (m_pmNTSRecordPool->size() == m_nTransCount) {
-            cout << "reach the max transition count" << endl;
-            return 1;
-        } else if (m_pmNTSRecordPool->size() > m_nTransCount) {
-            cout << "greater than trans count, how ?!" << endl;
-            return 0;
-        }
-		
-    }
-    //m_bEOF = true;
-    cout << "one file finished, about to process next" << endl;
-    return 0;
+	return 0;
 }
 
 ssize_t Processor::readFileIntoMem(const char* fpath) {
     cout << "reading " << fpath;
-    const char* p = strrchr(fpath, '/');
-    if (p)
-        ++p;
-    else
-        p = fpath;
-    char buf[9] = {0};
-    for (int i = 0; i < 8; ++i)
-        buf[i] = p[i];
-    m_CurrentDate = strtol(buf, NULL, 10);
-    if (m_CurrentDate < 20121101 && m_CurrentDate > 20121131) {
-        cerr << "error date in filename: " << m_CurrentDate << endl;
-        return -1;
-    }
     ifstream infile(fpath);
     if (!infile.is_open()) {
         cerr << "open file failed" << endl;
@@ -207,51 +142,41 @@ ssize_t Processor::readFileIntoMem(const char* fpath) {
 }
 
 int Processor::dumpRecords() {
-    if (m_pmCTSRecordPool) {
-        size_t cnt = 0;
-        char fname[MAXPATHLEN];
-        sprintf(fname, "%08d-%04lu.dat", m_CurrentDate, m_itsp);
-        ofstream outfile(fname, ios::out|ios::binary);
-        for (map<orec_key, orec_value*>::iterator it = m_pmCTSRecordPool->begin();
-             it != m_pmCTSRecordPool->end(); ++it, ++cnt) {
-#ifdef DEBUG
-            cout << "saved:(" << it->first.rsid << "," << it->first.cid << ")"
-                 << "status:" << it->second->status << " time:"
-                 << it->second->time << endl;
-#endif
-            outfile.write(reinterpret_cast<const char*>(&it->first.rsid),
-                          sizeof(roadseg_id));
-            /*
-            outfile.write(reinterpret_cast<const char*>(&it->second->status),
-                          sizeof(car_status));
-            outfile.write(reinterpret_cast<const char*>(&it->second->time),
-                          sizeof(gps_time));
-                          */
-        }
-        outfile.close();
-        cout << "write " << cnt << " records to file ["
-             << fname << "]" << endl;
-    }
-    return 0;
-}
-
-int Processor::transferToNextTS() {
-    if (dumpRecords() != 0) {
-        cout << "dump file error" << endl;
+    char fname[9] = {0}; // sample: 20121101.dat
+    sprintf(fname, "%08llu.dat", m_tsp/1000000);
+    cout << "INFO: dump to file: " << fname;
+    ofstream outfile((m_outdir + fname).c_str(), ios::out|ios::binary);
+    if (!outfile.is_open()) {
+        cerr << "CRITICAL: can't open file [" << fname << "]" << endl;
         return -1;
     }
-    if (++m_itsp == 24*60/m_nMinPerTS) {
-        cout << "current day processed done" << endl;
-        m_itsp = 0;
-    }
-    swap(m_pmCTSRecordPool, m_pmNTSRecordPool);
-	for (map<orec_key, orec_value*>::iterator it =
-                 m_pmNTSRecordPool->begin(); it != m_pmNTSRecordPool->end();
-             ++it) {
-            delete it->second;
+    size_t cnt;
+    roadseg_id x;
+    for (size_t i = 0; i < m_nTSCnt; ++i) {
+        cnt = 0;
+        for (map<const orec_key, void*>::iterator it = m_pTSPool[i].begin();
+             it != m_pTSPool[i].end(); ++it) {
+            ++cnt;
+            outfile.write(reinterpret_cast<const char*>(&it->first.rsid),
+                          sizeof(roadseg_id));
         }
-    m_pmNTSRecordPool->clear();
 
+        x = INVALID_RSID;
+        outfile.write(reinterpret_cast<const char*>(&x),
+                      sizeof(roadseg_id));
+        x = roadseg_id(i);
+        outfile.write(reinterpret_cast<const char*>(&x),
+                      sizeof(roadseg_id));
+        x = roadseg_id(cnt);
+        outfile.write(reinterpret_cast<const char*>(&x),
+                      sizeof(roadseg_id));
+        
+        if (i % 10 == 0)
+            cout << endl << setw(6) << setfill('0') << left << i;
+        cout << setw(6) << setfill(' ') << left << cnt << " ";
+    }
+    cout << endl;
+    outfile.close();
     return 0;
 }
 
@@ -263,52 +188,25 @@ int Processor::processTS(void) {
 			return -1;
 		m_fileList.pop_front();
 		int ret = processFileBuffer();
-		if (ret == 1) { // 1 indicate needs transfer to next TS
-			if (transferToNextTS()) {
-				cerr << "transfer to next TS failed!" << endl;
-				return -1;
-			}
-		} else if (ret == -1) {
+        if (ret == -1) {
 			cerr << "process file buffer failed!" << endl;
 			return -1;
-		} else
-			return 0;
+		}
 	}
-	/* if reach here, no more files can be supplied,
-	 * dump the incomplete file and return
-	 */
-	m_itsp += 1000; // indicate that is the last 2 files are incomplete
-	if (transferToNextTS() == -1) {
-		cout << "dump last incomplete part failed" << endl;
-		return -1;
-	}
+	
 	if (dumpRecords()) {
 		cerr << "dump to file failed" << endl;
 		return -1;
 	}
 	cout << "dump to file succeed" << endl;
-
+    
 	return 1; // indicate there's no more files to be processed
 }
-		
+
 Processor::~Processor() {
     m_fileList.clear();
-    if (m_pmCTSRecordPool) {
-        for (map<orec_key, orec_value*>::iterator it =
-                 m_pmCTSRecordPool->begin(); it != m_pmCTSRecordPool->end();
-             ++it) {
-            delete it->second;
-        }
-        m_pmCTSRecordPool->clear();
-        delete m_pmCTSRecordPool;
+    for (int i = 0; i < 480; ++i) {
+        m_pTSPool[i].clear();
     }
-    if (m_pmNTSRecordPool) {
-        for (map<orec_key, orec_value*>::iterator it =
-                 m_pmNTSRecordPool->begin(); it != m_pmNTSRecordPool->end();
-             ++it) {
-            delete it->second;
-        }
-        m_pmNTSRecordPool->clear();
-        delete m_pmNTSRecordPool;
-    }
+    delete[] m_pTSPool;
 }

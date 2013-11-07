@@ -49,8 +49,24 @@ int test_find_files(void) {
 	return 0;
 }
 
+int get_ts_index(const gps_time& time) {
+    uint16_t h = static_cast<uint16_t>(time%1000000/10000);
+    uint16_t m = time % 10000/100;
+    uint16_t s = time % 100;
+    return (h*60*60+m*60+s)/(3*60);
+}
+
+int test_get_ts_index(void) {
+    uint64_t t = 20121101001122;
+    for (int i = 0; i < 10; ++i) {
+        t += 20400;
+        cout << "ts index of " << t << " = " << get_ts_index(t) << endl;
+    }
+    return 0;
+}
 
 int main(int argc, char *argv[]) {
+    return test_get_ts_index();
 	// return test_find_files();
     printf("testing get_roadseg_id:\n");
     test_get_roadseg_id();
