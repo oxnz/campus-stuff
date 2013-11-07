@@ -1,3 +1,15 @@
+/*
+ * File: RTypes.cpp
+ * Description: type define file
+ * Author: Oxnz
+ * Version: 1.1
+ * Mail: yunxinyi@gmail.com
+ * Copying: Copyright (C) 2013, All rights reserved.
+ *
+ * Revision: -*-
+ * Last-update: 2013-11-07 22:10:12 CST
+ */
+
 #pragma once
 
 #include <stdint.h>

@@ -1,3 +1,14 @@
+/*
+ * File: RProcess.h
+ * Description: main pre processor header file
+ * Author: Oxnz
+ * Version: 1.1
+ * Mail: yunxinyi@gmail.com
+ * Copying: Copyright (C) 2013, All rights reserved.
+ *
+ * Revision: -*-
+ * Last-update: 2013-11-07 22:10:12
+ */
 #pragma once
 
 #include "RTypes.h"
@@ -6,9 +17,11 @@
 #include <list>
 #include <map>
 
+namespace R {
 class Processor {
  public:
-    Processor(const char* indir, const char* outdir,
+    Processor(const char* indir,
+              const char* outdir,
               size_t minPerTimeSlot = 3,
               size_t bufsize = 2*1024*1024);
     int process(uint32_t date, size_t len = 1, bool progbar = true);
@@ -18,7 +31,7 @@ private:
 	 Processor& operator= (const Processor& p); // disable copy-assign
 private:
     ssize_t readFileIntoMem(const char* fpath);
-    int processFileBuffer(); // strto{ul,ull,d} version
+    int processFileBuffer();
     inline int processOrigRecord(const in_rec& rec);
     int dumpRecords();
     inline size_t getTSIndex(const gps_time& time);
@@ -39,3 +52,4 @@ private:
     char*  m_pCurFBufPos;       // pointer remember position in file buffer
 
 };
+}

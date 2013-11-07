@@ -1,3 +1,15 @@
+/*
+ * File: RHelper.cpp
+ * Description: helper source file, supplies services
+ * Author: Oxnz
+ * Version: 1.1
+ * Mail: yunxinyi@gmail.com
+ * Copying: Copyright (C) 2013, All rights reserved.
+ *
+ * Revision: -*-
+ * Last-update: 2013-11-07 22:10:12 CST
+ */
+
 #include <stdio.h>
 #include <unistd.h>
 #include <dirent.h>
@@ -54,7 +66,9 @@ int find_file_finish(void) {
 #include <algorithm>
 using namespace std;
 
-int find_files(const char *path, const char* pattern, list<string>& olist) {
+int RHelper::find_files(const char *path,
+                        const char* pattern,
+                        list<string>& olist) {
 	string fpath(path);
 	if (find_file_init(path, pattern)) {
 		cerr << "open directory init failed" << endl;
@@ -77,7 +91,9 @@ int find_files(const char *path, const char* pattern, list<string>& olist) {
     return cnt;
 }
 
-int find_files(const char* path, const char* pattern, vector<string>& ovec) {
+int RHelper::find_files(const char* path,
+                        const char* pattern,
+                        vector<string>& ovec) {
     string fpath(path);
     if (find_file_init(path, pattern)) {
         cerr << "open directory failed!" << endl;
@@ -147,4 +163,23 @@ ssize_t readFileIntoMem(char* const pbuf,
         }
     }
     return size;
+}
+
+void RHelper::print_progress(size_t percent) {
+    int n = percent;
+    char buf[51] = {0};
+    int i = 80;
+    if (!percent)
+        return;
+    while (--i)
+        cout << "\b";
+    i = -1;
+    while (--n)
+        if (n % 2)
+            buf[++i] = '=';
+    while (++i < 50)
+        buf[i] = '-';
+    cout << "Progress: [" << buf << "] " << to_string(percent) << '\%';
+    if (percent == 100)
+        cout << endl;
 }

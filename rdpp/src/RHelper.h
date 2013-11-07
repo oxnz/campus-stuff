@@ -1,8 +1,21 @@
+/*
+ * File: RHelper.h
+ * Description: helper interface file, supplies services
+ * Author: Oxnz
+ * Version: 1.1
+ * Mail: yunxinyi@gmail.com
+ * Copying: Copyright (C) 2013, All rights reserved.
+ *
+ * Revision: -*-
+ * Last-update: 2013-11-07 22:10:12 CST
+ */
+
 #pragma once
 
 #include <list>
 #include <vector>
 #include <string>
+namespace RHelper {
 /*
  * @description: find file specified path that matches pattern
  *
@@ -18,3 +31,5 @@ int find_files(const char* path, const char* pattern,
                     std::list<std::string>& outlist);
 int find_files(const char* path, const char* pattern,
                std::vector<std::string>& outvector);
+void print_progress(size_t percent);
+}

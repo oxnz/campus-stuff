@@ -1,11 +1,14 @@
 /*
- *            File: processor.cpp
- *     Description: Main Pre Processor Source File
- *    Last-updated: 2013-11-07 21:54:41 CST
- *          Author: Oxnz
- *         Version: 0.1
+ * File: RProcess.h
+ * Description: main pre processor source file
+ * Author: Oxnz
+ * Version: 1.1
+ * Mail: yunxinyi@gmail.com
+ * Copying: Copyright (C) 2013, All rights reserved.
+ *
+ * Revision: -*-
+ * Last-update: 2013-11-07 22:10:12
  */
-
 
 #include "RProcessor.h"
 #include "RsidGen.h"
@@ -23,7 +26,7 @@
 
 using namespace std;
 
-Processor::Processor(const char* indir, const char* outdir, size_t minPerTS,
+R::Processor::Processor(const char* indir, const char* outdir, size_t minPerTS,
                      size_t bufsize)
     : m_indir(indir),
       m_outdir(outdir),
@@ -51,14 +54,14 @@ Processor::Processor(const char* indir, const char* outdir, size_t minPerTS,
 /*
  * @description: get time slot index
  */
-inline size_t Processor::getTSIndex(const gps_time& time) {
+inline size_t R::Processor::getTSIndex(const gps_time& time) {
     uint16_t h = static_cast<uint16_t>(time % 1000000/10000);
     uint16_t m = time % 10000/100;
     uint16_t s = time % 100;
     return (h*60*60+m*60+s)/(m_nMinPerTS*60);
 }
 
-inline int Processor::processOrigRecord(const in_rec& rec) {
+inline int R::Processor::processOrigRecord(const in_rec& rec) {
 #ifdef DEBUG
 	cout << "DEBUG: (" << rec.cid << "," << rec.event << ","
 		<< rec.status << "," << rec.time << ","
@@ -67,7 +70,7 @@ inline int Processor::processOrigRecord(const in_rec& rec) {
 #endif
     gps_coord coord = {static_cast<gps_x>(rec.x * 10000000),
                        static_cast<gps_y>(rec.y * 10000000)};
-    orec_key key = {get_rsid2(coord), rec.cid};
+    orec_key key = {RsidGen::get_rsid2(coord), rec.cid};
     /*
      * @advice: skip the wrong road id
      */
@@ -97,7 +100,7 @@ inline int Processor::processOrigRecord(const in_rec& rec) {
     return 0;
 }
 
-int Processor::processFileBuffer() {
+int R::Processor::processFileBuffer() {
 	char* p;
 #ifdef DEBUG
 	int i = 0;
@@ -143,7 +146,7 @@ int Processor::processFileBuffer() {
 	return 0;
 }
 
-ssize_t Processor::readFileIntoMem(const char* fpath) {
+ssize_t R::Processor::readFileIntoMem(const char* fpath) {
 #ifdef INFO
     cout << "INFO: reading [" << fpath << "] ..." << endl;
 #endif
@@ -169,7 +172,7 @@ ssize_t Processor::readFileIntoMem(const char* fpath) {
     return fsize;
 }
 
-int Processor::dumpRecords() {
+int R::Processor::dumpRecords() {
     string fpath = m_outdir + to_string(m_tsp/1000000) + ".dat";
     ofstream outfile(fpath.c_str(), ios::out|ios::binary);
     if (!outfile.is_open()) {
@@ -195,7 +198,7 @@ int Processor::dumpRecords() {
                           sizeof(roadseg_id));
         }
         m_pTSPool[i].clear();
-        x = INVALID_RSID;
+        x = RsidGen::INVALID_RSID;
         outfile.write(reinterpret_cast<const char*>(&x),
                       sizeof(roadseg_id));
         x = roadseg_id(i);
@@ -213,31 +216,13 @@ int Processor::dumpRecords() {
     }
     cout << endl << "INFO: dump to file [" << fpath << "] successfully" << endl;
     outfile.close();
-    outjson << ");" << endl;
+    // here need \b to erase the last comma, otherwise js code will complain
+    outjson << "\b);" << endl;
     outjson.close();
     return 0;
 }
 
-void printProgress(size_t percent) {
-    int n = percent;
-    char buf[51] = {0};
-    int i = 80;
-    if (!percent)
-        return;
-    while (--i)
-        cout << "\b";
-    i = -1;
-    while (--n)
-        if (n % 2)
-            buf[++i] = '=';
-    while (++i < 50)
-        buf[i] = '-';
-    cout << "Progress: [" << buf << "] " << to_string(percent) << '\%';
-    if (percent == 100)
-        cout << endl;
-}
-
-int Processor::process(uint32_t date, size_t len, bool progbar) {
+int R::Processor::process(uint32_t date, size_t len, bool progbar) {
     string indir;
     int ret;
     int fcnt;
@@ -245,7 +230,7 @@ int Processor::process(uint32_t date, size_t len, bool progbar) {
         m_tsp = date;
         m_tsp *= 1000000;
         indir = m_indir + to_string(date);
-        ret = find_files(indir.c_str(),
+        ret = RHelper::find_files(indir.c_str(),
                          to_string(date/100).c_str(),
                          m_fileList);
         if (ret == -1) {
@@ -262,7 +247,7 @@ int Processor::process(uint32_t date, size_t len, bool progbar) {
         fcnt = m_fileList.size();
         while (m_fileList.size()) {
             if (progbar)
-                printProgress((fcnt - m_fileList.size())*100/fcnt);
+                RHelper::print_progress((fcnt - m_fileList.size())*100/fcnt);
 #ifdef INFO
             cout << "INFO: ========> processing " << m_fileList.front() << endl;
 #endif
@@ -287,7 +272,7 @@ int Processor::process(uint32_t date, size_t len, bool progbar) {
 	return 0;
 }
 
-Processor::~Processor() {
+R::Processor::~Processor() {
     if (m_fileList.size())
         m_fileList.clear();
     for (int i = 0; i < 480; ++i) {

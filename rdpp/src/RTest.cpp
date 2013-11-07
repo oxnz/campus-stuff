@@ -1,3 +1,15 @@
+/*
+ * File: RTest.h
+ * Description: all test cases are here
+ * Author: Oxnz
+ * Version: 1.1
+ * Mail: yunxinyi@gmail.com
+ * Copying: Copyright (C) 2013, All rights reserved.
+ *
+ * Revision: -*-
+ * Last-update: 2013-11-07 22:10:12 CST
+ */
+
 #include "RsidGen.h"
 #include "RTypes.h"
 #include "RHelper.h"
@@ -7,6 +19,7 @@
 #include <cassert>
 
 using namespace std;
+using namespace RHelper;
 
 #include <unistd.h>
 
@@ -17,6 +30,7 @@ int output_html(void) {
         return -1;
     }
     outfile << "<html>" << endl;
+    outfile << "\bx" << endl;
     outfile.close();
     return 0;
 }
@@ -25,30 +39,9 @@ int test_output_html() {
     return output_html();
 }
 
-void printProgress(size_t percent) {
-    int n = percent;
-    char buf[51] = {0};
-    int i = 80;
-    if (!percent)
-        return;
-    while (--i)
-        cout << "\b";
-    i = -1;
-    while (--n)
-        if (n % 2)
-            buf[++i] = '=';
-    while (++i < 50)
-        buf[i] = '-';
-    cout << "Progress: ";
-    cout << buf << to_string(percent) << '\%';
-    if (percent == 100)
-        cout << endl;
-    usleep(900);
-}
-
 int test_print_progress(void) {
     for (int i = 2; i < 480; ++i)
-        printProgress(i*100/480+1);
+        print_progress(i*100/480+1);
     return 0;
 }
 
@@ -57,7 +50,8 @@ int test_get_roadseg_id(void) {
     for (int i = 0; i < 14; ++i) {
         for (int j = 0; j < 10; ++j) {
             gps_coord c = {x, y};
-            cout << "rsid (" << x << "," << y << ") = " << get_rsid2(c) << endl;
+            cout << "rsid (" << x << "," << y << ") = "
+                 << RsidGen::get_rsid2(c) << endl;
             y += 2000000;
         }
         y -= 20000000;

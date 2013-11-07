@@ -1,3 +1,13 @@
+/*
+ * File: main.cpp
+ * Description: this file is part of the RDPP Project, main func entry point
+ * Author: Oxnz
+ * Mail: yunxinyi@gmail.com
+ * Copying: Copyright (C) 2013, All rights reserved.
+ *
+ * Revision: -*-
+ * Last-update: 2013-11-07 22:10:12
+ */
 #include "RProcessor.h"
 
 #include <unistd.h>
@@ -134,9 +144,9 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    Processor *rdpp;
+    R::Processor *rdpp;
     try {
-        rdpp = new Processor(pIndir, pOutdir, mpts, bufsize);
+        rdpp = new R::Processor(pIndir, pOutdir, mpts, bufsize);
     } catch (std::logic_error& e) {
         cerr << "logic error:" << e.what() << endl;
         return -1;
