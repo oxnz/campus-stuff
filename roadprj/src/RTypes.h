@@ -53,9 +53,7 @@ typedef struct {
 
 typedef uint32_t roadseg_id;
 
-typedef uint32_t rec_date;
-
-typedef struct InRecord
+typedef struct
 {
     car_id cid;
     uint16_t event;
@@ -94,9 +92,3 @@ typedef struct {
     uint16_t status;
     uint64_t time;
 } orec_value;
-
-
-typedef struct ArchiveRecord {
-    roadseg_id rsid;
-    orec_value orecv;
-} arch_rec;// archive record struct for serialization

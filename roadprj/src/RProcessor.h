@@ -8,36 +8,10 @@
 
 class Processor {
  public:
-    /*
-     * @description: initialization work, which open listfname and read
-     *               fliename and store, malloc mem, setup some constant
-     *               value, etc.
-     * @parameter:
-     *  listfname: a text which contains a list of filepath which is sorted
-     *             by the record time sequence
-     *  minPerTimeSlot: minute per time slot
-     * @return: None
-     * @exception: if malloc error, will throw out bad_alloc exception;
-     *             if listfname open fails, will throw out runtime_error
-     *             exception
-     */
-    Processor(const char* indir, const char* outdir, size_t minPerTimeSlot);
-    /*
-     * @description: process one time slot each time
-     *
-     * @return: 0 on success, -1 on failure
-     */
-    int processTS(void);
-    bool hasNextFile(void) const {
-        return m_fileList.size() > 0;
-    }
-    /*
-     * @description: process n time slot each time
-     *
-     * @notice: unimplemented yet
-     */
-    int process(uint32_t nTimeSlot);
-    int process(rec_date start, rec_date stop);
+    Processor(const char* indir, const char* outdir,
+              size_t minPerTimeSlot = 3,
+              size_t bufsize = 2*1024*1024);
+    int process(uint32_t date, size_t len = 1);
     ~Processor();
 private:
 	 Processor(const Processor& p); // disable copy constructor
@@ -45,26 +19,23 @@ private:
 private:
     ssize_t readFileIntoMem(const char* fpath);
     int processFileBuffer(); // strto{ul,ull,d} version
-    int processFileBuffer2(); // sscanf version, too slow on linux sys
     inline int processOrigRecord(const in_rec& rec);
-    int transferToNextTS(void);
     int dumpRecords();
     inline size_t getTSIndex(const gps_time& time);
  private:
-    std::list<std::string> m_fileList;   // contains fpath
+    std::string m_indir;
     std::string m_outdir;
-    
+    std::list<std::string> m_fileList;   // contains fpath
     std::map<const orec_key, void*>* m_pTSPool;
     
     const size_t m_nMinPerTS; // minute per time slot
     const size_t m_nTSCnt;
     
-    rec_date m_CurrentDate;    // Current Date;
     gps_time m_tsp; // time slot pointer, indicate current time
-    
+
+    const size_t m_nBufSize;    // file buffer size
     const char* m_pFileBuffer;  // point to file buffer
     const char* m_pFileBufEnd;  // file buffer end pointer
     char*  m_pCurFBufPos;       // pointer remember position in file buffer
 
-    //const size_t m_nTransCount; // Transition records count from cur->next
 };

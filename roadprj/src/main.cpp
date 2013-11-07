@@ -1,4 +1,5 @@
 #include "RProcessor.h"
+
 #include <unistd.h>
 #include <signal.h>
 
@@ -60,20 +61,11 @@ int main(int argc, const char *argv[]) {
         return -1;
     }
 
-    while (loop) {
-        int ret = p->processTS();
-        if (ret) {
-            if (p->hasNextFile()) {
-            cerr << "Error occured while processing, aborted with error code: "
-                 << ret << endl;
-            return -1;
-            } else {
-                cout << "All files are processed successfully" << endl;
-                loop = 0;
-            }
-        }
+    int ret;
+    if ((ret = p->process(20121101))) {
+        cerr << "ERROR: RDPP process failed, error code: " << ret << endl;
     }
     delete p;
     
-    return 0;
+    return ret;
 }

@@ -1,4 +1,5 @@
 #pragma once
+
 #include "RTypes.h"
 #include "RConstant.h"
 
@@ -26,18 +27,14 @@ using namespace std;
 /* gps_coord must be checked cause there are some error statistics
  */
 inline roadseg_id get_rsid(const gps_coord& coord) {
-    /*
-    if (coord.x < GPS::x0 || coord.x > GPS::x1 ||
-            coord.y < GPS::y0 || coord.y > GPS::y1) {
-    */
     if (coord.x < GPS_X_MIN || coord.x > GPS_X_MAX ||
         coord.y < GPS_Y_MIN || coord.y > GPS_Y_MAX) {
-        std::cerr << "invalid gps coord (" << coord.x << ", " << coord.y << ")"
-                  << std::endl;
+        std::cerr << "ERROR: invalid gps coord (" << coord.x
+                  << ", " << coord.y << ")" << std::endl;
         return INVALID_RSID;
     }
 #ifdef DEBUG
-    cout << "ix = " << (((coord.x-GPS_X_MIN) << 9)/GPS_X_SCALE)
+    cout << "DEBUG: ix = " << (((coord.x-GPS_X_MIN) << 9)/GPS_X_SCALE)
          << " , iy = " << ((((coord.y-GPS_Y_MIN) << 9)/GPS_Y_SCALE)) << endl;
 #endif
     return roadseg_id(((((coord.x - GPS_X_MIN) << 9)/GPS_X_SCALE) << 16) |
