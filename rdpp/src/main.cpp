@@ -9,6 +9,7 @@
  * Last-update: 2013-11-07 22:10:12
  */
 #include "RProcessor.h"
+#include "NZLogger.h"
 
 #include <unistd.h>
 #include <signal.h>
@@ -22,6 +23,7 @@
 using std::cout;
 using std::cerr;
 using std::endl;
+using NZ::NZLogger;
 /*
  * @descritpion: control processing loop, 0 will cause return after
  * finish current time slot
@@ -66,6 +68,7 @@ int help(int ecode = 0) {
 }
 
 int main(int argc, char *argv[]) {
+    NZLogger::setLogLevel(NZ::ERROR);
     int ch;
     size_t bufsize(2*1024*1024), date(0), dcnt(1), mpts(3);
     const char* pIndir(0);
@@ -79,7 +82,7 @@ int main(int argc, char *argv[]) {
             if (bufsize >= 2 && bufsize < 20)
                 bufsize *= 1024*1024;
             else {
-                cerr << "ERROR: bad buffer size, must be in 2 ~ 20" << endl;
+                NZLogger::log(NZ::ERROR, "bad buffer size must be in 2~20");
                 return -1;
             }
             break;
@@ -88,7 +91,8 @@ int main(int argc, char *argv[]) {
             if (date > 18000000 && date < 99999999)
                 break;
             else {
-                cerr << "ERROR: bad date, must be in 18000000~99999999" << endl;
+                NZLogger::log(NZ::ERROR,
+                              "bad date, should be in 18000000~99999999");
                 return -1;
             }
         case 'i':
@@ -96,10 +100,10 @@ int main(int argc, char *argv[]) {
             break;
         case 'l':
             dcnt = strtoul(optarg, NULL, 10);
-            if (dcnt >= 1 && dcnt <= 30)
+            if (dcnt >= 1 && dcnt <= 31)
                 break;
             else {
-                cerr << "ERROR: bad day count, must be in 1~30" << endl;
+                NZLogger::log(NZ::ERROR, "bad day count, must be in 1~31");
                 return -1;
             }
         case 'o':
@@ -110,8 +114,9 @@ int main(int argc, char *argv[]) {
             if (mpts >= 2 && mpts <= 59 && 24*60 % mpts == 0)
                 break;
             else {
-                cerr << "ERROR: bad minute per time slot, must be in 2~59"
-                     << " && 24*60 mod minPerTS == 0" << endl;
+                NZLogger::log(NZ::ERROR,
+                              "bad minute per time slot, must be 2~59"
+                              " && 24*60 mod minPerTS == 0");
                 return -1;
             }
         case 'h':
@@ -125,16 +130,15 @@ int main(int argc, char *argv[]) {
     argc -= optind;
     argv += optind;
     if (!pIndir || !pOutdir) {
-        cerr << "ERROR: indir or outdir is null" << endl;
+        NZLogger::log(NZ::ERROR, "indir or outdir is null");
         return -1;
     }
     if (!date) {
-        cerr << "ERROR: start date not specified" << endl;
+        NZLogger::log(NZ::ERROR, "start date not specified");
         return -1;
     }
-#ifdef DEBUG
-    cout << "DEBUG: IN: " << pIndir << " Out: " << pOutdir << endl;
-#endif
+    NZLogger::log(NZ::DEBUG, std::string("input dir: ") + pIndir
+                  + "output dir: " + pOutdir);
     struct sigaction action;
     action.sa_sigaction = signal_handler;
     sigemptyset(&action.sa_mask);
@@ -148,19 +152,19 @@ int main(int argc, char *argv[]) {
     try {
         rdpp = new R::Processor(pIndir, pOutdir, mpts, bufsize);
     } catch (std::logic_error& e) {
-        cerr << "logic error:" << e.what() << endl;
+        NZLogger::log(NZ::ERROR, std::string("logic error -> ") + e.what());
         return -1;
     } catch (std::bad_alloc& e) {
-        cerr << "alloc error:" << e.what() << endl;
+        NZLogger::log(NZ::ERROR, std::string("alloc error -> ") + e.what());
         return -1;
     } catch (std::runtime_error& e) {
-        cerr << "runtime error:" << e.what() << endl;
+        NZLogger::log(NZ::ERROR, std::string("runtime error -> ") + e.what());
         return -1;
     } catch (std::exception& e) {
-        cerr << "unknown error:" << e.what() << endl;
+        NZLogger::log(NZ::ERROR, std::string("unknown error -> ") + e.what());
         return -1;
     } catch (...) {
-        cerr << "Unknown error happened, exit" << endl;
+        NZLogger::log(NZ::ERROR, "Unknown error happend, construct failed");
         return -1;
     }
 
@@ -175,9 +179,10 @@ int main(int argc, char *argv[]) {
 #endif
         if (ret == -1) {
             loop = false;
-            cerr << "ERROR: RDPP process failed, error code: " << ret << endl;
+            NZLogger::log(NZ::ERROR, "RDPP process failed, error code: "
+                          + std::to_string(ret));
         } else if (ret == 1) {
-            cout << "INFO: no more files to be processed" << endl;
+            NZLogger::log(NZ::INFO, "no more files to be processed");
             loop = false;
             ret = 0;
         }

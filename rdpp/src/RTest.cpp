@@ -22,6 +22,14 @@ using namespace std;
 using namespace RHelper;
 
 #include <unistd.h>
+#include "NZLogger.h"
+using NZ::NZLogger;
+int test_logger() {
+    NZLogger::log(NZ::ERROR, "hello"
+                  "world"
+                  "123");
+    return 0;
+}
 
 int output_html(void) {
     ofstream outfile("./out/test.html", ios::out);
@@ -104,6 +112,7 @@ int test_get_ts_index(void) {
 }
 
 int main(int argc, char *argv[]) {
+    return test_logger();
     return test_output_html();
     return test_print_progress();
     return test_get_ts_index();

@@ -16,7 +16,6 @@
 #include <errno.h>
 #include <string.h>
 
-
 static DIR *dirp;
 static const char *regexp;
 
@@ -60,18 +59,21 @@ int find_file_finish(void) {
     return 0;
 }
 
-
 #include "RHelper.h"
+#include "NZLogger.h"
+
 #include <iostream>
 #include <algorithm>
+
 using namespace std;
+using NZ::NZLogger;
 
 int RHelper::find_files(const char *path,
                         const char* pattern,
                         list<string>& olist) {
 	string fpath(path);
 	if (find_file_init(path, pattern)) {
-		cerr << "open directory init failed" << endl;
+        NZLogger::log(NZ::ERROR, "open directory failed");
 		return -1;
 	}
 	const char* fname;
@@ -84,9 +86,8 @@ int RHelper::find_files(const char *path,
 		++cnt;
 		olist.push_back(fpath + "/" + fname);
 	}
-	if (find_file_finish()) {
-		cerr << "find file finish failed" << endl;
-	}
+	if (find_file_finish())
+        NZLogger::log(NZ::ERROR, "find file finish failed");
     olist.sort();
     return cnt;
 }
@@ -96,7 +97,7 @@ int RHelper::find_files(const char* path,
                         vector<string>& ovec) {
     string fpath(path);
     if (find_file_init(path, pattern)) {
-        cerr << "open directory failed!" << endl;
+        NZLogger::log(NZ::ERROR, "open directory failed");
         return -1;
     }
     const char* fname;
@@ -109,9 +110,8 @@ int RHelper::find_files(const char* path,
         ++cnt;
         ovec.push_back(fpath + "/" + fname);
     }
-    if (find_file_finish()) {
-        cerr << "find file finish failed!" << endl;
-    }
+    if (find_file_finish())
+        NZLogger::log(NZ::ERROR, "find file finish failed");
     sort(ovec.begin(), ovec.end());
     return cnt;
 }
@@ -121,17 +121,17 @@ ssize_t readFileIntoMem(char* const pbuf,
                         const size_t capacity,
                         const char* fpath) {
     ssize_t size;
-    cout << "INFO: reading [" << fpath << "] ..." << endl;
+    NZLogger::log(NZ::INFO, "reading [" + string(fpath) + "] ...");
     ifstream infile(fpath);
     if (!infile.is_open()) {
-        cerr << "ERROR: open file [" << fpath << " ] failed" << endl;
+        NZLogger::log(NZ::ERROR, "open file [" + string(fpath) + "] failed");
         return -1;
     }
     infile.seekg(0, ios::end);
     size = static_cast<ssize_t>(infile.tellg());
-    cout << "INFO: file size: " << size << endl;
+    NZLogger::log(NZ::INFO, "file size: " + to_string(size));
     if (size > capacity) {
-        cerr << "ERROR: file size larger than capacity size" << endl;
+        NZLogger::log(NZ::ERROR, "file size is larger than the capacity");
         return -1;
     }
     infile.seekg(0, ios::beg);
@@ -147,18 +147,18 @@ ssize_t readFileIntoMem(char* const pbuf,
     int ret;
     char* const p = pbuf;
     while (flist.size()) {
-        cout << "INFO: reading " << flist.front() << " ..." << endl;
+        NZLogger::log(NZ::INFO, "reading [" + flist.front() + "] ...");
         ret = readFileIntoMem(p, capacity - size, flist.front().c_str());
 
         if (ret) {
             flist.pop_front();
             size += ret;
         } else if (ret == 0) {
-            cout << "INFO: Capacity reached" << endl;
+            NZLogger::log(NZ::INFO, "capacity reached");
             return size;
         } else {
-            cerr << "ERROR: an error occured while reading file into memory"
-                 << endl;
+            NZLogger::log(NZ::ERROR,
+                          "an error occured while reading file into memory");
             return -1;
         }
     }

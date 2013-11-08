@@ -15,6 +15,8 @@
 #include "RConstant.h"
 #include "RHelper.h"
 
+#include "NZLogger.h"
+
 #include <cstring>
 #include <iostream>
 #include <iomanip>
@@ -25,9 +27,10 @@
 #include <algorithm>
 
 using namespace std;
+using NZ::NZLogger;
 
-R::Processor::Processor(const char* indir, const char* outdir, size_t minPerTS,
-                     size_t bufsize)
+R::Processor::Processor(const char* indir, const char* outdir,
+                        size_t minPerTS, size_t bufsize)
     : m_indir(indir),
       m_outdir(outdir),
       m_nMinPerTS(minPerTS),
@@ -62,12 +65,11 @@ inline size_t R::Processor::getTSIndex(const gps_time& time) {
 }
 
 inline int R::Processor::processOrigRecord(const in_rec& rec) {
-#ifdef DEBUG
-	cout << "DEBUG: (" << rec.cid << "," << rec.event << ","
-		<< rec.status << "," << rec.time << ","
-		<< rec.x << "," << rec.y << "," << rec.speed << ","
-		<< rec.direct << "," << rec.valid << ")" << endl;
-#endif
+    NZLogger::log(NZ::DEBUG, to_string(rec.cid) + "," + to_string(rec.event)
+                  + "," + to_string(rec.status) + "," + to_string(rec.time)
+                  + "," + to_string(rec.x) + "," + to_string(rec.y)
+                  + "," + to_string(rec.speed) + "," + to_string(rec.direct)
+                  + "," + to_string(rec.valid) + ")");
     gps_coord coord = {static_cast<gps_x>(rec.x * 10000000),
                        static_cast<gps_y>(rec.y * 10000000)};
     orec_key key = {RsidGen::get_rsid2(coord), rec.cid};
@@ -75,17 +77,14 @@ inline int R::Processor::processOrigRecord(const in_rec& rec) {
      * @advice: skip the wrong road id
      */
     if (key.rsid == 0) {
-#ifdef WARNING
-        cerr << "WARNING: invalid road id" << endl;
-#endif
+        NZLogger::log(NZ::WARNING, "invalid road segment ID");
         return 0;
     }
     if (abs(static_cast<int64_t>(rec.time - m_tsp)/10000)) {
-#ifdef WARNING
-        cout << "WARNING: invalid timestamp : " << rec.time
-             << " current time: " << m_tsp << " compare: "
-             << abs(static_cast<int64_t>(rec.time - m_tsp)/10000) << endl;
-#endif
+        NZLogger::log(NZ::WARNING, "invalid timestamp: " + to_string(rec.time)
+                      + " - current time: " + to_string(m_tsp) + " = "
+                      + to_string(abs(static_cast<int64_t>(rec.time - m_tsp)
+                                      /10000)));
         return 0;
     } else {
         m_tsp = rec.time;
@@ -93,10 +92,8 @@ inline int R::Processor::processOrigRecord(const in_rec& rec) {
      
     m_pTSPool[getTSIndex(rec.time)
               ].insert(make_pair(key, static_cast<void*>(0)));
-#ifdef DEBUG
-	cout << "INFO: roadseg_id: " << key.rsid << " car_id: " << key.cid << endl;
-#endif
-    
+    NZLogger::log(NZ::INFO, "roadseg_id: " + to_string(key.rsid) + "car_id: "
+                  + to_string(key.cid));
     return 0;
 }
 
@@ -147,25 +144,22 @@ int R::Processor::processFileBuffer() {
 }
 
 ssize_t R::Processor::readFileIntoMem(const char* fpath) {
-#ifdef INFO
-    cout << "INFO: reading [" << fpath << "] ..." << endl;
-#endif
+    NZLogger::log(NZ::INFO, string("reading [") + fpath + "] ...");
     ifstream infile(fpath);
     if (!infile.is_open()) {
-        cerr << "ERROR: open file [" << fpath << " ] failed" << endl;
+        NZLogger::log(NZ::ERROR, string("open file [") +
+                      fpath + "] failed");
         return -1;
     }
     infile.seekg(0, ios::end);
     ssize_t fsize = static_cast<ssize_t>(infile.tellg());
     if (fsize > m_nBufSize) {
-        cerr << "ERROR: file size larger than buffer size" << endl;
+        NZLogger::log(NZ::ERROR, "file size is larger than the buffer size");
         return -1;
     }
     m_pFileBufEnd = m_pFileBuffer + fsize;
     m_pCurFBufPos = (char *)m_pFileBuffer;
-#ifdef INFO
-    cout << "INFO: file size: " << fsize << endl;
-#endif
+    NZLogger::log(NZ::INFO, "file size: " + to_string(fsize));
     infile.seekg(0, ios::beg);
     infile.read((char *)m_pFileBuffer, fsize);
     infile.close();
@@ -176,17 +170,17 @@ int R::Processor::dumpRecords() {
     string fpath = m_outdir + to_string(m_tsp/1000000) + ".dat";
     ofstream outfile(fpath.c_str(), ios::out|ios::binary);
     if (!outfile.is_open()) {
-        cerr << "CRITICAL: can't open file [" << fpath << "]" << endl;
+        NZLogger::log(NZ::FATAL, "cannot open file [" + string(fpath) + "]");
         return -1;
     }
     ofstream outjson(fpath.append(".js").c_str(), ios::out|ios::app);
     if (!outjson.is_open()) {
-        cerr << "CIRITCAL: cannot open file [" << fpath.append(".js")
-             << "]" << endl;
+        NZLogger::log(NZ::ERROR, "cannot open file [" + string(fpath)
+                      + ".js]");
         return -1;
     }
     outjson << "var data = new Array(";
-    cout << "INFO: dumping to file [" << fpath << "] ...";
+    NZLogger::log(NZ::INFO, "dumping to file [" + string(fpath) + "] ...");
     size_t cnt;
     roadseg_id x;
     for (size_t i = 0; i < m_nTSCnt; ++i) {
@@ -214,7 +208,9 @@ int R::Processor::dumpRecords() {
         cout << setw(6) << setfill(' ') << left << cnt << " ";
         outjson << cnt << ",";
     }
-    cout << endl << "INFO: dump to file [" << fpath << "] successfully" << endl;
+    cout << endl;
+    NZLogger::log(NZ::INFO, "dump to file [" + string(fpath)
+                  + "] successfully");
     outfile.close();
     // here need \b to erase the last comma, otherwise js code will complain
     outjson << "\b);" << endl;
@@ -234,37 +230,37 @@ int R::Processor::process(uint32_t date, size_t len, bool progbar) {
                          to_string(date/100).c_str(),
                          m_fileList);
         if (ret == -1) {
-            cerr << "FATAL ERROR: find files error" << endl;
+            NZLogger::log(NZ::FATAL, "find files error");
             return -1;
         } else if (!ret) {
-            cerr << "WARNING: no file was found" << endl;
+            NZLogger::log(NZ::WARNING, "no file was found");
             return 1;
         } else {
-            cout << "INFO: processing day " << date << ", " << ret
-                 << " files" << "m_tsp = " << m_tsp << endl;
+            NZLogger::log(NZ::INFO, "processing day " + to_string(date) + ", "
+                          + to_string(ret) + " files, m_tsp = "
+                          + to_string(m_tsp));
         }
 
         fcnt = m_fileList.size();
         while (m_fileList.size()) {
             if (progbar)
                 RHelper::print_progress((fcnt - m_fileList.size())*100/fcnt);
-#ifdef INFO
-            cout << "INFO: ========> processing " << m_fileList.front() << endl;
-#endif
+            NZLogger::log(NZ::INFO, "==========> processing "
+                          + m_fileList.front());
             if (readFileIntoMem(m_fileList.front().c_str()) <= 0) {
-                cerr << "ERROR: read file into mem failed" << endl;
+                NZLogger::log(NZ::ERROR, "read file into memory failed");
                 return -1;
             }
             m_fileList.pop_front();
             ret = processFileBuffer();
             if (ret == -1) {
-                cerr << "ERROR: process file buffer failed" << endl;
+                NZLogger::log(NZ::ERROR, "process file buffer failed");
                 return -1;
             }
         }
         
         if (dumpRecords()) {
-            cerr << "FATAL ERROR: dump to file failed" << endl;
+            NZLogger::log(NZ::FATAL, "dump to file failed");
             return -1;
         }
 	}

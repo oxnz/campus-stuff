@@ -5,7 +5,7 @@
 # Copying: Copyright (C) 2013, All rights reserved.
 #
 # Revision: -*-
-# Last-updated: 2013-11-07 23:31:19 CST
+# Last-updated: 2013-11-08 13:29:42 CST
 #
 
 
@@ -16,8 +16,8 @@ CXXFLAGS:= -Wall -pipe -O2
 LDFLAGS	:=
 VERSION := 1.1
 
-HEADERS = RConstant.h RHelper.h RProcessor.h RTypes.h RsidGen.h
-OBJS	= main.o test.o RProcessor.o RTest.o RHelper.o RsidGen.o
+HEADERS = RConstant.h RHelper.h RProcessor.h RTypes.h RsidGen.h NZLogger.h
+OBJS	= main.o test.o RProcessor.o RTest.o RHelper.o RsidGen.o NZLogger.o
 TARGETS = rdpp test
 
 # rdpp : road data preprocessor
@@ -25,10 +25,10 @@ TARGETS = rdpp test
 
 all: $(TARGETS)
 
-rdpp: main.o RProcessor.o RHelper.o RsidGen.o
+rdpp: main.o RProcessor.o RHelper.o RsidGen.o NZLogger.o
 	$(CXX) $(CFLAGS) $(LDFLAGS) $^ -o $@
 
-test: RTest.o RHelper.o RsidGen.o
+test: RTest.o RHelper.o RsidGen.o NZLogger.o
 	$(CXX) $(CFLAGS) $(LDFLAGS) $^ -o $@
 
 check: test
@@ -39,7 +39,7 @@ dist: clean
 		--create --gzip --verbose \
 		--file `pwd`.tar.gz *
 
-main.o: main.cpp RProcessor.h
+main.o: main.cpp RProcessor.h NZLogger.h
 RTest.o: $(HEADERS)
 RProcessor.o: RProcessor.cpp $(HEADERS)
 
