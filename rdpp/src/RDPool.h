@@ -14,7 +14,7 @@
 #include "RTypes.h"
 
 #include <iostream>
-#include <map>
+#include <set>
 
 namespace RDP {
     class RDPool {
@@ -22,7 +22,7 @@ namespace RDP {
         RDPool(size_t nrs, size_t nts);
         car_count* operator[](roadseg_id);
         car_count& operator()(roadseg_id, ts_index);
-        int process(const std::map<const orec_key, void*>* m_pTSPool);
+        int process(const std::set<orec_key>* m_pTSPool);
         int dump(const std::string& fpath);
         virtual ~RDPool();
     private:

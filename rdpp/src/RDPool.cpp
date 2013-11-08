@@ -54,16 +54,16 @@ car_count& RDP::RDPool::operator()(roadseg_id rsid, ts_index tsi) {
     return (m_pp + (rsid-1)*m_nts)[tsi];
 }
 
-int RDP::RDPool::process(const std::map<const orec_key, void*>* ptsm) {
+int RDP::RDPool::process(const std::set<orec_key>* ptsm) {
     NZLogger::log(NZ::INFO, "RDP processing ...");
     for (ts_index i = 0; i < m_nts; ++i) {
-        for (std::map<const orec_key, void*>::const_iterator it =
+        for (std::set<orec_key>::const_iterator it =
                  ptsm[i].begin(); it != ptsm[i].end(); ++it) {
-            if (it->first <= 0 || it->first >= m_nrs) {
+            if (*it <= 0 || *it >= m_nrs) {
                 NZLogger::log(NZ::DEBUG, "invalid rsid: "
-                              + to_string(it->first));
+                              + to_string(*it));
             } else
-                ++((m_pp + (it->first-1) * m_nts)[i]);
+                ++((m_pp + ((*it)-1) * m_nts)[i]);
         }
     }
     NZLogger::log(NZ::INFO, "RDP process end");    

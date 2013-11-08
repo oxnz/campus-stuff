@@ -132,6 +132,13 @@ int test_get_ts_index(void) {
     return 0;
 }
 
+int test_set(void) {
+	std::set<int> s;
+	for (std::set<int>::iterator it = s.begin(); it != s.end(); ++it)
+		cout << *it << endl;
+	return 0;
+}
+
 int main(int argc, char *argv[]) {
 //    return test_pp();
     return test_logger();

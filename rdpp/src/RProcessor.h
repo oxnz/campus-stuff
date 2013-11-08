@@ -37,12 +37,16 @@ namespace R {
         int processFileBuffer();
         inline int processOrigRecord(const in_rec& rec, bool echo = false);
         int dumpRecords();
-        inline size_t getTSIndex(const gps_time& time);
+		/*
+        inline ts_index getTSIndex(const gps_time& time) {
+			return ((time%1000000/10000)*60+time%10000/100)/m_nMinPerTS;
+		}*/
+
     private: // preprocessor member part
         std::string m_indir;
         std::string m_outdir;
         std::list<std::string> m_fileList;   // contains fpath
-        std::map<const orec_key, void*>* m_pTSPool;
+        std::set<orec_key>* m_pTSPool;
         
         const size_t m_nMinPerTS; // minute per time slot
         const size_t m_nTSCnt;

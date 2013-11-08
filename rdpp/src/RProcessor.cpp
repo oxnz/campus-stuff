@@ -10,6 +10,7 @@
  * Last-update: 2013-11-07 22:10:12
  */
 
+#define getTSIndex(t) (((t%1000000/10000)*60+t%10000/100)/m_nMinPerTS)
 #ifdef NDEBUG
 	#define NZLogger(...)
 #endif
@@ -37,10 +38,12 @@ R::Processor::Processor(const char* indir, const char* outdir,
                         size_t minPerTS, size_t bufsize, bool process)
     : m_indir(indir),
       m_outdir(outdir),
+      m_pTSPool(new set<orec_key>[24*60/minPerTS]),
       m_nMinPerTS(minPerTS),
       m_nTSCnt(24*60/minPerTS),
       m_tsp(0),
       m_nBufSize(bufsize),
+	  m_pFileBuffer(new char[bufsize]),
       m_bProcess(process),
       m_pRDPool(process ? new RDP::RDPool(RsidGen::MAX_RSID, 24*60/minPerTS)
                 : 0)
@@ -57,18 +60,6 @@ R::Processor::Processor(const char* indir, const char* outdir,
         m_indir.append("/");
     if (*m_outdir.rbegin() != '/')
         m_outdir.append("/");
-    m_pFileBuffer = new char[m_nBufSize];
-    m_pTSPool = new map<const orec_key, void*>[24*60/minPerTS];
-}
-
-/*
- * @description: get time slot index
- */
-inline size_t R::Processor::getTSIndex(const gps_time& time) {
-    uint16_t h = static_cast<uint16_t>(time % 1000000/10000);
-    uint16_t m = time % 10000/100;
-    uint16_t s = time % 100;
-    return (h*60*60+m*60+s)/(m_nMinPerTS*60);
 }
 
 inline int R::Processor::processOrigRecord(const in_rec& rec, bool echo) {
@@ -79,9 +70,7 @@ inline int R::Processor::processOrigRecord(const in_rec& rec, bool echo) {
              << "," << rec.speed << "," << rec.direct
              << "," << rec.valid << ")" << endl;
     orec_key key(RsidGen::get_rsid2(rec.x*10000000, rec.y*10000000));
-    /*
-     * @advice: skip the wrong road id
-     */
+     // @advice: skip the wrong road id
 	if (key == RsidGen::INVALID_RSID) {
 //        NZLogger::log(NZ::WARNING, "invalid road segment ID");
 		return 0;
@@ -99,12 +88,8 @@ inline int R::Processor::processOrigRecord(const in_rec& rec, bool echo) {
         m_tsp = rec.time;
     }
      
-    m_pTSPool[getTSIndex(rec.time)
-              ].insert(make_pair(key, static_cast<void*>(0)));
-/*
-    NZLogger::log(NZ::DEBUG, "roadseg_id: " + to_string(key.rsid) + " car_id: "
-                  + to_string(key.cid));
-*/
+    m_pTSPool[getTSIndex(rec.time)].insert(key);
+
     return 0;
 }
 
@@ -114,24 +99,41 @@ int R::Processor::processFileBuffer() {
 	int i = 0;
 #endif
 	for (in_rec irec; m_pCurFBufPos < m_pFileBufEnd - 1; ++m_pCurFBufPos) {
+		/*
+		printf("0x%x%x\n", *m_pCurFBufPos, *(m_pCurFBufPos+1));
+		getchar();
+		irec.cid = 0;
+		while (*(++m_pCurFBufPos) != ',') {
+			irec.cid = irec.cid * 10 + *m_pCurFBufPos - 0x30;
+			cout << "cid = " << irec.cid << endl;
+		}
+		cout << "X" << *m_pCurFBufPos << endl;
+		*/
 		irec.cid = strtoul(m_pCurFBufPos, &p, 10);
-		m_pCurFBufPos = p;
-		irec.event = strtoul(++m_pCurFBufPos, &p, 10);
-		m_pCurFBufPos = p;
-		irec.status = strtoul(++m_pCurFBufPos, &p, 10);
-		m_pCurFBufPos = p;
+		m_pCurFBufPos = p + 2; // skip irec.event, 1 decimal num with two commas
+		irec.status = *(++m_pCurFBufPos) - 0x30;
+	    ++m_pCurFBufPos;
 		irec.time = strtoull(++m_pCurFBufPos, &p, 10);
 		m_pCurFBufPos = p;
 		irec.x = strtod(++m_pCurFBufPos, &p);
 		m_pCurFBufPos = p;
 		irec.y = strtod(++m_pCurFBufPos, &p);
 		m_pCurFBufPos = p;
-		irec.speed = strtoul(++m_pCurFBufPos, &p, 10);
-		m_pCurFBufPos = p;
-		irec.direct = strtoul(++m_pCurFBufPos, &p, 10);
-		m_pCurFBufPos = p;
-		irec.valid = strtoul(++m_pCurFBufPos, &p, 10);
-		m_pCurFBufPos = p;
+		do {
+			++m_pCurFBufPos;
+		} while (*m_pCurFBufPos != ',');
+		do {
+			++m_pCurFBufPos;
+		} while (*m_pCurFBufPos != ',');
+		irec.valid = *(++m_pCurFBufPos) - 0x30; // 1 for valid
+		++m_pCurFBufPos;
+		/*
+		cout << "DEBUG: (" << irec.cid << "," << irec.event << ","
+			<< irec.status << "," << irec.time << ","
+			<< irec.x << "," << irec.y << "," << irec.speed << ","
+			<< irec.direct << "," << irec.valid << ")" << endl;
+		getchar();
+		*/
 #ifdef DEBUG
 		if (++i == 1 || i == 20200)
 			cout << "DEBUG: (" << irec.cid << "," << irec.event << ","
@@ -140,6 +142,16 @@ int R::Processor::processFileBuffer() {
 				<< irec.direct << "," << irec.valid << ")" << endl;
 #endif
 		if (!irec.valid || irec.status != NON_OCCUPIED) continue;
+		if (abs(static_cast<int64_t>(irec.time - m_tsp)/10000)) { // skip invalid ts index
+			continue;
+		} else // update ts pointer
+			m_tsp = irec.time;
+    	orec_key key(RsidGen::get_rsid2(irec.x*10000000, irec.y*10000000));
+		if (key == RsidGen::INVALID_RSID) { // skip invalid rsid
+			continue;
+		}
+		m_pTSPool[getTSIndex(irec.time)].insert((key << 32) | irec.cid);
+		/*
         if(processOrigRecord(irec)) {
             cerr << "ERROR: process record failed, record:"
                  << "(" << irec.cid << "," << irec.event << ","
@@ -148,7 +160,7 @@ int R::Processor::processFileBuffer() {
                  << irec.direct << "," << irec.valid << ")" << endl;
 
             return -1;
-        }
+        }*/
 	}
 
 	return 0;
@@ -200,18 +212,10 @@ int R::Processor::dumpRecords() {
         x = roadseg_id(i);
         outfile.write(reinterpret_cast<const char*>(&x),
                       sizeof(roadseg_id));
-        for (map<const orec_key, void*>::iterator it = m_pTSPool[i].begin();
+        for (set<orec_key>::iterator it = m_pTSPool[i].begin();
              it != m_pTSPool[i].end(); ++it) {
             ++cnt;
-			/*
-            outfile.write(reinterpret_cast<const char*>(&it->first.rsid),
-                          sizeof(roadseg_id));
-						  */
-			x = it->first>>32;
-			/*
-            outfile.write(reinterpret_cast<const char*>(&(it->first|0xFF)),
-                          sizeof(orec_key));
-						  */
+			x = (*it) >> 32;
             outfile.write(reinterpret_cast<const char*>(&x),
                           sizeof(roadseg_id));
         }
