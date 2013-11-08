@@ -1,3 +1,14 @@
+/*
+ * File: RDPool.h
+ * Description: Road Data Pool interface
+ * Author: Oxnz
+ * Mail: yunxinyi@gmail.com
+ * Copying: Copyright (C) 2013, All rights reserved.
+ *
+ * Revision: -*-
+ * Last-update: 2013-11-07 22:10:12
+ */
+
 #pragma once
 
 #include "RTypes.h"

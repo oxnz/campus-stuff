@@ -1,3 +1,14 @@
+/*
+ * File: RDPool.cpp
+ * Description: Road Data Pool impl
+ * Author: Oxnz
+ * Mail: yunxinyi@gmail.com
+ * Copying: Copyright (C) 2013, All rights reserved.
+ *
+ * Revision: -*-
+ * Last-update: 2013-11-07 22:10:12
+ */
+
 #include "RDPool.h"
 #include "NZLogger.h"
 #include "RHelper.h"
@@ -48,11 +59,11 @@ int RDP::RDPool::process(const std::map<const orec_key, void*>* ptsm) {
     for (ts_index i = 0; i < m_nts; ++i) {
         for (std::map<const orec_key, void*>::const_iterator it =
                  ptsm[i].begin(); it != ptsm[i].end(); ++it) {
-            if (it->first.rsid <= 0 || it->first.rsid >= m_nrs) {
+            if (it->first <= 0 || it->first >= m_nrs) {
                 NZLogger::log(NZ::DEBUG, "invalid rsid: "
-                              + to_string(it->first.rsid));
+                              + to_string(it->first));
             } else
-                ++((m_pp + (it->first.rsid-1) * m_nts)[i]);
+                ++((m_pp + (it->first-1) * m_nts)[i]);
         }
     }
     NZLogger::log(NZ::INFO, "RDP process end");    

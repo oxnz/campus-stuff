@@ -21,7 +21,7 @@ static const char *regexp;
 
 int find_file_init(const char *path, const char *pattern) {
     dirp = opendir(path);
-    if (dirp == NULL) return -1;
+    if (dirp == NULL) return errno;
     regexp = pattern;
     return 0;
 }
@@ -72,8 +72,9 @@ int RHelper::find_files(const char *path,
                         const char* pattern,
                         list<string>& olist) {
 	string fpath(path);
-	if (find_file_init(path, pattern)) {
-        NZLogger::log(NZ::ERROR, "open directory failed");
+	int ret = find_file_init(path, pattern);
+	if (ret) {
+		NZLogger::log(NZ::ERROR, "[" + fpath + "] " + strerror(ret));
 		return -1;
 	}
 	const char* fname;
@@ -86,8 +87,9 @@ int RHelper::find_files(const char *path,
 		++cnt;
 		olist.push_back(fpath + "/" + fname);
 	}
-	if (find_file_finish())
-        NZLogger::log(NZ::ERROR, "find file finish failed");
+	if ((ret = find_file_finish()))
+        NZLogger::log(NZ::ERROR, "[" + fpath + "] find file finish failed"
+				+ strerror(errno));
     olist.sort();
     return cnt;
 }

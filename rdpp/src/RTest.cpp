@@ -25,9 +25,10 @@ using namespace RHelper;
 #include "NZLogger.h"
 using NZ::NZLogger;
 int test_logger() {
-    NZLogger::log(NZ::ERROR, "hello"
-                  "world"
-                  "123");
+	NZLogger::log(NZ::DEBUG) << "this is debug" << 12.34 << endl;
+    NZLogger::log(NZ::ERROR) << "hello"
+                  << "world"
+                  << "123" << endl;
     return 0;
 }
 
@@ -132,7 +133,7 @@ int test_get_ts_index(void) {
 }
 
 int main(int argc, char *argv[]) {
-    return test_pp();
+//    return test_pp();
     return test_logger();
     return test_output_html();
     return test_print_progress();

@@ -17,7 +17,7 @@
 #include <iostream>
 #include <list>
 #include <map>
-
+#include <set>
 
 namespace R {
     class Processor {
@@ -35,7 +35,7 @@ namespace R {
     private:
         ssize_t readFileIntoMem(const char* fpath);
         int processFileBuffer();
-        inline int processOrigRecord(const in_rec& rec);
+        inline int processOrigRecord(const in_rec& rec, bool echo = false);
         int dumpRecords();
         inline size_t getTSIndex(const gps_time& time);
     private: // preprocessor member part

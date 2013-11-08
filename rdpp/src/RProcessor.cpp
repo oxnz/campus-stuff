@@ -10,6 +10,10 @@
  * Last-update: 2013-11-07 22:10:12
  */
 
+#ifdef NDEBUG
+	#define NZLogger(...)
+#endif
+
 #include "RProcessor.h"
 #include "RsidGen.h"
 #include "RConstant.h"
@@ -67,27 +71,29 @@ inline size_t R::Processor::getTSIndex(const gps_time& time) {
     return (h*60*60+m*60+s)/(m_nMinPerTS*60);
 }
 
-inline int R::Processor::processOrigRecord(const in_rec& rec) {
-    NZLogger::log(NZ::DEBUG, to_string(rec.cid) + "," + to_string(rec.event)
-                  + "," + to_string(rec.status) + "," + to_string(rec.time)
-                  + "," + to_string(rec.x) + "," + to_string(rec.y)
-                  + "," + to_string(rec.speed) + "," + to_string(rec.direct)
-                  + "," + to_string(rec.valid) + ")");
-    gps_coord coord = {static_cast<gps_x>(rec.x * 10000000),
-                       static_cast<gps_y>(rec.y * 10000000)};
-    orec_key key = {RsidGen::get_rsid2(coord), rec.cid};
+inline int R::Processor::processOrigRecord(const in_rec& rec, bool echo) {
+	if (echo)
+    std::cout << "(" << rec.cid << "," <<rec.event
+             << "," << rec.status << "," << (rec.time)
+             << "," << rec.x << "," << rec.y
+             << "," << rec.speed << "," << rec.direct
+             << "," << rec.valid << ")" << endl;
+    orec_key key(RsidGen::get_rsid2(rec.x*10000000, rec.y*10000000));
     /*
      * @advice: skip the wrong road id
      */
-    if (key.rsid == 0) {
-        NZLogger::log(NZ::WARNING, "invalid road segment ID");
-        return 0;
-    }
+	if (key == RsidGen::INVALID_RSID) {
+//        NZLogger::log(NZ::WARNING, "invalid road segment ID");
+		return 0;
+	}
+	key = (key << 32) | rec.cid;
     if (abs(static_cast<int64_t>(rec.time - m_tsp)/10000)) {
+/*
         NZLogger::log(NZ::DEBUG, "invalid timestamp: " + to_string(rec.time)
                       + " - current time: " + to_string(m_tsp) + " = "
                       + to_string(abs(static_cast<int64_t>(rec.time - m_tsp)
                                       /10000)));
+*/
         return 0;
     } else {
         m_tsp = rec.time;
@@ -95,8 +101,10 @@ inline int R::Processor::processOrigRecord(const in_rec& rec) {
      
     m_pTSPool[getTSIndex(rec.time)
               ].insert(make_pair(key, static_cast<void*>(0)));
+/*
     NZLogger::log(NZ::DEBUG, "roadseg_id: " + to_string(key.rsid) + " car_id: "
                   + to_string(key.cid));
+*/
     return 0;
 }
 
@@ -195,7 +203,16 @@ int R::Processor::dumpRecords() {
         for (map<const orec_key, void*>::iterator it = m_pTSPool[i].begin();
              it != m_pTSPool[i].end(); ++it) {
             ++cnt;
+			/*
             outfile.write(reinterpret_cast<const char*>(&it->first.rsid),
+                          sizeof(roadseg_id));
+						  */
+			x = it->first>>32;
+			/*
+            outfile.write(reinterpret_cast<const char*>(&(it->first|0xFF)),
+                          sizeof(orec_key));
+						  */
+            outfile.write(reinterpret_cast<const char*>(&x),
                           sizeof(roadseg_id));
         }
         m_pTSPool[i].clear();
@@ -249,7 +266,6 @@ int R::Processor::process(uint32_t date, size_t len, bool progbar) {
         while (m_fileList.size()) {
             if (progbar) {
                 RHelper::print_progress((fcnt - m_fileList.size())*100/fcnt);
-                cout << endl;
             }
             NZLogger::log(NZ::INFO, "processing " + m_fileList.front());
             if (readFileIntoMem(m_fileList.front().c_str()) <= 0) {

@@ -66,6 +66,7 @@ typedef struct {
 typedef uint32_t roadseg_id;
 typedef uint16_t ts_index;
 typedef uint16_t car_count;
+
 typedef struct
 {
     car_id cid;
@@ -86,20 +87,7 @@ public:
     virtual ~OutRecord(void);
 };
 
-typedef struct OutRecordKey
-{
-    roadseg_id rsid;
-    car_id cid;
-    /*
-     * This operator must be implemented, or std::map will complain about it
-     */
-    inline bool operator< (const struct OutRecordKey& rhs) const {
-        return rsid < rhs.rsid || (rsid == rhs.rsid && cid < rhs.cid);
-    }
-    inline bool operator == (const struct OutRecordKey& rhs) const {
-        return rsid == rhs.rsid && cid == rhs.cid;
-    }
-} orec_key;
+typedef uint64_t orec_key;
 
 typedef struct {
     uint16_t status;

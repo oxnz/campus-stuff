@@ -9,12 +9,24 @@
 #
 
 
-CC	:= gcc
-CXX	:= g++
 CFLAGS	:= -Wall -pipe -O2
-CXXFLAGS:= -Wall -pipe -O2 -std=c++0x -p
-LDFLAGS	:= -p
-VERSION := 1.1
+CXXFLAGS:= -Wall -pipe -O2 -std=c++0x
+LDFLAGS	:=
+OS	:= $(shell uname -s)
+ifeq ($(OS),Darwin)
+	CC	:= clang
+	CXX := clang++
+else
+	CC	:= gcc
+	CXX	:= g++
+endif
+
+ifeq ($(OS),Linux)
+	CFLAGS	+= -pg
+	CXXFLAGS+= -pg
+endif
+
+VERSION := 1.4.1
 
 HEADERS = RConstant.h \
 		  RDPool.h \
@@ -29,7 +41,6 @@ OBJS	= main.o \
 		  RProcessor.o \
 		  RTest.o \
 		  RHelper.o \
-		  RsidGen.o \
 		  test.o \
 		  NZLogger.o
 
@@ -41,10 +52,10 @@ TARGETS = rdpp \
 
 all: $(TARGETS)
 
-rdpp: main.o RProcessor.o RHelper.o RsidGen.o RDPool.o NZLogger.o
+rdpp: main.o RProcessor.o RHelper.o RDPool.o NZLogger.o
 	$(CXX) $(CFLAGS) $(LDFLAGS) $^ -o $@
 
-test: RTest.o RHelper.o RsidGen.o NZLogger.o RDPool.o
+test: RTest.o RHelper.o NZLogger.o RDPool.o
 	$(CXX) $(CFLAGS) $(LDFLAGS) $^ -o $@
 
 check: test
