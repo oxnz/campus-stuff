@@ -12,8 +12,8 @@
 CC	:= gcc
 CXX	:= g++
 CFLAGS	:= -Wall -pipe -O2
-CXXFLAGS:= -Wall -pipe -O2
-LDFLAGS	:=
+CXXFLAGS:= -Wall -pipe -O2 -std=c++0x -p
+LDFLAGS	:= -p
 VERSION := 1.1
 
 HEADERS = RConstant.h \

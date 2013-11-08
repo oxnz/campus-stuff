@@ -155,7 +155,7 @@ ssize_t R::Processor::readFileIntoMem(const char* fpath) {
         return -1;
     }
     infile.seekg(0, ios::end);
-    ssize_t fsize = static_cast<ssize_t>(infile.tellg());
+    size_t fsize = infile.tellg();
     if (fsize > m_nBufSize) {
         NZLogger::log(NZ::ERROR, "file size is larger than the buffer size");
         return -1;

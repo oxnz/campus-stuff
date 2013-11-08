@@ -2,6 +2,7 @@
 
 #include "RTypes.h"
 
+#include <iostream>
 #include <map>
 
 namespace RDP {

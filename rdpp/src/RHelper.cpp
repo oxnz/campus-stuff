@@ -120,7 +120,7 @@ int RHelper::find_files(const char* path,
 ssize_t readFileIntoMem(char* const pbuf,
                         const size_t capacity,
                         const char* fpath) {
-    ssize_t size;
+    size_t size;
     NZLogger::log(NZ::INFO, "reading [" + string(fpath) + "] ...");
     ifstream infile(fpath);
     if (!infile.is_open()) {
@@ -128,7 +128,7 @@ ssize_t readFileIntoMem(char* const pbuf,
         return -1;
     }
     infile.seekg(0, ios::end);
-    size = static_cast<ssize_t>(infile.tellg());
+    size = infile.tellg();
     NZLogger::log(NZ::INFO, "file size: " + to_string(size));
     if (size > capacity) {
         NZLogger::log(NZ::ERROR, "file size is larger than the capacity");
@@ -137,7 +137,7 @@ ssize_t readFileIntoMem(char* const pbuf,
     infile.seekg(0, ios::beg);
     infile.read(pbuf, size);
     infile.close();
-    return size;
+	return size;
 }
 
 ssize_t readFileIntoMem(char* const pbuf,

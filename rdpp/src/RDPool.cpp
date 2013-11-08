@@ -23,7 +23,7 @@ RDP::RDPool::RDPool(size_t nrs, size_t nts)
 {
     NZLogger::log(NZ::DEBUG, "creating RDP (nts = " + to_string(m_nts) +
                   " nrs = " + to_string(m_nrs) + ") ...");
-    for (int i = 0; i < nrs*nts; ++i)
+    for (size_t i = 0; i < nrs*nts; ++i)
         *(m_pp + i) = 0;
     NZLogger::log(NZ::DEBUG, "RDP created");
 }

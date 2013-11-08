@@ -16,6 +16,7 @@
 #include <getopt.h>
 
 #include <cstdio>
+#include <cstdlib>
 #include <iostream>
 #include <stdexcept>
 #include <exception>
