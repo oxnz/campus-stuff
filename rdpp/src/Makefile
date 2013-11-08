@@ -5,7 +5,7 @@
 # Copying: Copyright (C) 2013, All rights reserved.
 #
 # Revision: -*-
-# Last-updated: 2013-11-08 13:29:42 CST
+# Last-updated: 2013-11-08 15:09:01 CST
 #
 
 
@@ -16,19 +16,35 @@ CXXFLAGS:= -Wall -pipe -O2
 LDFLAGS	:=
 VERSION := 1.1
 
-HEADERS = RConstant.h RHelper.h RProcessor.h RTypes.h RsidGen.h NZLogger.h
-OBJS	= main.o test.o RProcessor.o RTest.o RHelper.o RsidGen.o NZLogger.o
-TARGETS = rdpp test
+HEADERS = RConstant.h \
+		  RDPool.h \
+		  RHelper.h \
+		  RProcessor.h \
+		  RTypes.h \
+		  RsidGen.h \
+		  NZLogger.h
+
+OBJS	= main.o \
+		  RDPool.o \
+		  RProcessor.o \
+		  RTest.o \
+		  RHelper.o \
+		  RsidGen.o \
+		  test.o \
+		  NZLogger.o
+
+TARGETS = rdpp \
+		  test
 
 # rdpp : road data preprocessor
 # test : test case
 
 all: $(TARGETS)
 
-rdpp: main.o RProcessor.o RHelper.o RsidGen.o NZLogger.o
+rdpp: main.o RProcessor.o RHelper.o RsidGen.o RDPool.o NZLogger.o
 	$(CXX) $(CFLAGS) $(LDFLAGS) $^ -o $@
 
-test: RTest.o RHelper.o RsidGen.o NZLogger.o
+test: RTest.o RHelper.o RsidGen.o NZLogger.o RDPool.o
 	$(CXX) $(CFLAGS) $(LDFLAGS) $^ -o $@
 
 check: test
@@ -41,6 +57,7 @@ dist: clean
 
 main.o: main.cpp RProcessor.h NZLogger.h
 RTest.o: $(HEADERS)
+RDPool.o: RDPool.cpp RDPool.h
 RProcessor.o: RProcessor.cpp $(HEADERS)
 
 clean:

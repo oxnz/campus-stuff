@@ -25,8 +25,8 @@ using std::cerr;
 using std::endl;
 using NZ::NZLogger;
 /*
- * @descritpion: control processing loop, 0 will cause return after
- * finish current time slot
+ * @descritpion: control processing loop, true will cause return after
+ * finish current day
  */
 static int loop = true;
 
@@ -34,11 +34,11 @@ void signal_handler(int signo, siginfo_t *info, void *ptr) {
     switch (signo) {
     case SIGINT:
         loop = false;
-        cout << "WARNING: catch INT signal, please wait a moment" << endl;
+        NZLogger::log(NZ::WARNING, "catch sigint, please wait a moment");
         break;
     default:
-        cerr << "ERROR: unkonwn signal(signo=" << signo
-             << "), skipped" <<  endl;
+        NZLogger::log(NZ::ERROR, "unknown signal, signo = "
+                      + std::to_string(signo) + ", skipped");
         break;
     }
 }
@@ -57,7 +57,8 @@ int help(int ecode = 0) {
         << "\t-o\tspecify output directory" << endl
         << "\t-t\tspecify time slot grannularity in minute" << endl
         << "  Unavailable Option:" << endl
-        << "\t-p\tshow progress bar" << endl
+        << "\t-p\tprocess date while preprocessing" << endl
+        << "\t-s\tshow progress bar" << endl
         << "\t-j\toutput a js array file contains car count info" << endl
         << "  Default Value:" << endl
         << "\t-b: 2\tbuffer size: 2 Megabytes" << endl
@@ -68,7 +69,7 @@ int help(int ecode = 0) {
 }
 
 int main(int argc, char *argv[]) {
-    NZLogger::setLogLevel(NZ::ERROR);
+    NZLogger::setLogLevel(NZ::WARNING);
     int ch;
     size_t bufsize(2*1024*1024), date(0), dcnt(1), mpts(3);
     const char* pIndir(0);
@@ -150,7 +151,7 @@ int main(int argc, char *argv[]) {
 
     R::Processor *rdpp;
     try {
-        rdpp = new R::Processor(pIndir, pOutdir, mpts, bufsize);
+        rdpp = new R::Processor(pIndir, pOutdir, mpts, bufsize, false);
     } catch (std::logic_error& e) {
         NZLogger::log(NZ::ERROR, std::string("logic error -> ") + e.what());
         return -1;
@@ -168,15 +169,25 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
+    int ret(-1);
 #ifdef SINGLE_DAY_MODE
-    int ret;
     ++dcnt;
     --date;
     while (loop && --dcnt) {
-        ret = rdpp->process(++date);
-#else
-        int ret = rdpp->process(date, dcnt);
 #endif
+        try {
+#ifdef SINGLE_DAY_MODE
+            ret = rdpp->process(++date, 1);
+#else
+            ret = rdpp->process(date, dcnt, true);
+#endif
+        } catch (std::exception& e) {
+            NZLogger::log(NZ::FATAL, "RDPP process failed");
+            ret = -1;
+        } catch (...) {
+            NZLogger::log(NZ::FATAL, "unknown exception occured");
+            ret = -1;
+        }
         if (ret == -1) {
             loop = false;
             NZLogger::log(NZ::ERROR, "RDPP process failed, error code: "

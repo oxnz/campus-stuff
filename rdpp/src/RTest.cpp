@@ -31,6 +31,26 @@ int test_logger() {
     return 0;
 }
 
+#include "RDPool.h"
+using namespace RDP;
+int test_pp() {
+    RDPool *p = new RDPool(10, 20);
+    for (roadseg_id i = 1; i <= 10; ++i) {
+        for (ts_index j = 0; j < 20; ++j)
+            cout << (*p)(i, j) << " ";
+        cout << endl;
+    }
+    for (roadseg_id i = 1; i <= 10; ++i) {
+        for (ts_index j = 0; j < 20; ++j) {
+            cout << (*p)[i][j];
+        }
+        cout << endl;
+    }
+    delete p;
+    
+    return 0;
+}
+
 int output_html(void) {
     ofstream outfile("./out/test.html", ios::out);
     if (!outfile.is_open()) {
@@ -112,6 +132,7 @@ int test_get_ts_index(void) {
 }
 
 int main(int argc, char *argv[]) {
+    return test_pp();
     return test_logger();
     return test_output_html();
     return test_print_progress();

@@ -58,12 +58,15 @@ function draw() {
 	var dy = 400/ccnt;
     var chart = document.getElementById('chart');
     var ctx = chart.getContext('2d');
-    ctx.fillStyle = '#FFA500';
+    ctx.fillStyle = '#00FF00';
 	for (var i = 0; i < tcnt; ++i) {
-		if (i % 2 == 0)
-			ctx.fillStyle = "#FF0000";
-		else
-			ctx.fillStyle = "#FFA500";
-		ctx.fillRect(i*dx, height-dy*data[i], 2, dy*data[i]);
+        ctx.fillRect(i*dx, height-dy*data[i], 2, dy*data[i]);
 	}
+    var dx = 960/24;
+    ctx.fillStyle = '#FF0000';
+    ctx.font = "10px Arial";
+    for (var i = 0; i < 25; ++i) {
+        ctx.fillRect(i*dx, 0, 1, height);
+        ctx.fillText(i, i*dx+dx/3, 10);
+    }
 }

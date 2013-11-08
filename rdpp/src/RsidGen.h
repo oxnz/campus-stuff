@@ -18,6 +18,7 @@
 
 namespace RsidGen {
     using namespace std;
+    const roadseg_id MAX_RSID(1<<18);
     const  gps_x GPS_X_MIN(1153748770);
     const  gps_x GPS_X_MAX(1175000130);
     const  gps_x GPS_X_SCALE(GPS_X_MAX-GPS_X_MIN);

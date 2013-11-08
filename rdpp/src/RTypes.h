@@ -64,7 +64,8 @@ typedef struct {
 } car_record;
 
 typedef uint32_t roadseg_id;
-
+typedef uint16_t ts_index;
+typedef uint16_t car_count;
 typedef struct
 {
     car_id cid;
