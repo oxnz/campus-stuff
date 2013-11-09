@@ -133,13 +133,37 @@ int test_get_ts_index(void) {
 }
 
 int test_set(void) {
-	std::set<int> s;
-	for (std::set<int>::iterator it = s.begin(); it != s.end(); ++it)
-		cout << *it << endl;
+	std::set<roadseg_id> s;
+	gps_x x0 = 1154000000;
+	gps_x x1 = 1176000000;
+	gps_y y0 = 394100000;
+	gps_y y1 = 410900000;
+	gps_x dx = (x1-x0) >> 9;
+	gps_y dy = (y1-y0) >> 9;
+	dx = 901;
+	dy = 904;
+	roadseg_id rsid(0);
+	cout << "insert start, count: " << s.size() << endl;
+	cout << "dx: " << dx << ", dy: " << dy << endl;
+	cout << "INNER_MAX: " << RsidGen::INNER_MAX
+		<< "MIDDLE_MAX: " << RsidGen::MIDDLE_MAX
+		<< "OUTTER_MAX: " << RsidGen::OUTTER_MAX
+		<< "TOTAL: " << RsidGen::INNER_MAX + RsidGen::MIDDLE_MAX
+		+ RsidGen::OUTTER_MAX << endl;
+	for (gps_x x = x0; x < x1; x += dx)
+		for (gps_y y = y0; y < y1; y += dy) {
+			rsid = RsidGen::get_rsid(x, y);
+			if (rsid == RsidGen::INVALID_RSID) continue;
+			s.insert(rsid);
+		//	cout << "(" << x << "," << y << "), rsid: " << rsid << endl;
+		}
+	cout << "insert finished, count: " << s.size() << endl;
+	getchar();
 	return 0;
 }
 
 int main(int argc, char *argv[]) {
+	return test_set();
 //    return test_pp();
     return test_logger();
     return test_output_html();

@@ -29,16 +29,16 @@ namespace RsidGen {
     const  gps_x GPS_X_REGION[GPS_X_CNT] = {
         GPS_X_MIN, 1157277820, 1161560850, 1166281140, 1168806310, 1171340430,
         GPS_X_MAX };
-    const static size_t GPS_Y_CNT(6);
-    const static gps_y GPS_Y_REGION[GPS_Y_CNT] = {
+    const size_t GPS_Y_CNT(6);
+    const gps_y GPS_Y_REGION[GPS_Y_CNT] = {
         GPS_Y_MIN, 397479450, 400570710, 402664640, 405814250, GPS_Y_MAX };
-    const static roadseg_id INVALID_RSID(0);
+    const roadseg_id INVALID_RSID(0);
 
 	roadseg_id get_rsid(const gps_x& x, const gps_y& y) {
 		if (x < RsidGen::GPS_X_MIN || x > RsidGen::GPS_X_MAX ||
 			y < RsidGen::GPS_Y_MIN || y > RsidGen::GPS_Y_MAX) {
-			std::cerr << "ERROR: invalid gps coord (" << x
-					  << ", " << y << ")" << std::endl;
+			//std::cerr << "ERROR: invalid gps coord (" << x
+			//		  << ", " << y << ")" << std::endl;
 			return RsidGen::INVALID_RSID;
 		}
 #ifdef DEBUG
@@ -53,7 +53,41 @@ namespace RsidGen {
 						   RsidGen::GPS_Y_SCALE));
 		}
 
+	const roadseg_id INNER_MAX(1 << 14); // 2^7 * 2^7 ~= 10000+
+	const gps_x INNER_XSTEP = (GPS_X_REGION[4] - GPS_X_REGION[3]) >> 7;
+	const gps_y INNER_YSTEP = (GPS_Y_REGION[4] - GPS_Y_REGION[3]) >> 7;
+	const roadseg_id MIDDLE_MAX(INNER_MAX + (1 << 14)); // 10000+
+	const gps_x MIDDLE_XSTEP = (GPS_X_REGION[5] - GPS_X_REGION[1]) >> 7;
+	const gps_y MIDDLE_YSTEP = (GPS_Y_REGION[4] - GPS_Y_REGION[0]) >> 7;
+	const roadseg_id OUTTER_MAX(MIDDLE_MAX + (1 << 14)); // 10000+
+	const gps_x OUTTER_XSTEP = GPS_X_SCALE >> 7;
+	const gps_y OUTTER_YSTEP = GPS_Y_SCALE >> 7;
+
+	inline roadseg_id get_rsid3(const gps_x& x, const gps_y& y) {
+		uint32_t xi(0), yi(0);
+		while (xi < GPS_X_CNT && x > GPS_X_REGION[xi])
+			++xi;
+		if (!xi || xi == GPS_X_CNT)
+			return INVALID_RSID;
+		while (yi < GPS_Y_CNT && y > GPS_Y_REGION[yi])
+			++yi;
+		if (!yi || yi == GPS_Y_CNT)
+			return INVALID_RSID;
+		if (xi == 4 && yi == 4) // inner area
+			return ((x - GPS_X_REGION[3])/INNER_XSTEP + 1)
+				* ((y - GPS_Y_REGION[3])/INNER_YSTEP + 1);
+		if (xi == 1 || xi == 6 || yi == 5) // outter area
+			return MIDDLE_MAX
+					+ ((x - GPS_X_MIN) / OUTTER_XSTEP + 1)
+				* ((y - GPS_Y_MIN) / OUTTER_YSTEP + 1);
+		else // middle
+			return INNER_MAX
+				+ ((x - GPS_X_REGION[1]) / MIDDLE_XSTEP + 1)
+				* ((y - GPS_Y_REGION[0]) / MIDDLE_YSTEP + 1);
+	}
+
 		inline roadseg_id get_rsid2(const gps_x& x, const gps_y& y) {
+			//std::cout << "(" << x << "," << y << ")" << std::endl;
 			uint32_t xi(0), yi(0);
 		while (xi < RsidGen::GPS_X_CNT && x > RsidGen::GPS_X_REGION[xi])
 			++xi;
