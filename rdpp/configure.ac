@@ -1,6 +1,11 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
+# 
+# This file is part of the Road Data Processor Project
+# DO NOT EDIT!
+#
+
 AC_PREREQ([2.65])
 AC_INIT([rdpp], [1.5], [yunxinyi@gmail.com])
 AC_CONFIG_SRCDIR([src/main.cpp])
