@@ -73,8 +73,8 @@ typedef struct
     uint16_t event;
     uint16_t status;
     gps_time time;
-    double x;
-    double y;
+    gps_x x;
+    gps_y y;
     uint16_t speed;
     uint16_t direct;
     uint16_t valid;

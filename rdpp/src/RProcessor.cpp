@@ -93,23 +93,63 @@ inline int R::Processor::processOrigRecord(const in_rec& rec, bool echo) {
     return 0;
 }
 
+int R::Processor::processFileBuffer2() {
+    char* p = m_pCurFBufPos;
+    for (in_rec irec; p < m_pFileBufEnd - 1; ++p) {
+        irec.cid = 0;
+        while (*(++p) != ',')
+            irec.cid = irec.cid * 10 + *p - 0x30;
+        irec.event = *(++p) - 0x30;
+        p += 2;
+        irec.status = *p - 0x30;
+        ++p;
+        irec.time = 0;
+        while (*(++p) != ',')
+            irec.time = irec.time * 10 + *p - 0x30;
+        irec.x = 0;
+        while (*(++p) != ',')
+            if (*p != '.')
+                irec.x = irec.x * 10 + *p - 0x30;
+        irec.y = 0;
+        while (*(++p) != ',')
+            if (*p != '.')
+                irec.y = irec.y * 10 + *p - 0x30;
+        while (*(++p) != ',')
+            ;
+        while (*(++p) != ',')
+            ;
+        irec.valid = *(++p) - 0x30;
+        if (*(++p) != 0x0d) {        
+            cout << "ERROR RECORD: (" << "cid: " << irec.cid << ", event: "
+                 << irec.event << ", status: " << irec.status << ", time: "
+                 << irec.time << ", x: " << irec.x << ", y: " << irec.y
+                 << ", speed: " << irec.speed << ", direct: " << irec.direct
+                 << ", valid: " << irec.valid << ")" << endl;
+            getchar();
+        }
+        if (!irec.valid || irec.status != NON_OCCUPIED) continue;
+        // skip invalid ts index
+		if (abs(static_cast<int64_t>(irec.time - m_tsp)/10000)) {
+			continue;
+		} else // update ts pointer
+			m_tsp = irec.time;
+    	orec_key key(RsidGen::get_rsid2(irec.x, irec.y));
+		if (key == RsidGen::INVALID_RSID) { // skip invalid rsid
+			continue;
+		}
+		m_pTSPool[getTSIndex(irec.time)].insert((key << 32) | irec.cid);
+	}
+    
+    return 0;
+}
+
 int R::Processor::processFileBuffer() {
 	char* p;
 #ifdef DEBUG
 	int i = 0;
 #endif
 	for (in_rec irec; m_pCurFBufPos < m_pFileBufEnd - 1; ++m_pCurFBufPos) {
-		/*
-		printf("0x%x%x\n", *m_pCurFBufPos, *(m_pCurFBufPos+1));
-		getchar();
-		irec.cid = 0;
-		while (*(++m_pCurFBufPos) != ',') {
-			irec.cid = irec.cid * 10 + *m_pCurFBufPos - 0x30;
-			cout << "cid = " << irec.cid << endl;
-		}
-		cout << "X" << *m_pCurFBufPos << endl;
-		*/
-		irec.cid = strtoul(m_pCurFBufPos, &p, 10);
+        irec.cid = strtoul(m_pCurFBufPos, &p, 10);
 		m_pCurFBufPos = p + 2; // skip irec.event, 1 decimal num with two commas
 		irec.status = *(++m_pCurFBufPos) - 0x30;
 	    ++m_pCurFBufPos;
@@ -127,13 +167,13 @@ int R::Processor::processFileBuffer() {
 		} while (*m_pCurFBufPos != ',');
 		irec.valid = *(++m_pCurFBufPos) - 0x30; // 1 for valid
 		++m_pCurFBufPos;
-		/*
+        /*
+        printf("0x%x%x\n", *m_pCurFBufPos, *(m_pCurFBufPos+1));
 		cout << "DEBUG: (" << irec.cid << "," << irec.event << ","
 			<< irec.status << "," << irec.time << ","
 			<< irec.x << "," << irec.y << "," << irec.speed << ","
 			<< irec.direct << "," << irec.valid << ")" << endl;
-		getchar();
-		*/
+        */
 #ifdef DEBUG
 		if (++i == 1 || i == 20200)
 			cout << "DEBUG: (" << irec.cid << "," << irec.event << ","
@@ -151,16 +191,6 @@ int R::Processor::processFileBuffer() {
 			continue;
 		}
 		m_pTSPool[getTSIndex(irec.time)].insert((key << 32) | irec.cid);
-		/*
-        if(processOrigRecord(irec)) {
-            cerr << "ERROR: process record failed, record:"
-                 << "(" << irec.cid << "," << irec.event << ","
-                 << irec.status << "," << irec.time << ","
-                 << irec.x << "," << irec.y << "," << irec.speed << ","
-                 << irec.direct << "," << irec.valid << ")" << endl;
-
-            return -1;
-        }*/
 	}
 
 	return 0;
@@ -277,7 +307,7 @@ int R::Processor::process(uint32_t date, size_t len, bool progbar) {
                 return -1;
             }
             m_fileList.pop_front();
-            ret = processFileBuffer();
+            ret = processFileBuffer2();
             if (ret == -1) {
                 NZLogger::log(NZ::ERROR, "process file buffer failed");
                 return -1;

@@ -35,6 +35,7 @@ namespace R {
     private:
         ssize_t readFileIntoMem(const char* fpath);
         int processFileBuffer();
+        int processFileBuffer2();
         inline int processOrigRecord(const in_rec& rec, bool echo = false);
         int dumpRecords();
 		/*
