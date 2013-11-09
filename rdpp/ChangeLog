@@ -1,0 +1,7 @@
+1.0: implemented all the functions.
+1.1: 
+1.2: add RDProcess class
+1.3:
+1.4:
+1.5: dicard the strtol serial functions, use manual recognition to improve
+performance.
