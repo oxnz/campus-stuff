@@ -211,7 +211,7 @@ ssize_t R::Processor::readFileIntoMem(const char* fpath) {
     }
     m_pFileBufEnd = m_pFileBuffer + fsize;
     m_pCurFBufPos = (char *)m_pFileBuffer;
-    NZLogger::log(NZ::INFO, "file size: %lu", fsize);
+    NZLogger::log(NZ::INFO, "file size: %l", fsize);
     infile.seekg(0, ios::beg);
     infile.read((char *)m_pFileBuffer, fsize);
     infile.close();
@@ -225,13 +225,14 @@ int R::Processor::dumpRecords() {
         NZLogger::log(NZ::FATAL, "cannot open file [%s]", fpath);
         return -1;
     }
-    ofstream outjson(fpath.append(".js").c_str(), ios::out|ios::app);
+    ofstream outjson(fpath.append(".js").c_str(), ios::out);
     if (!outjson.is_open()) {
         NZLogger::log(NZ::FATAL, "cannot open file [%s]", fpath+".js");
         return -1;
     }
-    outjson << "var data = new Array(";
+    outjson << "var data" << m_tsp/1000000 << " = new Array(" << endl;
     NZLogger::log(NZ::INFO, "dumping to file [%s] ...", fpath);
+    NZLogger::log(NZ::INFO, "dumping to file [%s.js] ...", fpath);
 
     size_t cnt;
     roadseg_id x;
@@ -254,7 +255,7 @@ int R::Processor::dumpRecords() {
         x = roadseg_id(cnt);
         outfile.write(reinterpret_cast<const char*>(&x),
                       sizeof(roadseg_id));
-        if (i % 10 == 0) {
+        if (i && i % 10 == 0) {
             cout << endl << setw(6) << left << i << "  ";
             outjson << endl;
         }
@@ -264,7 +265,7 @@ int R::Processor::dumpRecords() {
     cout << endl;
     outfile.close();
     // erase last comma
-    outjson << "\b);" << endl;
+    outjson << ");" << endl;
     outjson.close();
     NZLogger::log(NZ::INFO, "dump to file [%s] successfully", fpath);
     return 0;
@@ -288,7 +289,7 @@ int R::Processor::process(uint32_t date, size_t len, bool progbar) {
             NZLogger::log(NZ::WARNING, "no file was found");
             return 1;
         } else {
-            NZLogger::log(NZ::INFO, "processing day %u, %u files, m_tsp = %llu",
+            NZLogger::log(NZ::NOTICE, "processing day %u, %u files, m_tsp = %u",
 					date, ret, m_tsp);
         }
 

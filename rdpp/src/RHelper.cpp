@@ -132,7 +132,7 @@ ssize_t readFileIntoMem(char* const pbuf,
     }
     infile.seekg(0, ios::end);
     size = infile.tellg();
-    NZLogger::log(NZ::INFO, "file size: %lu", size);
+    NZLogger::log(NZ::INFO, "file size: %u", size);
     if (size > capacity) {
         NZLogger::log(NZ::ERROR, "file size is larger than the capacity");
         return -1;
@@ -168,21 +168,14 @@ ssize_t readFileIntoMem(char* const pbuf,
     return size;
 }
 
-void RHelper::print_progress(size_t percent) {
-    int n = percent;
-    char buf[51] = {0};
-    int i = 80;
-    if (!percent)
-        return;
-    while (--i)
-        cout << "\b";
-    i = -1;
-    while (--n)
-        if (n % 2)
-            buf[++i] = '=';
-    while (++i < 50)
-        buf[i] = '-';
-    cout << "Progress: [" << buf << "] " << to_string(percent) << '\%';
-    if (percent == 100)
-        cout << endl;
+void RHelper::print_progress(size_t percent, const char* hint) {
+	if (!hint || strlen(hint) > 20)
+		hint = "Progress:";
+	char buf[51] = "--------------------------------------------------";
+	for (size_t i = 0; i < percent; ++i) {
+		buf[i/2] = '=';
+	}
+	cout << '\r' << hint << " [" << buf << "] " << percent << "%";
+	if (percent == 100)
+		cout << endl;
 }

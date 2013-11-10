@@ -41,7 +41,7 @@ RDP::RDPool::RDPool(size_t nrs, size_t nts)
 
 car_count* RDP::RDPool::operator[](roadseg_id rsid) {
     if (rsid <= 0 || rsid > m_nrs) {
-        NZLogger::log(NZ::FATAL, "invalid rsid: %lu", rsid);
+        NZLogger::log(NZ::FATAL, "invalid rsid: %u", rsid);
         return nullptr;
     }
     return m_pp + (rsid-1) * m_nts;
@@ -50,7 +50,7 @@ car_count* RDP::RDPool::operator[](roadseg_id rsid) {
 car_count& RDP::RDPool::operator()(roadseg_id rsid, ts_index tsi) {
     if (rsid <= 0 || rsid > m_nrs || tsi < 0 || tsi >= m_nts)
         NZLogger::log(NZ::FATAL,
-				"invalid rsid or TS index: rsid(%llu), tsi(%hu)", rsid, tsi);
+				"invalid rsid or TS index: rsid(%u), tsi(%u)", rsid, tsi);
     return (m_pp + (rsid-1)*m_nts)[tsi];
 }
 
@@ -60,7 +60,7 @@ int RDP::RDPool::process(const std::set<orec_key>* ptsm) {
         for (std::set<orec_key>::const_iterator it =
                  ptsm[i].begin(); it != ptsm[i].end(); ++it) {
             if (*it <= 0 || *it >= m_nrs) {
-                NZLogger::log(NZ::DEBUG, "invalid rsid: %llu", *it);
+                NZLogger::log(NZ::DEBUG, "invalid rsid: %u", *it);
             } else
                 ++((m_pp + ((*it)-1) * m_nts)[i]);
         }

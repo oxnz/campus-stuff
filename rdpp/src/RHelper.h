@@ -31,5 +31,6 @@ int find_files(const char* path, const char* pattern,
                     std::list<std::string>& outlist);
 int find_files(const char* path, const char* pattern,
                std::vector<std::string>& outvector);
-void print_progress(size_t percent);
+void print_progress(size_t percent, const char* hint = nullptr);
+//void print_progress(const char* hint, size_t percent);
 }

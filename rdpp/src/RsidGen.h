@@ -118,6 +118,9 @@ namespace RsidGen {
 		return RsidGen::INVALID_RSID;
 	}
 
+	inline roadseg_id get_rsid3(const gps_x x, const gps_y y) {
+		return 0;
+	}
 	inline roadseg_id get_rsid(const gps_coord& coord) {
 		return get_rsid(coord.x, coord.y);
 	}

@@ -19,6 +19,7 @@ namespace NZ {
         WARNING,
         ERROR,
         FATAL,
+		NOTICE, // notice always the highest privor
     };
 
 	static const char* LOG_LEVEL_PREFIX[] = {
@@ -27,6 +28,7 @@ namespace NZ {
 		"WARNING: ",
 		"ERROR: ",
 		"FATAL ERROR: ",
+		"NOTICE: ",
 	};
 
     class NZLogger {

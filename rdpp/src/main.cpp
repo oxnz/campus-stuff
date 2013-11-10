@@ -8,6 +8,7 @@
  * Revision: -*-
  * Last-update: 2013-11-07 22:10:12
  */
+
 #include "RProcessor.h"
 #include "NZLogger.h"
 
@@ -69,6 +70,7 @@ int help(int ecode = 0) {
 
 int main(int argc, char *argv[]) {
     NZLogger::setLogLevel(NZ::WARNING);
+	//NZLogger::setLogLevel(NZ::INFO);
     int ch;
     size_t bufsize(2*1024*1024), date(0), dcnt(1), mpts(3);
     const char* pIndir(0);

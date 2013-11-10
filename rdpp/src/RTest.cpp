@@ -24,7 +24,17 @@ using namespace RHelper;
 #include <unistd.h>
 #include "NZLogger.h"
 using NZ::NZLogger;
+
+class T {
+	friend ostream& operator<<(ostream& os, const T& t) {
+		os << "HELLO" << 123 << 2.3 << 1.2121212121 << endl;
+		return os;
+	}
+};
+
 int test_logger() {
+	T t;
+	NZLogger::log("T: %z", t);
 	NZ::NZLogger::setLogLevel(NZ::INFO);
 	for (int i = 0; i < 1000000; ++i) {
 		NZLogger::log(NZ::DEBUG, "This is a %s log%d%f", "debug", 123, 12.12);
@@ -74,8 +84,11 @@ int test_output_html() {
 }
 
 int test_print_progress(void) {
-    for (int i = 2; i < 480; ++i)
-        print_progress(i*100/480+1);
+    for (int i = 0; i < 1000; ++i) {
+        print_progress(i*100/1000, "Testxx: ");
+		usleep(1000);
+	}
+	print_progress(100, "Test :XX");
     return 0;
 }
 
@@ -168,11 +181,11 @@ int test_set(void) {
 }
 
 int main(int argc, char *argv[]) {
+    return test_print_progress();
     return test_logger();
 	return test_set();
 //    return test_pp();
     return test_output_html();
-    return test_print_progress();
     return test_get_ts_index();
 	// return test_find_files();
     printf("testing get_roadseg_id:\n");
