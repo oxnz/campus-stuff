@@ -1,4 +1,3 @@
-function draw() {
 	var data = new Array(
 		2,6,10,12,2685,12953,16370,16194,15745,15549,
 		15570,15694,15581,15538,15181,14955,15149,15003,14691,14351,
@@ -49,24 +48,35 @@ function draw() {
 		16600,16495,16544,16947,16550,16382,16386,16435,16332,16299,
 		16617,16425,16551,17236,17465,17321,17189,17110,17356,17117
 	);
-	var ts = 3; // 3 min
-	var tcnt = 24*60/ts; // ts count
-	var ccnt = 20000; // max car count
-	var width = 960;
-	var dx = 960*ts/(24*60);
-	var height = 400;
-	var dy = 400/ccnt;
-    var chart = document.getElementById('chart');
-    var ctx = chart.getContext('2d');
-    ctx.fillStyle = '#00FF00';
-	for (var i = 0; i < tcnt; ++i) {
-        ctx.fillRect(i*dx, height-dy*data[i], 2, dy*data[i]);
+
+function onload() {
+	/*
+	 * @cmax: mac car cound in ts minute(s).
+	 * @ts: time slot length in minute(s).
+	 * @h: height
+	 * @w: width
+	 */
+	Array.prototype.draw = function(ctx, ts, cmax, h, w) {
+		var dx = w*ts/(24*60);
+		var dy = h/cmax;
+		var n = 24*60/ts;
+		ctx.fillStyle = '#00FF00';
+		for (var i = 0; i < n; ++i) {
+			ctx.fillRect(i*dx, h - dy*this[i], 2, dy*this[i]);
+		}
+		ctx.fillStyle = '#FF0000';
+		ctx.font = '10px Arial';
+		dx = w/24;
+		for (var i = 0; i < 25; ++i) {
+			ctx.fillRect(i*dx, 0, 1, h);
+			ctx.fillText(i, i*dx+dx/3, 10);
+		}
 	}
-    var dx = 960/24;
-    ctx.fillStyle = '#FF0000';
-    ctx.font = "10px Arial";
-    for (var i = 0; i < 25; ++i) {
-        ctx.fillRect(i*dx, 0, 1, height);
-        ctx.fillText(i, i*dx+dx/3, 10);
-    }
+	data.draw(
+			ctx = document.getElementById('chart').getContext('2d'),
+			ts = 3,
+			cmax = 20000,
+			h = 400,
+			w = 960
+			);
 }
