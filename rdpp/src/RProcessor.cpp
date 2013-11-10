@@ -197,11 +197,10 @@ int R::Processor::processFileBuffer() {
 }
 
 ssize_t R::Processor::readFileIntoMem(const char* fpath) {
-    NZLogger::log(NZ::INFO, string("reading [") + fpath + "] ...");
+    NZLogger::log(NZ::INFO, "reading [%s] ...", fpath);
     ifstream infile(fpath);
     if (!infile.is_open()) {
-        NZLogger::log(NZ::ERROR, string("open file [") +
-                      fpath + "] failed");
+        NZLogger::log(NZ::ERROR, "open file [%s] failed", fpath);
         return -1;
     }
     infile.seekg(0, ios::end);
@@ -212,7 +211,7 @@ ssize_t R::Processor::readFileIntoMem(const char* fpath) {
     }
     m_pFileBufEnd = m_pFileBuffer + fsize;
     m_pCurFBufPos = (char *)m_pFileBuffer;
-    NZLogger::log(NZ::INFO, "file size: " + to_string(fsize));
+    NZLogger::log(NZ::INFO, "file size: %lu", fsize);
     infile.seekg(0, ios::beg);
     infile.read((char *)m_pFileBuffer, fsize);
     infile.close();
@@ -223,17 +222,16 @@ int R::Processor::dumpRecords() {
     string fpath = m_outdir + to_string(m_tsp/1000000) + ".dat";
     ofstream outfile(fpath.c_str(), ios::out|ios::binary);
     if (!outfile.is_open()) {
-        NZLogger::log(NZ::FATAL, "cannot open file [" + string(fpath) + "]");
+        NZLogger::log(NZ::FATAL, "cannot open file [%s]", fpath);
         return -1;
     }
     ofstream outjson(fpath.append(".js").c_str(), ios::out|ios::app);
     if (!outjson.is_open()) {
-        NZLogger::log(NZ::ERROR, "cannot open file [" + string(fpath)
-                      + ".js]");
+        NZLogger::log(NZ::FATAL, "cannot open file [%s]", fpath+".js");
         return -1;
     }
     outjson << "var data = new Array(";
-    NZLogger::log(NZ::INFO, "dumping to file [" + string(fpath) + "] ...");
+    NZLogger::log(NZ::INFO, "dumping to file [%s] ...", fpath);
 
     size_t cnt;
     roadseg_id x;
@@ -264,12 +262,11 @@ int R::Processor::dumpRecords() {
         outjson << cnt << ",";
     }
     cout << endl;
-    NZLogger::log(NZ::INFO, "dump to file [" + string(fpath)
-                  + "] successfully");
     outfile.close();
     // erase last comma
     outjson << "\b);" << endl;
     outjson.close();
+    NZLogger::log(NZ::INFO, "dump to file [%s] successfully", fpath);
     return 0;
 }
 
@@ -291,9 +288,8 @@ int R::Processor::process(uint32_t date, size_t len, bool progbar) {
             NZLogger::log(NZ::WARNING, "no file was found");
             return 1;
         } else {
-            NZLogger::log(NZ::INFO, "processing day " + to_string(date) + ", "
-                          + to_string(ret) + " files, m_tsp = "
-                          + to_string(m_tsp));
+            NZLogger::log(NZ::INFO, "processing day %u, %u files, m_tsp = %llu",
+					date, ret, m_tsp);
         }
 
         fcnt = m_fileList.size();
@@ -301,7 +297,7 @@ int R::Processor::process(uint32_t date, size_t len, bool progbar) {
             if (progbar) {
                 RHelper::print_progress((fcnt - m_fileList.size())*100/fcnt);
             }
-            NZLogger::log(NZ::INFO, "processing " + m_fileList.front());
+            NZLogger::log(NZ::INFO, "processing %s", m_fileList.front());
             if (readFileIntoMem(m_fileList.front().c_str()) <= 0) {
                 NZLogger::log(NZ::ERROR, "read file into memory failed");
                 return -1;

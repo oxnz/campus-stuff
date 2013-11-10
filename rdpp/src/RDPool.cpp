@@ -32,8 +32,8 @@ RDP::RDPool::RDPool(size_t nrs, size_t nts)
       m_nts(nts),
       m_pp(new car_count[nrs*nts])
 {
-    NZLogger::log(NZ::DEBUG, "creating RDP (nts = " + to_string(m_nts) +
-                  " nrs = " + to_string(m_nrs) + ") ...");
+    NZLogger::log(NZ::DEBUG, "creating RDP (nts = %u, nrs = %u) ...",
+			m_nts, m_nrs);
     for (size_t i = 0; i < nrs*nts; ++i)
         *(m_pp + i) = 0;
     NZLogger::log(NZ::DEBUG, "RDP created");
@@ -41,7 +41,7 @@ RDP::RDPool::RDPool(size_t nrs, size_t nts)
 
 car_count* RDP::RDPool::operator[](roadseg_id rsid) {
     if (rsid <= 0 || rsid > m_nrs) {
-        NZLogger::log(NZ::FATAL, "invalid rsid: " + to_string(rsid));
+        NZLogger::log(NZ::FATAL, "invalid rsid: %lu", rsid);
         return nullptr;
     }
     return m_pp + (rsid-1) * m_nts;
@@ -49,8 +49,8 @@ car_count* RDP::RDPool::operator[](roadseg_id rsid) {
 
 car_count& RDP::RDPool::operator()(roadseg_id rsid, ts_index tsi) {
     if (rsid <= 0 || rsid > m_nrs || tsi < 0 || tsi >= m_nts)
-        NZLogger::log(NZ::FATAL, "invalid rsid or TS index: ("
-                      + to_string(rsid) + ", " + to_string(tsi) + ")");
+        NZLogger::log(NZ::FATAL,
+				"invalid rsid or TS index: rsid(%llu), tsi(%hu)", rsid, tsi);
     return (m_pp + (rsid-1)*m_nts)[tsi];
 }
 
@@ -60,8 +60,7 @@ int RDP::RDPool::process(const std::set<orec_key>* ptsm) {
         for (std::set<orec_key>::const_iterator it =
                  ptsm[i].begin(); it != ptsm[i].end(); ++it) {
             if (*it <= 0 || *it >= m_nrs) {
-                NZLogger::log(NZ::DEBUG, "invalid rsid: "
-                              + to_string(*it));
+                NZLogger::log(NZ::DEBUG, "invalid rsid: %llu", *it);
             } else
                 ++((m_pp + ((*it)-1) * m_nts)[i]);
         }
@@ -71,10 +70,10 @@ int RDP::RDPool::process(const std::set<orec_key>* ptsm) {
 }
 
 int RDP::RDPool::dump(const string& fpath) {
-    NZLogger::log(NZ::INFO, "RDP dumping to file [" + fpath + "] ...");
+    NZLogger::log(NZ::INFO, "RDP dumping to file [%s] ...", fpath);
     ofstream outfile(fpath, ios::out|ios::binary);
     if (!outfile.is_open()) {
-        NZLogger::log(NZ::FATAL, "cannot open file [" + string(fpath) + "]");
+        NZLogger::log(NZ::FATAL, "cannot open file [%s]", fpath);
         return -1;
     }
     for (roadseg_id i = 0; i < m_nrs; ++i) {

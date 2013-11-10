@@ -25,10 +25,15 @@ using namespace RHelper;
 #include "NZLogger.h"
 using NZ::NZLogger;
 int test_logger() {
-	NZLogger::log(NZ::DEBUG) << "this is debug" << 12.34 << endl;
-    NZLogger::log(NZ::ERROR) << "hello"
-                  << "world"
-                  << "123" << endl;
+	NZ::NZLogger::setLogLevel(NZ::INFO);
+	for (int i = 0; i < 1000000; ++i) {
+		NZLogger::log(NZ::DEBUG, "This is a %s log%d%f", "debug", 123, 12.12);
+	}
+	NZLogger::log("IN LOGGER");
+	cout << "log end" << endl;
+	int i = 0;
+	NZLogger::log("abc %s %d %p end", "hello", 123, &i);
+	cout << "log2 end" << endl;
     return 0;
 }
 
@@ -163,9 +168,9 @@ int test_set(void) {
 }
 
 int main(int argc, char *argv[]) {
+    return test_logger();
 	return test_set();
 //    return test_pp();
-    return test_logger();
     return test_output_html();
     return test_print_progress();
     return test_get_ts_index();

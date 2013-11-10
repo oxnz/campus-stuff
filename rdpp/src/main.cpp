@@ -38,8 +38,7 @@ void signal_handler(int signo, siginfo_t *info, void *ptr) {
         NZLogger::log(NZ::WARNING, "catch sigint, please wait a moment");
         break;
     default:
-        NZLogger::log(NZ::ERROR, "unknown signal, signo = "
-                      + std::to_string(signo) + ", skipped");
+        NZLogger::log(NZ::ERROR, "unknown signal, signo = %d, skipped", signo);
         break;
     }
 }
@@ -62,10 +61,9 @@ int help(int ecode = 0) {
         << "\t-s\tshow progress bar" << endl
         << "\t-j\toutput a js array file contains car count info" << endl
         << "  Default Value:" << endl
-        << "\t-b: 2\tbuffer size: 2 Megabytes" << endl
-        << "\t-l: 1\tprocess 1 single day" << endl
-        << "\t-t: 3\ttime slot length: 3 minutes" << endl;
-
+        << "\t-b:\t2" << endl // \tbuffer size: 2 Megabytes" << endl
+        << "\t-l:\t1" << endl // \tprocess 1 single day" << endl
+        << "\t-t:\t3" << endl; //\ttime slot length: 3 minutes" << endl;
     return ecode;
 }
 
@@ -139,14 +137,14 @@ int main(int argc, char *argv[]) {
         NZLogger::log(NZ::ERROR, "start date not specified");
         return -1;
     }
-    NZLogger::log(NZ::DEBUG, std::string("input dir: ") + pIndir
-                  + "output dir: " + pOutdir);
+    NZLogger::log(NZ::DEBUG, "input dir: %s, output dir: %s\n",
+			pIndir, pOutdir);
     struct sigaction action;
     action.sa_sigaction = signal_handler;
     sigemptyset(&action.sa_mask);
     action.sa_flags = 0;
     if (sigaction(SIGINT, &action, NULL) == -1) {
-        perror("sigaction");
+		NZLogger::log(NZ::ERROR, "sigaction error: %s", strerror(errno));
         return -1;
     }
 
@@ -154,16 +152,16 @@ int main(int argc, char *argv[]) {
     try {
         rdpp = new R::Processor(pIndir, pOutdir, mpts, bufsize, false);
     } catch (std::logic_error& e) {
-        NZLogger::log(NZ::ERROR, std::string("logic error -> ") + e.what());
+        NZLogger::log(NZ::ERROR, "logic error -> %s", e.what());
         return -1;
     } catch (std::bad_alloc& e) {
-        NZLogger::log(NZ::ERROR, std::string("alloc error -> ") + e.what());
+        NZLogger::log(NZ::ERROR, "alloc error -> %s", e.what());
         return -1;
     } catch (std::runtime_error& e) {
-        NZLogger::log(NZ::ERROR, std::string("runtime error -> ") + e.what());
+        NZLogger::log(NZ::ERROR, "runtime error -> %s", e.what());
         return -1;
     } catch (std::exception& e) {
-        NZLogger::log(NZ::ERROR, std::string("unknown error -> ") + e.what());
+        NZLogger::log(NZ::ERROR, "unknown error -> ", e.what());
         return -1;
     } catch (...) {
         NZLogger::log(NZ::ERROR, "Unknown error happend, construct failed");
@@ -191,8 +189,8 @@ int main(int argc, char *argv[]) {
         }
         if (ret == -1) {
             loop = false;
-            NZLogger::log(NZ::ERROR, "RDPP process failed, error code: "
-                          + std::to_string(ret));
+            NZLogger::log(NZ::ERROR, "RDPP process failed, error code: %d",
+					ret);
         } else if (ret == 1) {
             NZLogger::log(NZ::INFO, "no more files to be processed");
             loop = false;
