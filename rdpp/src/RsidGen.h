@@ -19,7 +19,6 @@
 namespace RsidGen {
     using namespace std;
     const roadseg_id INVALID_RSID(0);
-    const roadseg_id MAX_RSID(1<<18);
     const gps_x GPS_X_MIN(1153745330);
     const gps_x GPS_X_MAX(1175003570);
     const gps_y GPS_Y_MIN(394164260);
@@ -37,7 +36,7 @@ namespace RsidGen {
 	const roadseg_id GPS_X_INNER_STEP(GPS_X_INNER_SCALE>>9);
 	const roadseg_id GPS_Y_INNER_STEP(GPS_Y_INNER_SCALE>>8);
 
-	const roadseg_id GPS_L_CNT(((GPS_X_INNER_MIN-GPS_X_MIN)/GPS_X_STEP)
+	const roadseg_id GPS_L_CNT(((GPS_X_MAX-GPS_X_MIN)/GPS_X_STEP)
 			*((GPS_Y_INNER_MIN-GPS_Y_MIN)/GPS_Y_STEP));
 	const roadseg_id GPS_ML_CNT(GPS_L_CNT
 			+(((GPS_X_INNER_MIN-GPS_X_MIN)/GPS_X_STEP)
@@ -48,6 +47,10 @@ namespace RsidGen {
 	const roadseg_id GPS_MR_CNT(GPS_MM_CNT
 			+(((GPS_X_MAX-GPS_X_INNER_MAX)/GPS_X_STEP)
 				*((GPS_Y_INNER_MAX-GPS_Y_INNER_MIN)/GPS_Y_STEP)));
+	const roadseg_id GPS_H_CNT(GPS_MR_CNT
+			+(((GPS_X_MAX-GPS_X_MIN)/GPS_X_STEP)
+				*((GPS_Y_MAX-GPS_Y_INNER_MAX)/GPS_Y_STEP)));
+    const roadseg_id MAX_RSID(GPS_H_CNT);
 
 	inline roadseg_id get_rsid(const gps_x& x, const gps_y& y) {
 		if (x < GPS_X_MIN || x > GPS_X_MAX || y < GPS_Y_MIN || y > GPS_Y_MAX)
