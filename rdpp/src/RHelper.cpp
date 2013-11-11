@@ -175,7 +175,7 @@ void RHelper::print_progress(size_t percent, const char* hint) {
 	for (size_t i = 0; i < percent; ++i) {
 		buf[i/2] = '=';
 	}
-	cout << '\r' << hint << " [" << buf << "] " << percent << "%";
+	cout << '\r' << hint << ": [" << buf << "] " << percent << "%";
 	if (percent == 100)
 		cout << endl;
 }

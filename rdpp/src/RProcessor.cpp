@@ -46,7 +46,7 @@ R::Processor::Processor(const char* indir, const char* outdir,
 	  m_pFileBuffer(new char[bufsize]),
       m_bProcess(process),
       m_pRDPool(process ? new RDP::RDPool(RsidGen::MAX_RSID, 24*60/minPerTS)
-                : 0)
+                : nullptr)
 {
     if (m_indir.length() * m_outdir.length() == 0)
         throw logic_error("invalid parameter: indir or outdir is null");
@@ -320,16 +320,20 @@ int R::Processor::process(uint32_t date, size_t len, bool progbar) {
         if (m_bProcess && m_pRDPool->process(m_pTSPool)) {
             NZLogger::log(NZ::FATAL, "RDP process failed, skipped");
         }
+		if (m_bProcess)
+			m_pRDPool->query(RsidGen::INVALID_RSID, 0);
         if (dumpRecords()) {
             NZLogger::log(NZ::FATAL, "dump to file failed");
             return -1;
         }
 	}
+	/*
     if (m_bProcess && m_pRDPool->dump(m_outdir + to_string(m_tsp/1000000)
                                       + ".rsd")) {
         NZLogger::log(NZ::FATAL, "RDP dump failed");
         return ret;
     }
+	*/
     
 	return ret;
 }
@@ -343,5 +347,6 @@ R::Processor::~Processor() {
     }
     delete[] m_pTSPool;
     delete[] m_pFileBuffer;
-    delete m_pRDPool;
+	if (m_bProcess)
+		delete m_pRDPool;
 }

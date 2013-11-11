@@ -100,7 +100,9 @@ int test_get_roadseg_id(void) {
 		<< endl << "GPS_L_CNT: " << GPS_L_CNT
 		<< " GPS_ML_CNT: " << GPS_ML_CNT << endl
 		<< "GPS_MM_CNT: " << GPS_MM_CNT << endl
-		<< "GPS_MR_CNT: " << GPS_MR_CNT << endl;
+		<< "GPS_MR_CNT: " << GPS_MR_CNT << endl
+		<< "GPS_H_CNT: " << GPS_H_CNT << endl
+		<< "MAX_RSID: " << MAX_RSID << endl;
 	std::set<roadseg_id> s;
 	roadseg_id rsid;
 	for (gps_x x = 1153000000; x < 1176000000; x += 10)
@@ -201,8 +203,8 @@ int test_set(void) {
 }
 
 int main(int argc, char *argv[]) {
-    return test_read_preped_file("out/20121101.dat");
     return test_get_roadseg_id();
+    return test_read_preped_file("out/20121101.dat");
     return test_print_progress();
     return test_logger();
 	return test_set();

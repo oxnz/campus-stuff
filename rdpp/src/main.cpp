@@ -153,7 +153,7 @@ int main(int argc, char *argv[]) {
 
     R::Processor *rdpp;
     try {
-        rdpp = new R::Processor(pIndir, pOutdir, mpts, bufsize, false);
+        rdpp = new R::Processor(pIndir, pOutdir, mpts, bufsize, true);
     } catch (std::logic_error& e) {
         NZLogger::log(NZ::ERROR, "logic error -> %s", e.what());
         return -1;
