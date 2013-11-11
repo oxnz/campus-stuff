@@ -18,13 +18,69 @@
 
 namespace RsidGen {
     using namespace std;
+    const roadseg_id INVALID_RSID(0);
     const roadseg_id MAX_RSID(1<<18);
-    const  gps_x GPS_X_MIN(1153748770);
-    const  gps_x GPS_X_MAX(1175000130);
-    const  gps_x GPS_X_SCALE(GPS_X_MAX-GPS_X_MIN);
-    const  gps_y GPS_Y_MIN(394166530);
-    const  gps_y GPS_Y_MAX(410832710);
-    const  gps_y GPS_Y_SCALE(GPS_Y_MAX-GPS_Y_MIN);
+    const gps_x GPS_X_MIN(1153745330);
+    const gps_x GPS_X_MAX(1175003570);
+    const gps_y GPS_Y_MIN(394164260);
+    const gps_y GPS_Y_MAX(410834980);
+    const gps_x GPS_X_SCALE(GPS_X_MAX-GPS_X_MIN);
+    const gps_y GPS_Y_SCALE(GPS_Y_MAX-GPS_Y_MIN);
+	const roadseg_id GPS_X_STEP(GPS_X_SCALE >> 9);
+	const roadseg_id GPS_Y_STEP(GPS_Y_SCALE >> 9);
+	const gps_x GPS_X_INNER_MIN(1161509570);
+	const gps_x GPS_X_INNER_MAX(1166824130);
+	const gps_y GPS_Y_INNER_MIN(397452820);
+	const gps_y GPS_Y_INNER_MAX(400578580);
+	const gps_x GPS_X_INNER_SCALE(GPS_X_INNER_MAX-GPS_X_INNER_MIN);
+	const gps_y GPS_Y_INNER_SCALE(GPS_Y_INNER_MAX-GPS_Y_INNER_MIN);
+	const roadseg_id GPS_X_INNER_STEP(GPS_X_INNER_SCALE>>9);
+	const roadseg_id GPS_Y_INNER_STEP(GPS_Y_INNER_SCALE>>8);
+
+	const roadseg_id GPS_L_CNT(((GPS_X_INNER_MIN-GPS_X_MIN)/GPS_X_STEP)
+			*((GPS_Y_INNER_MIN-GPS_Y_MIN)/GPS_Y_STEP));
+	const roadseg_id GPS_ML_CNT(GPS_L_CNT
+			+(((GPS_X_INNER_MIN-GPS_X_MIN)/GPS_X_STEP)
+				*((GPS_Y_INNER_MAX-GPS_Y_INNER_MIN)/GPS_Y_STEP)));
+	const roadseg_id GPS_MM_CNT(GPS_ML_CNT
+			+(((GPS_X_INNER_MAX-GPS_X_INNER_MIN)/GPS_X_INNER_STEP)
+				*((GPS_Y_INNER_MAX-GPS_Y_INNER_MIN)/GPS_Y_INNER_STEP)));
+	const roadseg_id GPS_MR_CNT(GPS_MM_CNT
+			+(((GPS_X_MAX-GPS_X_INNER_MAX)/GPS_X_STEP)
+				*((GPS_Y_INNER_MAX-GPS_Y_INNER_MIN)/GPS_Y_STEP)));
+
+	inline roadseg_id get_rsid(const gps_x& x, const gps_y& y) {
+		if (x < GPS_X_MIN || x > GPS_X_MAX || y < GPS_Y_MIN || y > GPS_Y_MAX)
+			return INVALID_RSID;
+		return roadseg_id((x-GPS_X_MIN)/GPS_X_STEP
+				+((y-GPS_Y_MIN)/GPS_Y_STEP));
+	}
+
+	inline roadseg_id get_rsid2(const gps_x& x, const gps_y& y) {
+		if (x < GPS_X_MIN || x > GPS_X_MAX || y < GPS_Y_MIN || y > GPS_Y_MAX)
+			return INVALID_RSID;
+		else if (y < GPS_Y_INNER_MIN)
+			return roadseg_id(((x-GPS_X_MIN)/GPS_X_STEP+1)
+					*((y-GPS_Y_MIN)/GPS_Y_STEP+1));
+		else if (y >= GPS_Y_INNER_MAX)
+			return roadseg_id(GPS_MR_CNT
+							+((x-GPS_X_MIN)/GPS_X_STEP+1)
+							*((y-GPS_Y_INNER_MAX)/GPS_Y_STEP+1));
+		else if (x < GPS_X_INNER_MIN)
+			return roadseg_id(GPS_L_CNT
+					+((x-GPS_X_MIN)/GPS_X_STEP+1)
+					*((y-GPS_Y_INNER_MIN)/GPS_Y_STEP+1));
+		else if (x >= GPS_X_INNER_MAX)
+			return roadseg_id(GPS_MM_CNT
+				+((x-GPS_X_INNER_MAX)/GPS_X_STEP+1)
+				*((y-GPS_Y_INNER_MIN)/GPS_Y_STEP+1));
+		else
+			return roadseg_id(GPS_ML_CNT
+					+((x-GPS_X_INNER_MIN)/GPS_X_INNER_STEP+1)
+					*((y-GPS_Y_INNER_MIN)/GPS_Y_INNER_STEP+1));
+	}
+
+	/*
     const  size_t GPS_X_CNT(7);
     const  gps_x GPS_X_REGION[GPS_X_CNT] = {
         GPS_X_MIN, 1157277820, 1161560850, 1166281140, 1168806310, 1171340430,
@@ -32,9 +88,8 @@ namespace RsidGen {
     const size_t GPS_Y_CNT(6);
     const gps_y GPS_Y_REGION[GPS_Y_CNT] = {
         GPS_Y_MIN, 397479450, 400570710, 402664640, 405814250, GPS_Y_MAX };
-    const roadseg_id INVALID_RSID(0);
 
-	roadseg_id get_rsid(const gps_x& x, const gps_y& y) {
+	roadseg_id get_rsid_deprecated(const gps_x& x, const gps_y& y) {
 		if (x < RsidGen::GPS_X_MIN || x > RsidGen::GPS_X_MAX ||
 			y < RsidGen::GPS_Y_MIN || y > RsidGen::GPS_Y_MAX) {
 			//std::cerr << "ERROR: invalid gps coord (" << x
@@ -63,7 +118,7 @@ namespace RsidGen {
 	const gps_x OUTTER_XSTEP = GPS_X_SCALE >> 7;
 	const gps_y OUTTER_YSTEP = GPS_Y_SCALE >> 7;
 
-	inline roadseg_id get_rsid3(const gps_x& x, const gps_y& y) {
+	inline roadseg_id get_rsid4(const gps_x& x, const gps_y& y) {
 		uint32_t xi(0), yi(0);
 		while (xi < GPS_X_CNT && x > GPS_X_REGION[xi])
 			++xi;
@@ -118,9 +173,8 @@ namespace RsidGen {
 		return RsidGen::INVALID_RSID;
 	}
 
-	inline roadseg_id get_rsid3(const gps_x x, const gps_y y) {
-		return 0;
-	}
+
+	*/
 	inline roadseg_id get_rsid(const gps_coord& coord) {
 		return get_rsid(coord.x, coord.y);
 	}

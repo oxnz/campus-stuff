@@ -92,18 +92,31 @@ int test_print_progress(void) {
     return 0;
 }
 
+using namespace RsidGen;
 int test_get_roadseg_id(void) {
-	uint32_t x(1150000000), y(394000000);
-    for (int i = 0; i < 14; ++i) {
-        for (int j = 0; j < 10; ++j) {
-            gps_coord c = {x, y};
-            cout << "rsid (" << x << "," << y << ") = "
-                 << RsidGen::get_rsid2(c) << endl;
-            y += 2000000;
-        }
-        y -= 20000000;
-        x += 2000000;
-    }
+	cout << "X_STEP: " << GPS_X_STEP << " Y_STEP: " << GPS_Y_STEP
+		<< endl << "X_INNER_STEP: " << GPS_X_INNER_STEP
+		<< " Y_INNER_STEP: " << GPS_Y_INNER_STEP
+		<< endl << "GPS_L_CNT: " << GPS_L_CNT
+		<< " GPS_ML_CNT: " << GPS_ML_CNT << endl
+		<< "GPS_MM_CNT: " << GPS_MM_CNT << endl
+		<< "GPS_MR_CNT: " << GPS_MR_CNT << endl;
+	std::set<roadseg_id> s;
+	roadseg_id rsid;
+	for (gps_x x = 1153000000; x < 1176000000; x += 10)
+		for (gps_y y = 394000000; y < 411000000; y += 10) {
+			rsid = RsidGen::get_rsid2(x, y);
+			if (rsid) {
+		//	cout << "rsid(" << x << "," << y << ") = " << rsid << endl;
+			s.insert(rsid);
+			}
+		}
+	cout << "set size = " << s.size() << endl;
+	getchar();
+	for (std::set<roadseg_id>::iterator it = s.begin();
+			it != s.end(); ++it)
+		cout << *it << endl;
+
     return 0;
 }
 
@@ -163,11 +176,6 @@ int test_set(void) {
 	roadseg_id rsid(0);
 	cout << "insert start, count: " << s.size() << endl;
 	cout << "dx: " << dx << ", dy: " << dy << endl;
-	cout << "INNER_MAX: " << RsidGen::INNER_MAX
-		<< "MIDDLE_MAX: " << RsidGen::MIDDLE_MAX
-		<< "OUTTER_MAX: " << RsidGen::OUTTER_MAX
-		<< "TOTAL: " << RsidGen::INNER_MAX + RsidGen::MIDDLE_MAX
-		+ RsidGen::OUTTER_MAX << endl;
 	for (gps_x x = x0; x < x1; x += dx)
 		for (gps_y y = y0; y < y1; y += dy) {
 			rsid = RsidGen::get_rsid(x, y);
@@ -181,6 +189,7 @@ int test_set(void) {
 }
 
 int main(int argc, char *argv[]) {
+    return test_get_roadseg_id();
     return test_print_progress();
     return test_logger();
 	return test_set();

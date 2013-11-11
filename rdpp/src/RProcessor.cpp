@@ -233,6 +233,9 @@ int R::Processor::dumpRecords() {
     outjson << "var data" << m_tsp/1000000 << " = new Array(" << endl;
     NZLogger::log(NZ::INFO, "dumping to file [%s] ...", fpath);
     NZLogger::log(NZ::INFO, "dumping to file [%s.js] ...", fpath);
+	
+	cout << "\t\t\tstatistics of day: " << m_tsp/1000000 << endl << 
+		"------------------------------------------------------------------------";
 
     size_t cnt;
     roadseg_id x;
@@ -255,14 +258,16 @@ int R::Processor::dumpRecords() {
         x = roadseg_id(cnt);
         outfile.write(reinterpret_cast<const char*>(&x),
                       sizeof(roadseg_id));
-        if (i && i % 10 == 0) {
+        if (i % 10 == 0) {
             cout << endl << setw(6) << left << i << "  ";
             outjson << endl;
         }
         cout << setw(6) << setfill(' ') << left << cnt << " ";
         outjson << cnt << ",";
     }
-    cout << endl;
+	cout << endl <<
+	"========================================================================"
+    << endl;
     outfile.close();
     // erase last comma
     outjson << ");" << endl;
