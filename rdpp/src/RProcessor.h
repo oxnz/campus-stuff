@@ -28,6 +28,8 @@ namespace R {
                   size_t bufsize = 2*1024*1024,
                   bool process = true);
         int process(uint32_t date, size_t len = 1, bool progbar = true);
+		template<typename T>
+		int process(const T& dates, bool progbar);
         ~Processor();
     private:
         Processor(const Processor& p); // disable copy constructor
@@ -35,7 +37,6 @@ namespace R {
     private:
         ssize_t readFileIntoMem(const char* fpath);
         int processFileBuffer();
-        int processFileBuffer2();
         inline int processOrigRecord(const in_rec& rec, bool echo = false);
         int dumpRecords();
 		/*

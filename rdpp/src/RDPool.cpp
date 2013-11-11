@@ -10,6 +10,7 @@
  */
 
 #include "RDPool.h"
+#include "RsidGen.h"
 #include "NZLogger.h"
 #include "RHelper.h"
 
@@ -34,8 +35,26 @@ RDP::RDPool::RDPool(size_t nrs, size_t nts)
 {
     NZLogger::log(NZ::DEBUG, "creating RDP (nts = %u, nrs = %u) ...",
 			m_nts, m_nrs);
+	for (uint64_t* p = reinterpret_cast<uint64_t*>(m_pp);
+			p < reinterpret_cast<uint64_t*>(m_pp+(m_nrs*m_nts/(sizeof(uint64_t)/sizeof(car_count))));
+			++p)
+		*p = 0;
+	/* orig init
     for (size_t i = 0; i < nrs*nts; ++i)
         *(m_pp + i) = 0;
+		*/
+	/* init check
+	for (ts_index i = 0; i < m_nts; ++i) {
+		for (roadseg_id j = 1; j <= m_nrs; ++j) {
+			if (*(m_pp + i*(j-1)))
+				cout << "*** non-zero error: " <<  *(m_pp + i*(j-1)) << endl;
+		}
+	}
+	cout << "orig count: " << m_nrs << m_nts << " " << m_nrs * m_nts
+		<< "now count: " <<
+		(m_nrs*m_nts / (sizeof(uint64_t)/sizeof(car_count)))
+		<< endl;
+	*/
     NZLogger::log(NZ::DEBUG, "RDP created");
 }
 
@@ -47,30 +66,66 @@ car_count* RDP::RDPool::operator[](roadseg_id rsid) {
     return m_pp + (rsid-1) * m_nts;
 }
 
+const car_count& RDP::RDPool::operator()(roadseg_id rsid, ts_index tsi) const {
+    if (rsid <= 0 || rsid > m_nrs || tsi < 0 || tsi >= m_nts)
+        NZLogger::log(NZ::FATAL,
+				"invalid rsid or TS index: rsid(%u), tsi(%u)", rsid, tsi);
+	return m_pp[(rsid-1)*m_nts+tsi];
+}
+
 car_count& RDP::RDPool::operator()(roadseg_id rsid, ts_index tsi) {
     if (rsid <= 0 || rsid > m_nrs || tsi < 0 || tsi >= m_nts)
         NZLogger::log(NZ::FATAL,
 				"invalid rsid or TS index: rsid(%u), tsi(%u)", rsid, tsi);
-    return (m_pp + (rsid-1)*m_nts)[tsi];
+	return m_pp[(rsid-1)*m_nts+tsi];
+    //return (m_pp + (rsid-1)*m_nts)[tsi];
 }
 
 int RDP::RDPool::process(const std::set<orec_key>* ptsm) {
+	roadseg_id rsid;
     NZLogger::log(NZ::INFO, "RDP processing ...");
     for (ts_index i = 0; i < m_nts; ++i) {
         for (std::set<orec_key>::const_iterator it =
                  ptsm[i].begin(); it != ptsm[i].end(); ++it) {
-            if (*it <= 0 || *it >= m_nrs) {
-                NZLogger::log(NZ::DEBUG, "invalid rsid: %u", *it);
-            } else
-                ++((m_pp + ((*it)-1) * m_nts)[i]);
+			/* three lines below is to play safe, could be removed in release
+			 * version
+			 */
+			rsid = *it >> 32;
+            if (rsid <= 0 || rsid >= m_nrs) {
+                NZLogger::log(NZ::ERROR, "invalid rsid: %u", *it);
+            } else {
+                ++((m_pp + (rsid-1) * m_nts)[i]);
+			}
         }
     }
-    NZLogger::log(NZ::INFO, "RDP process end");    
+    NZLogger::log(NZ::INFO, "RDP process done");    
     return 0;
 }
 
+car_count RDP::RDPool::query(const roadseg_id rsid, const ts_index tsi) const {
+	return (*this)(rsid, tsi);
+}
+
+car_count RDP::RDPool::query_interactive() {
+	//cout << "Enter longitude, lantitude & ts index to query: " << endl;
+	gps_time t;
+	roadseg_id rsid;
+	for (double x(0), y(0); std::cin >> x >> y >> t;) {
+		rsid = RsidGen::get_rsid2(static_cast<gps_x>(x*10000000),
+				static_cast<gps_y>(y*10000000));
+		if (rsid == RsidGen::INVALID_RSID) {
+			std::cerr << "Invalid longitude or lantitude" << endl;
+			continue;
+		}
+		cout << "rsid: " << rsid << " ts index: " << t << " car count: "
+		<< query(rsid, t) << endl;
+		getchar();
+	}
+	return 0;
+}
+
 int RDP::RDPool::dump(const string& fpath) {
-    NZLogger::log(NZ::INFO, "RDP dumping to file [%s] ...", fpath);
+    NZLogger::log(NZ::NOTICE, "RDP dumping to file [%s]:", fpath);
     ofstream outfile(fpath, ios::out|ios::binary);
     if (!outfile.is_open()) {
         NZLogger::log(NZ::FATAL, "cannot open file [%s]", fpath);

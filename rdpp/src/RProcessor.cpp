@@ -93,7 +93,7 @@ inline int R::Processor::processOrigRecord(const in_rec& rec, bool echo) {
     return 0;
 }
 
-int R::Processor::processFileBuffer2() {
+int R::Processor::processFileBuffer() {
     char* p = m_pCurFBufPos;
     for (in_rec irec; p < m_pFileBufEnd - 1; ++p) {
         irec.cid = 0;
@@ -119,12 +119,11 @@ int R::Processor::processFileBuffer2() {
         while (*(++p) != ',')
             ;
         irec.valid = *(++p) - 0x30;
-        if (*(++p) != 0x0d) {        
-            cout << "ERROR RECORD: (" << "cid: " << irec.cid << ", event: "
-                 << irec.event << ", status: " << irec.status << ", time: "
-                 << irec.time << ", x: " << irec.x << ", y: " << irec.y
-                 << ", speed: " << irec.speed << ", direct: " << irec.direct
-                 << ", valid: " << irec.valid << ")" << endl;
+        if (*(++p) != 0x0d) { // simple check if EOL
+			NZLogger::log(NZ::ERROR,
+					"parse buffer error(%d, %d, %d, %d, %d, %d, %d, %d, %d)",
+					irec.cid, irec.event, irec.status, irec.time, irec.x,
+					irec.y, irec.speed, irec.direct, irec.valid);
             getchar();
         }
         if (!irec.valid || irec.status != NON_OCCUPIED) continue;
@@ -141,59 +140,6 @@ int R::Processor::processFileBuffer2() {
 	}
     
     return 0;
-}
-
-int R::Processor::processFileBuffer() {
-	char* p;
-#ifdef DEBUG
-	int i = 0;
-#endif
-	for (in_rec irec; m_pCurFBufPos < m_pFileBufEnd - 1; ++m_pCurFBufPos) {
-        irec.cid = strtoul(m_pCurFBufPos, &p, 10);
-		m_pCurFBufPos = p + 2; // skip irec.event, 1 decimal num with two commas
-		irec.status = *(++m_pCurFBufPos) - 0x30;
-	    ++m_pCurFBufPos;
-		irec.time = strtoull(++m_pCurFBufPos, &p, 10);
-		m_pCurFBufPos = p;
-		irec.x = strtod(++m_pCurFBufPos, &p);
-		m_pCurFBufPos = p;
-		irec.y = strtod(++m_pCurFBufPos, &p);
-		m_pCurFBufPos = p;
-		do {
-			++m_pCurFBufPos;
-		} while (*m_pCurFBufPos != ',');
-		do {
-			++m_pCurFBufPos;
-		} while (*m_pCurFBufPos != ',');
-		irec.valid = *(++m_pCurFBufPos) - 0x30; // 1 for valid
-		++m_pCurFBufPos;
-        /*
-        printf("0x%x%x\n", *m_pCurFBufPos, *(m_pCurFBufPos+1));
-		cout << "DEBUG: (" << irec.cid << "," << irec.event << ","
-			<< irec.status << "," << irec.time << ","
-			<< irec.x << "," << irec.y << "," << irec.speed << ","
-			<< irec.direct << "," << irec.valid << ")" << endl;
-        */
-#ifdef DEBUG
-		if (++i == 1 || i == 20200)
-			cout << "DEBUG: (" << irec.cid << "," << irec.event << ","
-				<< irec.status << "," << irec.time << ","
-				<< irec.x << "," << irec.y << "," << irec.speed << ","
-				<< irec.direct << "," << irec.valid << ")" << endl;
-#endif
-		if (!irec.valid || irec.status != NON_OCCUPIED) continue;
-		if (abs(static_cast<int64_t>(irec.time - m_tsp)/10000)) { // skip invalid ts index
-			continue;
-		} else // update ts pointer
-			m_tsp = irec.time;
-    	orec_key key(RsidGen::get_rsid2(irec.x*10000000, irec.y*10000000));
-		if (key == RsidGen::INVALID_RSID) { // skip invalid rsid
-			continue;
-		}
-		m_pTSPool[getTSIndex(irec.time)].insert((key << 32) | irec.cid);
-	}
-
-	return 0;
 }
 
 ssize_t R::Processor::readFileIntoMem(const char* fpath) {
@@ -276,6 +222,68 @@ int R::Processor::dumpRecords() {
     return 0;
 }
 
+template<typename T>
+int R::Processor::process(const T& dates, bool progbar) {
+	string indir;
+	int ret(0);
+	int fcnt(0);
+	while (!dates.empty()) {
+		m_tsp = dates.front();
+		dates.pop_front();
+		indir = m_indir + to_string(m_tsp);
+		ret = RHelper::find_files(indir.c_str(),
+				to_string(m_tsp/100).c_str(),
+				m_fileList);
+		m_tsp *= 1000000;
+		if (ret == -1) {
+			NZLogger::log(NZ::FATAL, "find files error");
+            return -1;
+        } else if (!ret) {
+            NZLogger::log(NZ::WARNING, "no file was found");
+            return 1;
+        } else {
+            NZLogger::log(NZ::NOTICE, "processing day %u, %u files, m_tsp = %u",
+					m_tsp/1000000, ret, m_tsp);
+        }
+
+        fcnt = m_fileList.size();
+        while (m_fileList.size()) {
+            if (progbar) {
+                RHelper::print_progress((fcnt - m_fileList.size())*100/fcnt);
+            }
+            NZLogger::log(NZ::INFO, "processing %s", m_fileList.front());
+            if (readFileIntoMem(m_fileList.front().c_str()) <= 0) {
+                NZLogger::log(NZ::ERROR, "read file into memory failed");
+                return -1;
+            }
+            m_fileList.pop_front();
+            ret = processFileBuffer();
+            if (ret == -1) {
+                NZLogger::log(NZ::ERROR, "process file buffer failed");
+                return -1;
+            }
+        }
+        if (progbar)
+            RHelper::print_progress(100);
+        if (m_bProcess && m_pRDPool->process(m_pTSPool)) {
+            NZLogger::log(NZ::FATAL, "RDP process failed, skipped");
+        }
+		if (m_bProcess)
+			m_pRDPool->query_interactive();
+        if (dumpRecords()) {
+            NZLogger::log(NZ::FATAL, "dump to file failed");
+            return -1;
+        }
+	}
+    if (m_bProcess && m_pRDPool->dump(m_outdir + to_string(m_tsp/1000000)
+                                      + ".rsd")) {
+        NZLogger::log(NZ::FATAL, "RDP dump failed");
+        return ret;
+    }
+    
+	return 0;
+}
+
 int R::Processor::process(uint32_t date, size_t len, bool progbar) {
     string indir;
     int ret(0);
@@ -309,7 +317,7 @@ int R::Processor::process(uint32_t date, size_t len, bool progbar) {
                 return -1;
             }
             m_fileList.pop_front();
-            ret = processFileBuffer2();
+            ret = processFileBuffer();
             if (ret == -1) {
                 NZLogger::log(NZ::ERROR, "process file buffer failed");
                 return -1;
@@ -321,19 +329,17 @@ int R::Processor::process(uint32_t date, size_t len, bool progbar) {
             NZLogger::log(NZ::FATAL, "RDP process failed, skipped");
         }
 		if (m_bProcess)
-			m_pRDPool->query(RsidGen::INVALID_RSID, 0);
+			m_pRDPool->query_interactive();
         if (dumpRecords()) {
             NZLogger::log(NZ::FATAL, "dump to file failed");
             return -1;
         }
 	}
-	/*
     if (m_bProcess && m_pRDPool->dump(m_outdir + to_string(m_tsp/1000000)
                                       + ".rsd")) {
         NZLogger::log(NZ::FATAL, "RDP dump failed");
         return ret;
     }
-	*/
     
 	return ret;
 }

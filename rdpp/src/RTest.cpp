@@ -104,7 +104,9 @@ int test_get_roadseg_id(void) {
 		<< "GPS_H_CNT: " << GPS_H_CNT << endl
 		<< "MAX_RSID: " << MAX_RSID << endl;
 	std::set<roadseg_id> s;
-	roadseg_id rsid;
+	roadseg_id rsid = RsidGen::get_rsid2(1163748016, 399757500);
+	cout << "rsid of 1163748016, 399757500 = " << rsid << endl;
+	/*
 	for (gps_x x = 1153000000; x < 1176000000; x += 10)
 		for (gps_y y = 394000000; y < 411000000; y += 10) {
 			rsid = RsidGen::get_rsid2(x, y);
@@ -118,6 +120,7 @@ int test_get_roadseg_id(void) {
 	for (std::set<roadseg_id>::iterator it = s.begin();
 			it != s.end(); ++it)
 		cout << *it << endl;
+		*/
 
     return 0;
 }
