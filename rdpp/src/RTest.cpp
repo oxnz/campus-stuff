@@ -126,14 +126,26 @@ int test_read_preped_file(const char *fpath) {
         cerr << "can't open infile" << endl;
         return -1;
     }
-    arch_rec rec;
-    for (int i = 0; i < 10; ++i) {
-        infile.read(reinterpret_cast<char*>(&rec.rsid), sizeof(roadseg_id));
-        infile.read(reinterpret_cast<char*>(&rec.orecv.status), sizeof(car_status));
-        infile.read(reinterpret_cast<char*>(&rec.orecv.time), sizeof(gps_time));
-        cout << "rsid: " << rec.rsid << " orecv status: " << rec.orecv.status
-             << "time: " << rec.orecv.time << endl;
-    }
+	roadseg_id rsid;
+	roadseg_id tsi;
+	roadseg_id origcnt;
+	roadseg_id cnt;
+	for (ts_index i = 0; i < 480; ++i) {
+		cnt = 0;
+		infile.read(reinterpret_cast<char*>(&tsi), sizeof(roadseg_id));
+		cout << "reading TS Index: " << i << " orig index: " << tsi << endl;
+		do {
+			infile.read(reinterpret_cast<char*>(&rsid), sizeof(roadseg_id));
+			//cout << "rsid: " << rsid << endl;
+			++cnt;
+		} while (rsid != RsidGen::INVALID_RSID);
+		infile.read(reinterpret_cast<char*>(&origcnt), sizeof(roadseg_id));
+		if (--cnt != origcnt) {
+			cerr << "*** error: count didn't match" << endl;
+			getchar();
+		}
+		cout << "read cnt: " << cnt << " orig cnt = " << origcnt << endl;
+	}
     infile.close();
     return 0;
 }
@@ -189,6 +201,7 @@ int test_set(void) {
 }
 
 int main(int argc, char *argv[]) {
+    return test_read_preped_file("out/20121101.dat");
     return test_get_roadseg_id();
     return test_print_progress();
     return test_logger();
@@ -200,9 +213,6 @@ int main(int argc, char *argv[]) {
     printf("testing get_roadseg_id:\n");
     test_get_roadseg_id();
 	return 0;
-    if (test_read_preped_file("outfile") == -1) {
-        cerr << "test read preprocessed file failed" << endl;
-    }
 
     return -1;
 }
