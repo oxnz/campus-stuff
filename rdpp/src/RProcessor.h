@@ -28,8 +28,7 @@ namespace R {
                   size_t bufsize = 2*1024*1024,
                   bool process = true);
         int process(uint32_t date, size_t len = 1, bool progbar = true);
-		template<typename T>
-		int process(const T& dates, bool progbar);
+		int process(std::list<uint32_t>& dates, bool progbar);
         ~Processor();
     private:
         Processor(const Processor& p); // disable copy constructor

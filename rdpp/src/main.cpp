@@ -10,6 +10,7 @@
  */
 
 #include "RProcessor.h"
+#include "RDPool.h"
 #include "NZLogger.h"
 
 #include <unistd.h>
@@ -22,6 +23,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <exception>
+#include <list>
 
 using std::cout;
 using std::cerr;
@@ -58,6 +60,7 @@ int help(int ecode = 0) {
         << "\t-l\tspecify how many days to process" << endl
         << "\t-o\tspecify output directory" << endl
         << "\t-t\tspecify time slot grannularity in minute" << endl
+		<< "\t-q\tquery" << endl
         << "  Unavailable Option:" << endl
         << "\t-p\tprocess date while preprocessing" << endl
         << "\t-s\tshow progress bar" << endl
@@ -76,9 +79,10 @@ int main(int argc, char *argv[]) {
     size_t bufsize(2*1024*1024), date(0), dcnt(1), mpts(3);
     const char* pIndir(0);
     const char* pOutdir(0);
+	bool query(false);
     if (argc == 1)
         return help(0);
-    while ((ch = getopt(argc, argv, "b:d:hi:l:o:t:")) != -1) {
+    while ((ch = getopt(argc, argv, "b:d:hi:l:o:qt:")) != -1) {
         switch (ch) {
         case 'b':
             bufsize = strtoul(optarg, NULL, 10);
@@ -112,6 +116,9 @@ int main(int argc, char *argv[]) {
         case 'o':
             pOutdir = optarg;
             break;
+		case 'q':
+			query = true;
+			break;
         case 't':
             mpts = strtoul(optarg, NULL, 10);
             if (mpts >= 2 && mpts <= 59 && 24*60 % mpts == 0)
@@ -132,6 +139,9 @@ int main(int argc, char *argv[]) {
     }
     argc -= optind;
     argv += optind;
+	if (query) {
+		return RDP::RDPool::query(24*60/mpts);
+	}
     if (!pIndir || !pOutdir) {
         NZLogger::log(NZ::ERROR, "indir or outdir is null");
         return -1;
@@ -181,7 +191,11 @@ int main(int argc, char *argv[]) {
 #ifdef SINGLE_DAY_MODE
             ret = rdpp->process(++date, 1);
 #else
-            ret = rdpp->process(date, dcnt, true);
+			std::list<uint32_t> v;
+			v.push_back(20121101);
+			v.push_back(20121102);
+			ret = rdpp->process(v, true);
+            //ret = rdpp->process(date, dcnt, true);
 #endif
         } catch (std::exception& e) {
             NZLogger::log(NZ::FATAL, "RDPP process failed");

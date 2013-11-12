@@ -205,7 +205,22 @@ int test_set(void) {
 	return 0;
 }
 
+#include "RDPool.h"
+using namespace RDP;
+int test_query(void) {
+	/*
+	cout << rdp->query(110488, 5) << endl;
+	cout << rdp->query(110488, 6) << endl;
+	cout << rdp->query(110488, 7) << endl;
+	cout << rdp->query(110488, 8) << endl;
+	delete rdp;
+	*/
+	RDPool::query(480);
+	return 0;
+}
+
 int main(int argc, char *argv[]) {
+	return test_query();
     return test_get_roadseg_id();
     return test_read_preped_file("out/20121101.dat");
     return test_print_progress();
