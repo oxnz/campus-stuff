@@ -1,5 +1,6 @@
 /*
  * File: NZLogger.h
+ * This file is part of the @PACKAGE@ project
  * Description:  A simple Logger class
  * Author: Oxnz
  * Mail: yunxinyi@gmail.com

@@ -2,9 +2,10 @@
  * File: RProcess.h
  * Description: main pre processor source file
  * Author: Oxnz
- * Version: 1.1
+ * Version: @VERSION@
  * Mail: yunxinyi@gmail.com
  * Copying: Copyright (C) 2013, All rights reserved.
+ * This file is part of the @PACKAGE@ project
  *
  * Revision: -*-
  * Last-update: 2013-11-07 22:10:12

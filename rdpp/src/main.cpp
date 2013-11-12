@@ -3,8 +3,10 @@
  * Description: this file is part of the RDPP Project, main func entry point
  * Author: Oxnz
  * Mail: yunxinyi@gmail.com
+ * This file is part of the @PACKAGE@ project
  * Copying: Copyright (C) 2013, All rights reserved.
  *
+ * Version: @VERSION@
  * Revision: -*-
  * Last-update: 2013-11-07 22:10:12
  */

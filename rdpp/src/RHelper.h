@@ -1,8 +1,9 @@
 /*
  * File: RHelper.h
+ * This file is part of the @PACKAGE@ project
  * Description: helper interface file, supplies services
  * Author: Oxnz
- * Version: 1.1
+ * Version: @VERSION@
  * Mail: yunxinyi@gmail.com
  * Copying: Copyright (C) 2013, All rights reserved.
  *

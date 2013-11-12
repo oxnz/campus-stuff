@@ -2,8 +2,9 @@
  * File: RProcess.h
  * Description: main pre processor header file
  * Author: Oxnz
- * Version: 1.1
+ * Version: @VERSION@
  * Mail: yunxinyi@gmail.com
+ * This file is part of the @PACKAGE@ project
  * Copying: Copyright (C) 2013, All rights reserved.
  *
  * Revision: -*-

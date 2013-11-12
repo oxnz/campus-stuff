@@ -1,8 +1,9 @@
 /*
  * File: RConstant.h
+ * This file is part of the @PACKAGE@ project
  * Description: define global constants
  * Author: Oxnz
- * Version: 1.1
+ * Version: @VERSION@
  * Mail: yunxinyi@gmail.com
  * Copying: Copyright (C) 2013, All rights reserved.
  *

@@ -1,8 +1,9 @@
 /*
  * File: RsidGen.h
+ * This file is part of the @PACKAGE@ project
  * Description: Road Segment UUID Generator interface
  * Author: Oxnz
- * Version: 1.1
+ * Version: @VERSION@
  * Mail: yunxinyi@gmail.com
  * Copying: Copyright (C) 2013, All rights reserved.
  *

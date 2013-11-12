@@ -3,8 +3,9 @@
  * Description: Road Data Pool interface
  * Author: Oxnz
  * Mail: yunxinyi@gmail.com
- * Copying: Copyright (C) 2013, All rights reserved.
- *
+ * This file is part of the @PACKAGE@ project
+ * Copying: Copyright (C) 2013 Oxnz All rights reserved.
+ * Version: @VERSION@
  * Revision: -*-
  * Last-update: 2013-11-07 22:10:12
  */

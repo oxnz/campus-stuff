@@ -1,8 +1,9 @@
 /*
  * File: RTest.h
+ * This file is part of the @PACKAGE@ project
  * Description: all test cases are here
  * Author: Oxnz
- * Version: 1.1
+ * Version: @VERSION@
  * Mail: yunxinyi@gmail.com
  * Copying: Copyright (C) 2013, All rights reserved.
  *
