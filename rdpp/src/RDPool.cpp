@@ -119,7 +119,6 @@ int RDP::RDPool::query(size_t mpts, const char* datadir) {
 		ifstream((fpath + "2.rsd").c_str()),	// sunday
 		ifstream((fpath + "3.rsd").c_str()),	// bad weather
 	};
-	int dcnt[RHelper::MAX_ENVC_CNT] = { 1, 1, 3, 4};
 	for (size_t i = 0; i < RHelper::MAX_ENVC_CNT; ++i) {
 		if (!flist[i].is_open()) {
 			NZLogger::log(NZ::ERROR, "%s: cannot open file", __FUNCTION__);
@@ -161,9 +160,10 @@ int RDP::RDPool::query(size_t mpts, const char* datadir) {
 		flist[envi].read(reinterpret_cast<char*>(&cnt), sizeof(car_count));
 		line[strlen(line)-1] = '\0';
 		//p = 1 - pow(M_E, (cnt*(-0.1))/dcnt[envi]);
-		p = 1 - exp(cnt*(-1.0)/dcnt[envi]);
+		p = 1 - exp(cnt*(-1.0)/RHelper::DCNT_OF_ENV[envi]);
 		printf("%s\t%.2f\t%.2lf\t%.3lf\n", line, p,
-				(1.0*dcnt[envi])*mpts/cnt, (1.0*clock() - t0)/CLOCKS_PER_SEC);
+				(1.0*RHelper::DCNT_OF_ENV[envi])*mpts/cnt,
+				(1.0*clock() - t0)/CLOCKS_PER_SEC);
 		/*
 		cout << line << "\t" << cnt//"\t0.85\t5\t1.025"
 			<< endl;

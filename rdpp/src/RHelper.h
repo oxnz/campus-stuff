@@ -25,6 +25,12 @@
 
 namespace RHelper {
 	const size_t MAX_ENVC_CNT(4);	// environ conditions count
+	const size_t DCNT_OF_ENV[MAX_ENVC_CNT] = {
+		22,		// weekdays good condition
+		4,		// saturday
+		3,		// sunday
+		1		// sunday: bad weather
+	};
 	/*
 	 * @description: find file specified path that matches pattern
 	 *
