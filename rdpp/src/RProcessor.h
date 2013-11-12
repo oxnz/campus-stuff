@@ -28,6 +28,7 @@ namespace R {
                   size_t minPerTimeSlot = 3,
                   size_t bufsize = 2*1024*1024,
                   bool process = true);
+		int process(uint32_t date, bool progbar = true);
         int process(uint32_t date, size_t len = 1, bool progbar = true);
 		int process(std::list<uint32_t>& dates, bool progbar);
         ~Processor();

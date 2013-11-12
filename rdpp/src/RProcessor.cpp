@@ -224,6 +224,48 @@ int R::Processor::dumpRecords() {
     return 0;
 }
 
+int R::Processor::process(uint32_t date, bool progbar) {
+	NZLogger::log(NZ::NOTICE, "processing day %u", date);
+	int ret(0);
+	m_tsp = date*1000000;
+	string indir = m_indir + to_string(date);
+	ret = RHelper::find_files(indir.c_str(), to_string(date/100).c_str(),
+			m_fileList);
+	if (ret == -1) {
+		NZLogger::log(NZ::FATAL, "find files error");
+		return -1;
+	} else if (!ret) {
+		NZLogger::log(NZ::WARNING, "no file was found");
+		return 1;
+	}
+	size_t fcnt(ret);
+	while (m_fileList.size()) {
+		if (progbar)
+			RHelper::print_progress((fcnt-m_fileList.size())*100/fcnt);
+		NZLogger::log(NZ::INFO, "processing %s", m_fileList.front());
+		if (readFileIntoMem(m_fileList.front().c_str()) <= 0) {
+			NZLogger::log(NZ::ERROR, "read file failed");
+			return -1;
+		}
+		m_fileList.pop_front();
+		ret = processFileBuffer();
+		if (ret == -1) {
+			NZLogger::log(NZ::ERROR, "process file buffer failed");
+			return -1;
+		}
+	}
+	if (progbar)
+		RHelper::print_progress(100);
+	if (m_bProcess && m_pRDPool->process(m_pTSPool)) {
+		NZLogger::log(NZ::FATAL, "RDP process failed, skipped");
+	}
+	if (dumpRecords()) {
+		NZLogger::log(NZ::FATAL, "dump to file failed");
+		return -1;
+	}
+	return 0;
+}
+
 int R::Processor::process(std::list<uint32_t>& dates, bool progbar) {
 	string indir;
 	int ret(0);
