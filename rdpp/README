@@ -10,12 +10,13 @@ TODO:
         6. 检测m_itsp是否达到一天的最后一个时间片，控制不完整输出文件
         个数 [DONE]
         7. 统一调试信息输出接口，使得后期检错更方便 [DONE]
-        8. 增加测试case
+        8. 增加测试case [PARTIAL]
         9. 其实性能还可以进一步调优，因为set的时间复杂度位O(nlogn)，而采
         用hash_set的话可以简化到O(1),使用车ID作为键，而在一个时间片内
         车不可能具有很多路段ID，所以还是可行的。
         10. #ifdef DEBUG-> <cassert>
-		11. move getTSIndex to RHelper.h
+		11. move getTSIndex to RHelper.h [DONE]
+		12. test possibility near area bounds
         
 概要介绍组成应用程序的每个文件的内容:
 
