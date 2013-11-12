@@ -140,7 +140,7 @@ int main(int argc, char *argv[]) {
     argc -= optind;
     argv += optind;
 	if (query) {
-		return RDP::RDPool::query(24*60/mpts);
+		return RDP::RDPool::query(mpts);
 	}
     if (!pIndir || !pOutdir) {
         NZLogger::log(NZ::ERROR, "indir or outdir is null");

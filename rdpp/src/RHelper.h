@@ -15,6 +15,8 @@
 #include <list>
 #include <vector>
 #include <string>
+#include "RTypes.h"
+
 namespace RHelper {
 /*
  * @description: find file specified path that matches pattern
@@ -27,6 +29,14 @@ namespace RHelper {
  * @returns:
  *  int		stands for found file count, 0 for end, and -1 for error
  */
+inline ts_index getTSIndex(size_t mpts, gps_time t) {
+	return ((t%1000000/10000)*60+t%10000/100)/mpts;
+}
+
+inline size_t get_envi(gps_time t) {
+	return 1;
+}
+
 int find_files(const char* path, const char* pattern,
                     std::list<std::string>& outlist);
 int find_files(const char* path, const char* pattern,

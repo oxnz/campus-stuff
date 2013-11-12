@@ -10,7 +10,6 @@
  * Last-update: 2013-11-07 22:10:12
  */
 
-#define getTSIndex(t) (((t%1000000/10000)*60+t%10000/100)/m_nMinPerTS)
 #ifdef NDEBUG
 	#define NZLogger(...)
 #endif
@@ -33,6 +32,7 @@
 
 using namespace std;
 using NZ::NZLogger;
+using RHelper::getTSIndex;
 
 R::Processor::Processor(const char* indir, const char* outdir,
                         size_t minPerTS, size_t bufsize, bool process)
@@ -88,7 +88,7 @@ inline int R::Processor::processOrigRecord(const in_rec& rec, bool echo) {
         m_tsp = rec.time;
     }
      
-    m_pTSPool[getTSIndex(rec.time)].insert(key);
+    m_pTSPool[getTSIndex(m_nMinPerTS, rec.time)].insert(key);
 
     return 0;
 }
@@ -136,7 +136,8 @@ int R::Processor::processFileBuffer() {
 		if (key == RsidGen::INVALID_RSID) { // skip invalid rsid
 			continue;
 		}
-		m_pTSPool[getTSIndex(irec.time)].insert((key << 32) | irec.cid);
+		m_pTSPool[getTSIndex(m_nMinPerTS, irec.time)].insert(
+				(key << 32) | irec.cid);
 	}
     
     return 0;

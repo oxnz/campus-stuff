@@ -1,5 +1,5 @@
-#AM_CXXFLAGS = -Wall -Werror -std=c++11
-AM_CXXFLAGS = -Wall -std=c++11
+AM_CXXFLAGS = -Wall -Werror -std=c++11
+#AM_CXXFLAGS = -Wall -std=c++11
 
 bin_PROGRAMS = rdpp
 noinst_PROGRAMS = test

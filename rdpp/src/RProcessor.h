@@ -38,10 +38,6 @@ namespace R {
         int processFileBuffer();
         inline int processOrigRecord(const in_rec& rec, bool echo = false);
         int dumpRecords();
-		/*
-        inline ts_index getTSIndex(const gps_time& time) {
-			return ((time%1000000/10000)*60+time%10000/100)/m_nMinPerTS;
-		}*/
 
     private: // preprocessor member part
         std::string m_indir;

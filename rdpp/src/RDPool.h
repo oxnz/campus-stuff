@@ -19,14 +19,13 @@
 namespace RDP {
     class RDPool {
     public:
-        RDPool(size_t nrs, size_t nts);
+        RDPool(size_t nrs, size_t nts, const char* fpath = nullptr);
         car_count* operator[](roadseg_id);
         car_count& operator()(roadseg_id, ts_index);
         const car_count& operator()(roadseg_id, ts_index) const;
         int process(const std::set<orec_key>* m_pTSPool);
-		car_count query(const roadseg_id rsid, const ts_index tsi) const;
-		car_count query_interactive();
         int dump(const std::string& fpath);
+		static int query(size_t mpts);
         virtual ~RDPool();
     private:
         RDPool(const RDPool&);
