@@ -14,7 +14,7 @@ grep new $ofile | sed 's/var //' | sed 's/ = new Array(/,/' >> $ofile
 sed -i -e 's/ARRAY/var data = [/' $ofile
 sed -i -e '$ s/,/];/' $ofile
 echo "DAY" >> $ofile
-grep new $ofile | sed 's/var /"/' | sed 's/ = new Array(/",/' >> $ofile
+grep new $ofile | sed 's/var data/"/' | sed 's/ = new Array(/",/' >> $ofile
 sed -i -e 's/DAY/var day = [/' $ofile
 sed -i -e '$ s/,/];/' $ofile
 
@@ -50,7 +50,8 @@ Array.prototype.draw = function(ctx, ts, cmax, h, w, title) {
 		ctx.fillRect(i*dx, 0, 1, h);
 		ctx.fillText(i, i*dx+dx/3, 10);
 	}
-	ctx.fillText(title, w/2, h/2);
+	ctx.font = '24px Arial';
+	ctx.fillText(title, w/2-20, h/2);
 }
 
 function show(d) {
