@@ -31,6 +31,8 @@ function onload() {
  * @w: width
  */
 Array.prototype.draw = function(ctx, ts, cmax, h, w) {
+	ctx.fillStyle = '#FFFFFF';
+	ctx.fillRect(0, 0, w, h);
 	var dx = w*ts/(24*60);
 	var dy = h/cmax;
 	var n = 24*60/ts;
