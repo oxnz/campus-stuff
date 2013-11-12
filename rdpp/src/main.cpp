@@ -206,11 +206,26 @@ int main(int argc, char *argv[]) {
             ret = rdpp->process(++date, 1);
 #else
 			/* uncomment following 3 lines to train specified days
-			std::list<uint32_t> v;
-			v.push_back(20121101);
-			v.push_back(20121102);
-			ret = rdpp->process(v, true);
+			 * in day list
 			 */
+			std::list< std::list<uint32_t> > tlist = {
+				{20121101, 20121102,
+					20121105, 20121106, 20121107, 20121108, 20121109,
+					20121112, 20121113, 20121114, 20121115, 20121116,
+					20121119, 20121120, 20121121, 20121122, 20121123,
+					20121126, 20121127, 20121128, 20121129, 20121130,},
+				{20121103, 20121110, 20121117, 20121124},
+				{20121111, 20121118, 20121125},
+				{20121104},
+			};
+			for (std::list< std::list<uint32_t> >::iterator it = tlist.begin();
+					it != tlist.end(); ++it) {
+				if ((ret = rdpp->process(*it, true))) {
+					NZLogger::log(NZ::FATAL, "process failed");
+					return -1;
+				}
+				return 0;
+			}
             ret = rdpp->process(date, dcnt, true);
 #endif
         } catch (std::exception& e) {
