@@ -70,7 +70,7 @@ inline int R::Processor::processOrigRecord(const in_rec& rec, bool echo) {
              << "," << rec.x << "," << rec.y
              << "," << rec.speed << "," << rec.direct
              << "," << rec.valid << ")" << endl;
-    orec_key key(RsidGen::get_rsid2(rec.x*10000000, rec.y*10000000));
+    orec_key key(RsidGen::get_rsid(rec.x*10000000, rec.y*10000000, false));
      // @advice: skip the wrong road id
 	if (key == RsidGen::INVALID_RSID) {
 //        NZLogger::log(NZ::WARNING, "invalid road segment ID");
@@ -133,7 +133,7 @@ int R::Processor::processFileBuffer() {
 			continue;
 		} else // update ts pointer
 			m_tsp = irec.time;
-    	orec_key key(RsidGen::get_rsid2(irec.x, irec.y));
+    	orec_key key(RsidGen::get_rsid(irec.x, irec.y));
 		if (key == RsidGen::INVALID_RSID) { // skip invalid rsid
 			continue;
 		}
@@ -346,11 +346,12 @@ int R::Processor::process(uint32_t date, size_t len, bool progbar) {
         }
 	}
 	NZLogger::log(NZ::NOTICE, "DO NOT FORGET TO UNCOMMENT THIS");
+	/*
     if (m_bProcess && m_pRDPool->dump(m_outdir + to_string(m_tsp/1000000)
                                       + ".rsd")) {
         NZLogger::log(NZ::FATAL, "RDP dump failed");
         return ret;
-    }
+    }*/
     
 	return ret;
 }

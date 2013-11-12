@@ -110,11 +110,15 @@ int RDP::RDPool::process(const std::set<orec_key>* ptsm) {
 }
 
 #define ENV_CNT 4
-int RDP::RDPool::query(size_t mpts) {
-	ifstream flist[ENV_CNT] = { ifstream("x"),
-		ifstream("out/20121101.rsd"),
-		ifstream("Z"),
-		ifstream("X")
+int RDP::RDPool::query(size_t mpts, const char* datadir) {
+	string fpath(datadir);
+	if (fpath[fpath.length()-1] != '/')
+		fpath.append("/");
+	ifstream flist[ENV_CNT] = {
+		ifstream(fpath + "x"),
+		ifstream(fpath + "20121101.rsd"),
+		ifstream(fpath + "Z"),
+		ifstream(fpath + "X")
 	};
 	int dcnt[ENV_CNT] = { 1, 1, 3, 4};
 	for (size_t i = 0; i < ENV_CNT; ++i) {
@@ -147,7 +151,7 @@ int RDP::RDPool::query(size_t mpts) {
 		NZLogger::log(NZ::DEBUG, "%u, %u, %d, tsi = %d\n",
 				static_cast<gps_x>(x*10000000), static_cast<gps_y>(y*10000000),
 				t, tsi);
-		rsid = RsidGen::get_rsid2(x*10000000, y*10000000);
+		rsid = RsidGen::get_rsid(x*10000000, y*10000000);
 		if (rsid == RsidGen::INVALID_RSID) {
 			NZLogger::log(NZ::WARNING, "invalid coordinates, %f %f", x, y);
 			continue;

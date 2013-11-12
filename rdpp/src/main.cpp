@@ -49,6 +49,18 @@ void signal_handler(int signo, siginfo_t *info, void *ptr) {
     }
 }
 
+int reg_signal_handler() {
+    struct sigaction action;
+    action.sa_sigaction = signal_handler;
+    sigemptyset(&action.sa_mask);
+    action.sa_flags = 0;
+    if (sigaction(SIGINT, &action, NULL) == -1) {
+		NZLogger::log(NZ::ERROR, "sigaction error: %s", strerror(errno));
+        return -1;
+    }
+	return 0;
+}
+
 int help(int ecode = 0) {
     std::ostream* os = &cout;
     if (ecode)
@@ -142,7 +154,11 @@ int main(int argc, char *argv[]) {
     argc -= optind;
     argv += optind;
 	if (query) {
-		return RDP::RDPool::query(mpts);
+		if (!pIndir) {
+			NZLogger::log(NZ::ERROR, "data directory not specified");
+			return -1;
+		}
+		return RDP::RDPool::query(mpts, pIndir);
 	}
     if (!pIndir || !pOutdir) {
         NZLogger::log(NZ::ERROR, "indir or outdir is null");
@@ -154,14 +170,10 @@ int main(int argc, char *argv[]) {
     }
     NZLogger::log(NZ::DEBUG, "input dir: %s, output dir: %s\n",
 			pIndir, pOutdir);
-    struct sigaction action;
-    action.sa_sigaction = signal_handler;
-    sigemptyset(&action.sa_mask);
-    action.sa_flags = 0;
-    if (sigaction(SIGINT, &action, NULL) == -1) {
-		NZLogger::log(NZ::ERROR, "sigaction error: %s", strerror(errno));
-        return -1;
-    }
+	if (reg_signal_handler()) {
+		NZLogger::log(NZ::FATAL, "failed to register signal handler");
+		return -1;
+	}
 
     R::Processor *rdpp;
     try {
@@ -193,11 +205,13 @@ int main(int argc, char *argv[]) {
 #ifdef SINGLE_DAY_MODE
             ret = rdpp->process(++date, 1);
 #else
+			/* uncomment following 3 lines to train specified days
 			std::list<uint32_t> v;
 			v.push_back(20121101);
 			v.push_back(20121102);
 			ret = rdpp->process(v, true);
-            //ret = rdpp->process(date, dcnt, true);
+			 */
+            ret = rdpp->process(date, dcnt, true);
 #endif
         } catch (std::exception& e) {
             NZLogger::log(NZ::FATAL, "RDPP process failed");
