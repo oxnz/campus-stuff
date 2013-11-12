@@ -1,0 +1,11 @@
+#!/bin/sh
+# Version: @VERSION@
+# Author: Oxnz <yunxinyi@gmail.com>
+# This file is part of the @PACKAGE@ project
+# Copyright (C) 2013 Oxnz <yunxinyi@gmail.com>, All rights reserved
+
+for file in ./*.tar.gz
+do
+    tar -xf $file
+    rm -f $file
+done

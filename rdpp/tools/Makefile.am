@@ -1,14 +1,14 @@
-dist_bin_SCRIPTS = report.sh extract.sh
+dist_bin_SCRIPTS = rdreport.sh rdextract.sh
 CLEANFILES = $(dist_bin_SCRIPTS)
-EXTRA_DIST = report.in extract.in
+EXTRA_DIST = rdreport.in rdextract.in
 
 do_subst = sed -e 's,[@]VERSION[@],$(VERSION),g' \
 		   -e 's,[@]PACKAGE[@],$(PACKAGE),g'
 
-report.sh: report.in Makefile
-	$(do_subst) < $(srcdir)/report.in > report.sh
-	chmod +x report.sh
+rdreport.sh: rdreport.in Makefile
+	$(do_subst) < $(srcdir)/rdreport.in > rdreport.sh
+	chmod +x rdreport.sh
 
-extract.sh: extract.in Makefile
-	$(do_subst) < $(srcdir)/extract.in > extract.sh
-	chmod +x extract.sh
+rdextract.sh: rdextract.in Makefile
+	$(do_subst) < $(srcdir)/rdextract.in > rdextract.sh
+	chmod +x rdextract.sh
