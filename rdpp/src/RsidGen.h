@@ -53,16 +53,14 @@ namespace RsidGen {
 				*((GPS_Y_MAX-GPS_Y_INNER_MAX)/GPS_Y_STEP)));
     const roadseg_id MAX_RSID(GPS_H_CNT);
 
-	inline roadseg_id get_rsid(const gps_x& x, const gps_y& y) {
-		if (x < GPS_X_MIN || x > GPS_X_MAX || y < GPS_Y_MIN || y > GPS_Y_MAX)
-			return INVALID_RSID;
-		return roadseg_id((x-GPS_X_MIN)/GPS_X_STEP
-				+((y-GPS_Y_MIN)/GPS_Y_STEP));
-	}
 
-	inline roadseg_id get_rsid2(const gps_x& x, const gps_y& y) {
+	inline roadseg_id get_rsid(const gps_x& x, const gps_y& y,
+			bool equidistant = false) {
 		if (x < GPS_X_MIN || x > GPS_X_MAX || y < GPS_Y_MIN || y > GPS_Y_MAX)
 			return INVALID_RSID;
+		else if (equidistant)
+			return roadseg_id((x-GPS_X_MIN)/GPS_X_STEP
+					+((y-GPS_Y_MIN)/GPS_Y_STEP));
 		else if (y < GPS_Y_INNER_MIN)
 			return roadseg_id(((x-GPS_X_MIN)/GPS_X_STEP+1)
 					*((y-GPS_Y_MIN)/GPS_Y_STEP+1));
@@ -83,6 +81,11 @@ namespace RsidGen {
 					+((x-GPS_X_INNER_MIN)/GPS_X_INNER_STEP+1)
 					*((y-GPS_Y_INNER_MIN)/GPS_Y_INNER_STEP+1));
 	}
+
+	inline roadseg_id get_rsid(const gps_coord& coord) {
+		return get_rsid(coord.x, coord.y);
+	}
+
 
 	/*
     const  size_t GPS_X_CNT(7);
@@ -179,10 +182,4 @@ namespace RsidGen {
 
 
 	*/
-	inline roadseg_id get_rsid(const gps_coord& coord) {
-		return get_rsid(coord.x, coord.y);
-	}
-    inline roadseg_id get_rsid2(const gps_coord& coord) {
-		return get_rsid2(coord.x, coord.y);
-	}
 }
