@@ -274,10 +274,6 @@ int R::Processor::process(std::list<uint32_t>& dates, bool progbar) {
             return -1;
         }
 	}
-	/*
-	if (m_bProcess)
-		m_pRDPool->query_interactive();
-		*/
 	NZLogger::log(NZ::NOTICE, "DO NOT FORGET TO UNCOMMENT THIS");
     if (m_bProcess && m_pRDPool->dump(m_outdir + to_string(m_tsp/1000000)
                                       + ".rsd")) {
@@ -287,14 +283,6 @@ int R::Processor::process(std::list<uint32_t>& dates, bool progbar) {
     
 	return 0;
 }
-
-/*
-int R::Processor::process(uint32_t date, size_t len, bool progbar) {
-	std::list<uint32_t> dates;
-	while (len--)
-		dates.push_back(date++);
-	process(dates, true);
-*/
 
 int R::Processor::process(uint32_t date, size_t len, bool progbar) {
     string indir;
@@ -346,12 +334,11 @@ int R::Processor::process(uint32_t date, size_t len, bool progbar) {
         }
 	}
 	NZLogger::log(NZ::NOTICE, "DO NOT FORGET TO UNCOMMENT THIS");
-	/*
     if (m_bProcess && m_pRDPool->dump(m_outdir + to_string(m_tsp/1000000)
                                       + ".rsd")) {
         NZLogger::log(NZ::FATAL, "RDP dump failed");
         return ret;
-    }*/
+    }
     
 	return ret;
 }
