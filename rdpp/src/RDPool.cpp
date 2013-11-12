@@ -109,19 +109,18 @@ int RDP::RDPool::process(const std::set<orec_key>* ptsm) {
     return 0;
 }
 
-#define ENV_CNT 4
 int RDP::RDPool::query(size_t mpts, const char* datadir) {
 	string fpath(datadir);
 	if (fpath[fpath.length()-1] != '/')
 		fpath.append("/");
-	ifstream flist[ENV_CNT] = {
-		ifstream(fpath + "x"),
-		ifstream(fpath + "20121101.rsd"),
-		ifstream(fpath + "Z"),
-		ifstream(fpath + "X")
+	ifstream flist[RHelper::MAX_ENVC_CNT] = {
+		ifstream((fpath + "0.rsd").c_str()),	// weekday good condition
+		ifstream((fpath + "1.rsd").c_str()),	// saturday
+		ifstream((fpath + "2.rsd").c_str()),	// sunday
+		ifstream((fpath + "3.rsd").c_str()),	// bad weather
 	};
-	int dcnt[ENV_CNT] = { 1, 1, 3, 4};
-	for (size_t i = 0; i < ENV_CNT; ++i) {
+	int dcnt[RHelper::MAX_ENVC_CNT] = { 1, 1, 3, 4};
+	for (size_t i = 0; i < RHelper::MAX_ENVC_CNT; ++i) {
 		if (!flist[i].is_open()) {
 			NZLogger::log(NZ::ERROR, "%s: cannot open file", __FUNCTION__);
 			//return -1;
@@ -171,7 +170,7 @@ int RDP::RDPool::query(size_t mpts, const char* datadir) {
 			*/
 		cin.getline(line, 256);
 	}
-	for (size_t i = 0; i < ENV_CNT; ++i)
+	for (size_t i = 0; i < RHelper::MAX_ENVC_CNT; ++i)
 		flist[i].close();
 	return 0;
 }

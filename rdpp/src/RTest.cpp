@@ -220,7 +220,15 @@ int test_query(void) {
 	return 0;
 }
 
+int test_get_envi(void) {
+	for (gps_time t = 20121101000000; t <= 20121130000000; t += 1000000) {
+		cout << "envi of " << t << " is " << get_envi(t) << endl;
+	}
+	return 0;
+}
+
 int main(int argc, char *argv[]) {
+	return test_get_envi();
 	return test_query();
     return test_get_roadseg_id();
     return test_read_preped_file("out/20121101.dat");
