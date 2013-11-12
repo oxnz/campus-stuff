@@ -1,6 +1,6 @@
 #!/bin/sh
-# This file is part of the RDPP Project
 # Author: Oxnz <yunxinyi@gmail.com>
+# This file is part of the RDPP Project
 # Copyright (C) 2013, All rights reserved
 
 ofile="./chart.js"
@@ -13,7 +13,10 @@ echo "ARRAY" >> $ofile
 grep new $ofile | sed 's/var //' | sed 's/ = new Array(/,/' >> $ofile
 sed -i -e 's/ARRAY/var data = [/' $ofile
 sed -i -e '$ s/,/];/' $ofile
-
+echo "DAY" >> $ofile
+grep new $ofile | sed 's/var /"/' | sed 's/ = new Array(/",/' >> $ofile
+sed -i -e 's/DAY/var day = [/' $ofile
+sed -i -e '$ s/,/];/' $ofile
 
 cat >> $ofile << DRAWCHART
 
@@ -30,7 +33,7 @@ function onload() {
  * @h: height
  * @w: width
  */
-Array.prototype.draw = function(ctx, ts, cmax, h, w) {
+Array.prototype.draw = function(ctx, ts, cmax, h, w, title) {
 	ctx.fillStyle = '#FFFFFF';
 	ctx.fillRect(0, 0, w, h);
 	var dx = w*ts/(24*60);
@@ -47,6 +50,7 @@ Array.prototype.draw = function(ctx, ts, cmax, h, w) {
 		ctx.fillRect(i*dx, 0, 1, h);
 		ctx.fillText(i, i*dx+dx/3, 10);
 	}
+	ctx.fillText(title, w/2, h/2);
 }
 
 function show(d) {
@@ -55,7 +59,8 @@ function show(d) {
 			ts = 3,
 			cmax = 20000,
 			h = 400,
-			w = 960
+			w = 960,
+			title = day[index]
 			);
 }
 
