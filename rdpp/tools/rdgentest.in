@@ -1,0 +1,19 @@
+#!/usr/bin/env awk -F, -f
+# Version: @VERSION@
+# Author: Oxnz <yunxinyi@gmail.com>
+# This file is part of the @PACKAGE@ project
+# Copyright (C) 2013 Oxnz <yunxinyi@gmail.com>, All rights reserved
+
+BEGIN {
+	FS = ","
+	printf "position\tcar-stream-direct\tcurrent-time\n"
+}
+
+{
+	printf "(%.7lf, %.7lf)\tMonday-case%d\t2013/9/13 16:00:00\n", $1, $2, NR
+	printf "(%.7lf, %.7lf)\tSaturday-case%d\t2013/9/14 16:00:00\n", $1, $2, NR
+	printf "(%.7lf, %.7lf)\tSunday-case%d\t2013/9/15 16:00:00\n", $1, $2, NR
+}
+
+END{
+}
