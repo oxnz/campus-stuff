@@ -112,23 +112,23 @@ int RDP::RDPool::process(const std::set<orec_key>* ptsm) {
 /* nsm: smooth count */
 int RDP::RDPool::query(size_t mpts, const char* datadir, size_t nsm) {
 	string fpath(datadir);
-	if (fpath[fpath.length()-1] != '/')
-		fpath.append("/");
+	if (fpath[fpath.length()-1] != '/') fpath.append("/");
 	ifstream* flist[RHelper::MAX_ENVC_CNT];
 	for (size_t i = 0; i < RHelper::MAX_ENVC_CNT; ++i) {
 		flist[i] = new ifstream(fpath + RHelper::FNAME_OF_ENV[i]);
 		if (!flist[i]->is_open()) {
 			NZLogger::log(NZ::ERROR, "%s: cannot open file %s", __FUNCTION__,
 					fpath + RHelper::FNAME_OF_ENV[i]);
-			//return -1;
+			return -1;
 		}
+		flist[i]->exceptions(ifstream::failbit | ifstream::badbit
+				| ifstream::eofbit);
 	}
 	clock_t t0;
 	size_t nts(24*60/mpts);
 	car_count cnt, tmp;
 	roadseg_id rsid;
-	char line[256];
-	char buf[256];
+	char line[256], buf[256];
 	double x, y;
 	int yy, mm, dd, h, m, s;
 	gps_time t;
@@ -156,9 +156,15 @@ int RDP::RDPool::query(size_t mpts, const char* datadir, size_t nsm) {
 		if (tsi >= nsm/2) tsi -= nsm;
 		cnt = 0;
 		for (size_t i = 0; i < nsm && tsi < nts; ++i, ++tsi, cnt += tmp) {
-			flist[envi]->seekg(((rsid-1)*nts+tsi)*sizeof(car_count),
-					ios_base::beg);
-			flist[envi]->read(reinterpret_cast<char*>(&tmp), sizeof(car_count));
+			try {
+				flist[envi]->seekg(((rsid-1)*nts+tsi)*sizeof(car_count),
+						ios_base::beg);
+				flist[envi]->read(reinterpret_cast<char*>(&tmp),
+						sizeof(car_count));
+			} catch (ifstream::failure& e) {
+				NZLogger::log(NZ::FATAL, "%s: %s, error code: %d",
+						__FUNCTION__, e.what(), e.code());
+			}
 		}
 		p = 1 - exp(cnt*(-1.0)/(RHelper::DCNT_OF_ENV[envi]*nsm));
 		line[strlen(line)-1] = '\0';
