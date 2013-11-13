@@ -113,15 +113,12 @@ int RDP::RDPool::query(size_t mpts, const char* datadir) {
 	string fpath(datadir);
 	if (fpath[fpath.length()-1] != '/')
 		fpath.append("/");
-	ifstream flist[RHelper::MAX_ENVC_CNT] = {
-		ifstream((fpath + "0.rsd").c_str()),	// weekday good condition
-		ifstream((fpath + "1.rsd").c_str()),	// saturday
-		ifstream((fpath + "2.rsd").c_str()),	// sunday
-		ifstream((fpath + "3.rsd").c_str()),	// bad weather
-	};
+	ifstream* flist[RHelper::MAX_ENVC_CNT];
 	for (size_t i = 0; i < RHelper::MAX_ENVC_CNT; ++i) {
-		if (!flist[i].is_open()) {
-			NZLogger::log(NZ::ERROR, "%s: cannot open file", __FUNCTION__);
+		flist[i] = new ifstream(fpath + RHelper::FNAME_OF_ENV[i]);
+		if (!flist[i]->is_open()) {
+			NZLogger::log(NZ::ERROR, "%s: cannot open file %s", __FUNCTION__,
+					fpath + RHelper::FNAME_OF_ENV[i]);
 			//return -1;
 		}
 	}
@@ -155,9 +152,9 @@ int RDP::RDPool::query(size_t mpts, const char* datadir) {
 			continue;
 		}
 		envi = RHelper::get_envi(t);
-		flist[envi].seekg(((rsid-1)*nts+tsi)*sizeof(car_count),
+		flist[envi]->seekg(((rsid-1)*nts+tsi)*sizeof(car_count),
 				ios_base::beg);
-		flist[envi].read(reinterpret_cast<char*>(&cnt), sizeof(car_count));
+		flist[envi]->read(reinterpret_cast<char*>(&cnt), sizeof(car_count));
 		line[strlen(line)-1] = '\0';
 		//p = 1 - pow(M_E, (cnt*(-0.1))/dcnt[envi]);
 		p = 1 - exp(cnt*(-1.0)/RHelper::DCNT_OF_ENV[envi]);
@@ -171,7 +168,7 @@ int RDP::RDPool::query(size_t mpts, const char* datadir) {
 		cin.getline(line, 256);
 	}
 	for (size_t i = 0; i < RHelper::MAX_ENVC_CNT; ++i)
-		flist[i].close();
+		flist[i]->close();
 	return 0;
 }
 

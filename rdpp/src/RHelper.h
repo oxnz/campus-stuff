@@ -31,6 +31,12 @@ namespace RHelper {
 		3,		// sunday
 		1		// sunday: bad weather
 	};
+	const std::string FNAME_OF_ENV[MAX_ENVC_CNT] = {
+		"0.rsd",
+		"1.rsd",
+		"2.rsd",
+		"3.rsd",
+	};
 	/*
 	 * @description: find file specified path that matches pattern
 	 *

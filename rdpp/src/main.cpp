@@ -225,6 +225,7 @@ int main(int argc, char *argv[]) {
 				}
 				return 0;
 			}
+			return 0; // incase tlist is empty
             ret = rdpp->process(date, dcnt, true);
 #endif
         } catch (std::exception& e) {

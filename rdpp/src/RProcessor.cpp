@@ -135,6 +135,9 @@ int R::Processor::processFileBuffer() {
 			m_tsp = irec.time;
     	orec_key key(RsidGen::get_rsid(irec.x, irec.y));
 		if (key == RsidGen::INVALID_RSID) { // skip invalid rsid
+			NZLogger::log(NZ::WARNING,
+					"invalid time stamp: %d, current tsp: %d",
+					irec.time, m_tsp);
 			continue;
 		}
 		m_pTSPool[getTSIndex(m_nMinPerTS, irec.time)].insert(
@@ -217,7 +220,6 @@ int R::Processor::dumpRecords() {
 	"========================================================================"
     << endl;
     outfile.close();
-    // erase last comma
     outjson << ");" << endl;
     outjson.close();
     NZLogger::log(NZ::INFO, "dump to file [%s] successfully", fpath);
