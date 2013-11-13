@@ -122,26 +122,28 @@ int R::Processor::processFileBuffer() {
         irec.valid = *(++p) - 0x30;
         if (*(++p) != 0x0d) { // simple check if EOL
 			NZLogger::log(NZ::ERROR,
-					"parse buffer error(%d, %d, %d, %d, %d, %d, %d, %d, %d)",
+					"parse buffer error(%d, %d, %d, %d, %d, %d, %d, %d, %d)"
+					", press s to skip or other to abort",
 					irec.cid, irec.event, irec.status, irec.time, irec.x,
 					irec.y, irec.speed, irec.direct, irec.valid);
-            getchar();
+            if (getchar() != 's')
+				return -1;
+			else
+				continue;
         }
         if (!irec.valid || irec.status != NON_OCCUPIED) continue;
-		if (irec.time == 20121104092030 && irec.x == 1165044174)
-			NZLogger::log(NZ::ERROR,  "found it >>>>>>>>>>>>>>>>>>>>> rsid: %d,  tsi: %d",  RsidGen::get_rsid(irec.x,  irec.y), getTSIndex(m_nMinPerTS,  irec.time));
         // skip invalid ts index
 		if (abs(static_cast<int64_t>(irec.time - m_tsp)/10000)) {
+			NZLogger::log(NZ::WARNING, "invalid time stamp: %d(tsp=%d)",
+					irec.time, m_tsp);
 			continue;
 		} else // update ts pointer
 			m_tsp = irec.time;
     	orec_key key(RsidGen::get_rsid(irec.x, irec.y));
 		if (key == RsidGen::INVALID_RSID) { // skip invalid rsid
-			/*
 			NZLogger::log(NZ::WARNING,
-					"invalid time stamp: %d, current tsp: %d",
-					irec.time, m_tsp);
-					*/
+					"invalid rsid: %d(coord: %d %d), skipped",
+					key, irec.x, irec.y);
 			continue;
 		}
 		m_pTSPool[getTSIndex(m_nMinPerTS, irec.time)].insert(

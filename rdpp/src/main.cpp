@@ -73,8 +73,10 @@ int help(int ecode = 0) {
         << "\t-i\tspecify input directory" << endl
         << "\t-l\tspecify how many days to process" << endl
         << "\t-o\tspecify output directory" << endl
-        << "\t-t\tspecify time slot grannularity in minute" << endl
 		<< "\t-q\tquery" << endl
+        << "\t-t\tspecify time slot grannularity in minute" << endl
+		<< "\t-v[v]\tshow verbose message" << endl
+		<< "\t-V\tshow version info" << endl
         << "  Unavailable Option:" << endl
         << "\t-p\tprocess date while preprocessing" << endl
         << "\t-s\tshow progress bar" << endl
@@ -87,8 +89,7 @@ int help(int ecode = 0) {
 }
 
 int main(int argc, char *argv[]) {
-    NZLogger::setLogLevel(NZ::WARNING);
-	//NZLogger::setLogLevel(NZ::INFO);
+	NZLogger::setLogLevel(NZ::WARNING);
     int ch;
     size_t bufsize(2*1024*1024), date(0), dcnt(1), mpts(3);
     const char* pIndir(0);
@@ -96,7 +97,7 @@ int main(int argc, char *argv[]) {
 	bool query(false);
     if (argc == 1)
         return help(0);
-    while ((ch = getopt(argc, argv, "b:d:hi:l:o:qt:")) != -1) {
+    while ((ch = getopt(argc, argv, "b:d:hi:l:o:qt:vV")) != -1) {
         switch (ch) {
         case 'b':
             bufsize = strtoul(optarg, NULL, 10);
@@ -143,6 +144,12 @@ int main(int argc, char *argv[]) {
                               " && 24*60 mod minPerTS == 0");
                 return -1;
             }
+		case 'v':
+			NZLogger::setLogLevel(NZ::WARNING);
+			break;
+		case 'V':
+			std::cout << "Version: 1.6, Oxnz" << endl;
+			return 0;
         case 'h':
             ch = 0;
         case '?':
@@ -208,24 +215,31 @@ int main(int argc, char *argv[]) {
 			/* uncomment following 3 lines to train specified days
 			 * in day list
 			 */
-			std::list< std::list<uint32_t> > tlist = {
-				{20121104},
-				{20121111, 20121118, 20121125},
-				{20121103, 20121110, 20121117, 20121124},
-				{20121101, 20121102, 20121105, 20121106, 20121107, 20121108,
-					20121109, 20121112, 20121113, 20121114, 20121115, 20121116,
-					20121119, 20121120, 20121121, 20121122, 20121123,
-					20121126, 20121127, 20121128, 20121129, 20121130,},
+			std::list<uint32_t> bad_sunday = {20121104};
+			std::list<uint32_t> good_sunday = {20121111, 20121118, 20121125};
+			std::list<uint32_t> good_saturday = {20121103, 20121110, 20121117,
+				20121124};
+			std::list<uint32_t> good_weekday = {20121101, 20121102, 20121105,
+			20121106, 20121107, 20121108,
+			20121109, 20121112, 20121113, 20121114, 20121115, 20121116,
+			20121119, 20121120, 20121121, 20121122, 20121123,
+			20121126, 20121127, 20121128, 20121129, 20121130,};
+			std::list<uint32_t> tlist[4] = {
+				bad_sunday,
+				good_sunday,
+				good_saturday,
+				good_weekday,
 			};
-			for (std::list< std::list<uint32_t> >::iterator it = tlist.begin();
-					it != tlist.end(); ++it) {
-				if ((ret = rdpp->process(*it, true))) {
-					NZLogger::log(NZ::FATAL, "process failed");
-					return -1;
+			for (size_t i = 0; i < 4; ++i) {
+				NZLogger::log(NZ::NOTICE, "process index: %d", i);
+				ret = rdpp->process(tlist[i], true);
+				if (ret) {
+					NZLogger::log(NZ::ERROR, "process failed, start by %d",
+							tlist[i].front());
+					return ret;
 				}
-				return 0;
 			}
-			return 0; // incase tlist is empty
+			return 0;
             ret = rdpp->process(date, dcnt, true);
 #endif
         } catch (std::exception& e) {
