@@ -11,3 +11,5 @@
 #include "NZLogger.h"
 
 NZ::LOG_LEVEL NZ::NZLogger::m_level = DEBUG;
+bool NZ::NZLogger::m_bTime = true;
+bool NZ::NZLogger::m_bColor = true;

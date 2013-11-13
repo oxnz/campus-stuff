@@ -109,7 +109,8 @@ int RDP::RDPool::process(const std::set<orec_key>* ptsm) {
     return 0;
 }
 
-int RDP::RDPool::query(size_t mpts, const char* datadir) {
+/* nsm: smooth count */
+int RDP::RDPool::query(size_t mpts, const char* datadir, size_t nsm) {
 	string fpath(datadir);
 	if (fpath[fpath.length()-1] != '/')
 		fpath.append("/");
@@ -124,7 +125,7 @@ int RDP::RDPool::query(size_t mpts, const char* datadir) {
 	}
 	clock_t t0;
 	size_t nts(24*60/mpts);
-	car_count cnt;
+	car_count cnt, tmp;
 	roadseg_id rsid;
 	char line[256];
 	char buf[256];
@@ -152,13 +153,17 @@ int RDP::RDPool::query(size_t mpts, const char* datadir) {
 			continue;
 		}
 		envi = RHelper::get_envi(t);
-		flist[envi]->seekg(((rsid-1)*nts+tsi)*sizeof(car_count),
-				ios_base::beg);
-		flist[envi]->read(reinterpret_cast<char*>(&cnt), sizeof(car_count));
+		if (tsi >= nsm/2) tsi -= nsm;
+		cnt = 0;
+		for (size_t i = 0; i < nsm && tsi < nts; ++i, ++tsi, cnt += tmp) {
+			flist[envi]->seekg(((rsid-1)*nts+tsi)*sizeof(car_count),
+					ios_base::beg);
+			flist[envi]->read(reinterpret_cast<char*>(&tmp), sizeof(car_count));
+		}
+		p = 1 - exp(cnt*(-1.0)/(RHelper::DCNT_OF_ENV[envi]*nsm));
 		line[strlen(line)-1] = '\0';
-		p = 1 - exp(cnt*(-1.0)/RHelper::DCNT_OF_ENV[envi]);
 		printf("%s\t%.2f\t%.2lf\t%.3lf\n", line, p,
-				cnt == 0 ? -1 : (1.0*RHelper::DCNT_OF_ENV[envi])*mpts/cnt,
+				cnt == 0 ? -1 : (1.0*RHelper::DCNT_OF_ENV[envi])*mpts*nsm/cnt,
 				(1.0*clock() - t0)/CLOCKS_PER_SEC);
 		cin.getline(line, 256);
 	}

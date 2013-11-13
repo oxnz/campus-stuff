@@ -59,12 +59,14 @@ namespace NZ {
         static void setLogLevel(LOG_LEVEL level) {
 			NZ::NZLogger::m_level = level;
 		}
-		/*
-		static void setLogStyle(const char* prefix, bool time,
-				const char* suffix) {
-			m_prefix = string(prefix);
+		static void setLogStyle(const char* prefix, bool time = false,
+				const char* suffix = nullptr, bool color = true) {
+			m_sPrefix = std::string(prefix);
+			m_sSuffix = std::string(suffix);
 			m_bTime = time;
+			m_bColor = color;
 		}
+		/*
 		static inline void log(const char* s) {
 			log(m_level, s);
 		}
@@ -142,5 +144,9 @@ namespace NZ {
 		}
     private:
         static LOG_LEVEL m_level;
+		static std::string m_sPrefix;
+		static std::string m_sSuffix;
+		static bool m_bTime;
+		static bool m_bColor;
     };
 }

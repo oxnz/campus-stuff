@@ -26,7 +26,8 @@ namespace RDP {
         const car_count& operator()(roadseg_id, ts_index) const;
         int process(const std::set<orec_key>* m_pTSPool);
         int dump(const std::string& fpath);
-		static int query(size_t mpts, const char* datadir);
+		static int query(size_t mpts, const char* datadir,
+				size_t smoothcnt = 3);
         virtual ~RDPool();
     private:
         RDPool(const RDPool&);
