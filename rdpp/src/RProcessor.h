@@ -38,7 +38,7 @@ namespace R {
     private:
         ssize_t readFileIntoMem(const char* fpath);
         int processFileBuffer();
-        inline int processOrigRecord(const in_rec& rec, bool echo = false);
+        //inline int processOrigRecord(const in_rec& rec, bool echo = false);
         int dumpRecords();
 
     private: // preprocessor member part
@@ -57,7 +57,7 @@ namespace R {
         const char* m_pFileBufEnd;  // file buffer end pointer
         char*  m_pCurFBufPos;       // pointer remember position in file buffer
 
-        const bool m_bProcess;
-        RDP::RDPool* m_pRDPool;
+        const bool m_bProcess;		// whether show the progress bar
+        RDP::RDPool* m_pRDPool;		// RDPool -> process & dump
     };
 }

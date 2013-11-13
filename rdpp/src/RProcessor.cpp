@@ -35,6 +35,15 @@ using namespace std;
 using NZ::NZLogger;
 using RHelper::getTSIndex;
 
+/*
+ * @description: default constructor for RDProcessor
+ * @params:
+ * 	-i indir: input dir which contains original records file
+ * 	-i outdir: output dir which used to store the output files
+ * 	-i minPerTS: minute(s) per Time Slot
+ * 	-i bufsize: buffer size used to store original records file
+ * 	-i process: whether to process the buffer with RDPool
+ */
 R::Processor::Processor(const char* indir, const char* outdir,
                         size_t minPerTS, size_t bufsize, bool process)
     : m_indir(indir),
@@ -64,6 +73,12 @@ R::Processor::Processor(const char* indir, const char* outdir,
 }
 
 /*
+ * @description: process every single orignal record
+ * @params:
+ * 	-i rec: const original record references
+ * 	-i echo: echo the record content for debug use
+ * @returns:
+ * 	-o int: 0 for success, other stands for fails
 inline int R::Processor::processOrigRecord(const in_rec& rec, bool echo) {
 	if (echo)
     std::cout << "(" << rec.cid << "," <<rec.event
@@ -93,6 +108,13 @@ inline int R::Processor::processOrigRecord(const in_rec& rec, bool echo) {
     return 0;
 }*/
 
+/*
+ * @description: parse the contents in file buffer
+ * @params:
+ * 	none
+ * @returns:
+ * 	-o int: 0 for success and others for failure
+ */
 int R::Processor::processFileBuffer() {
     char* p = m_pCurFBufPos;
     for (in_rec irec; p < m_pFileBufEnd - 1; ++p) {
@@ -175,6 +197,11 @@ ssize_t R::Processor::readFileIntoMem(const char* fpath) {
     return fsize;
 }
 
+/*
+ * @description: dump data & js array for analysis and debug use
+ * @returns:
+ * 	-o int: whether dump succeed
+ */
 int R::Processor::dumpRecords() {
     string fpath = m_outdir + to_string(m_tsp/1000000) + ".dat";
     ofstream outfile(fpath.c_str(), ios::out|ios::binary);
@@ -232,6 +259,14 @@ int R::Processor::dumpRecords() {
     return 0;
 }
 
+/*
+ * @description: process a single specified by date
+ * @params:
+ * 	-i date: specify the date to process
+ * 	-i progbar: whether show the progress status
+ * @returns:
+ * 	-o int: { 1: no file was found, 0: success, -1: error }
+ */
 int R::Processor::process(uint32_t date, bool progbar) {
 	NZLogger::log(NZ::NOTICE, "processing day %u", date);
 	int ret(0);
@@ -274,6 +309,9 @@ int R::Processor::process(uint32_t date, bool progbar) {
 	return 0;
 }
 
+/*
+ * @description: process multi days specified by dates
+ */
 int R::Processor::process(std::list<uint32_t>& dates, bool progbar) {
 	string indir;
 	int ret(0);
@@ -334,6 +372,10 @@ int R::Processor::process(std::list<uint32_t>& dates, bool progbar) {
 	return 0;
 }
 
+/*
+ * @description: process a sequence of days start by data and have lenght
+ * 	of len, normally used to process for the first time
+ */
 int R::Processor::process(uint32_t date, size_t len, bool progbar) {
     string indir;
     int ret(0);
@@ -393,6 +435,9 @@ int R::Processor::process(uint32_t date, size_t len, bool progbar) {
 	return ret;
 }
 
+/*
+ * @description: destructor, clean up
+ */
 R::Processor::~Processor() {
     if (m_fileList.size())
         m_fileList.clear();
