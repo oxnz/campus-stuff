@@ -4,8 +4,27 @@
 # This file is part of the @PACKAGE@ project
 # Copyright (C) 2013 Oxnz <yunxinyi@gmail.com>, All rights reserved
 
-for file in ./*.tar.gz
-do
-    tar -xf $file
-    rm -f $file
-done
+if [ $# -ne 1 ]; then
+	echo "Usage: $0 dir"
+	exit 1
+fi
+
+function rdextract() {
+	for d in $1; do
+		cd $d
+		for subd in *; do
+			cd $subd
+			for t in *.tar.gz
+			do
+				tar -xzf $t
+				if [ $? -ne 0 ]; then
+					echo "*** error while extracting $t"
+				fi
+			done
+			cd ..
+		done
+		cd ..
+	done
+}
+
+rdextract $@
