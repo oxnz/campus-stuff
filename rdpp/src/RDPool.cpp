@@ -146,7 +146,7 @@ int RDP::RDPool::query(size_t mpts, const char* datadir) {
 		NZLogger::log(NZ::DEBUG, "%u, %u, %d, tsi = %d\n",
 				static_cast<gps_x>(x*10000000), static_cast<gps_y>(y*10000000),
 				t, tsi);
-		rsid = RsidGen::get_rsid(x*10000000, y*10000000);
+		rsid = RsidGen::get_rsid(x*10000000, y*10000000, true);
 		if (rsid == RsidGen::INVALID_RSID) {
 			NZLogger::log(NZ::WARNING, "invalid coordinates, %f %f", x, y);
 			continue;
@@ -186,23 +186,6 @@ car_count RDP::RDPool::query(const roadseg_id rsid, const ts_index tsi) const {
 	//return (*this)(rsid, tsi);
 }
 
-car_count RDP::RDPool::query_interactive() {
-	//cout << "Enter longitude, lantitude & ts index to query: " << endl;
-	gps_time t;
-	roadseg_id rsid;
-	for (double x(0), y(0); std::cin >> x >> y >> t;) {
-		rsid = RsidGen::get_rsid2(static_cast<gps_x>(x*10000000),
-				static_cast<gps_y>(y*10000000));
-		if (rsid == RsidGen::INVALID_RSID) {
-			std::cerr << "Invalid longitude or lantitude" << endl;
-			continue;
-		}
-		cout << "rsid: " << rsid << " ts index: " << t << " car count: "
-		<< query(rsid, t) << endl;
-		getchar();
-	}
-	return 0;
-}
 */
 
 int RDP::RDPool::dump(const string& fpath) {

@@ -63,6 +63,7 @@ R::Processor::Processor(const char* indir, const char* outdir,
         m_outdir.append("/");
 }
 
+/*
 inline int R::Processor::processOrigRecord(const in_rec& rec, bool echo) {
 	if (echo)
     std::cout << "(" << rec.cid << "," <<rec.event
@@ -78,12 +79,10 @@ inline int R::Processor::processOrigRecord(const in_rec& rec, bool echo) {
 	}
 	key = (key << 32) | rec.cid;
     if (abs(static_cast<int64_t>(rec.time - m_tsp)/10000)) {
-/*
         NZLogger::log(NZ::DEBUG, "invalid timestamp: " + to_string(rec.time)
                       + " - current time: " + to_string(m_tsp) + " = "
                       + to_string(abs(static_cast<int64_t>(rec.time - m_tsp)
                                       /10000)));
-*/
         return 0;
     } else {
         m_tsp = rec.time;
@@ -92,7 +91,7 @@ inline int R::Processor::processOrigRecord(const in_rec& rec, bool echo) {
     m_pTSPool[getTSIndex(m_nMinPerTS, rec.time)].insert(key);
 
     return 0;
-}
+}*/
 
 int R::Processor::processFileBuffer() {
     char* p = m_pCurFBufPos;
@@ -139,7 +138,8 @@ int R::Processor::processFileBuffer() {
 			continue;
 		} else // update ts pointer
 			m_tsp = irec.time;
-    	orec_key key(RsidGen::get_rsid(irec.x, irec.y));
+		// CAUTION: true is equidisant
+    	orec_key key(RsidGen::get_rsid(irec.x, irec.y, true));
 		if (key == RsidGen::INVALID_RSID) { // skip invalid rsid
 			NZLogger::log(NZ::WARNING,
 					"invalid rsid: %d(coord: %d %d), skipped",
