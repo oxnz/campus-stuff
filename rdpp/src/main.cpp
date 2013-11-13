@@ -65,26 +65,31 @@ int help(int ecode = 0) {
     std::ostream* os = &cout;
     if (ecode)
         os = &cerr;
-    *os << "Usage: " << "rdpp" << " [options]" << endl
-        << "  Options:" << endl
+    *os << "Usage: " << "rdpp" << " [options] indir [outdir]" << endl
+		<< "  Process original data and output report data & final data" << endl
+		<< "  The options are: " << endl
         << "\t-h\tshow this help message and exit" << endl
         << "\t-b\tspecify buffer length in megabytes" << endl
         << "\t-d\tspecify the start date to process" << endl
         << "\t-i\tspecify input directory" << endl
         << "\t-l\tspecify how many days to process" << endl
         << "\t-o\tspecify output directory" << endl
+        << "\t-p\tprocess date while preprocessing" << endl
 		<< "\t-q\tquery" << endl
         << "\t-t\tspecify time slot grannularity in minute" << endl
-		<< "\t-v[v]\tshow verbose message" << endl
+		<< "\t-v[+]\tshow verbose message" << endl
+        << "\t-P\tdiable progress bar" << endl
 		<< "\t-V\tshow version info" << endl
+		/*
         << "  Unavailable Option:" << endl
-        << "\t-p\tprocess date while preprocessing" << endl
-        << "\t-s\tshow progress bar" << endl
         << "\t-j\toutput a js array file contains car count info" << endl
+		*/
         << "  Default Value:" << endl
         << "\t-b:\t2" << endl // \tbuffer size: 2 Megabytes" << endl
         << "\t-l:\t1" << endl // \tprocess 1 single day" << endl
-        << "\t-t:\t3" << endl; //\ttime slot length: 3 minutes" << endl;
+		<< "\t-p:\tfalse" << endl
+        << "\t-t:\t3" << endl //\ttime slot length: 3 minutes" << endl;
+		<< "\t-P:\tfalse" << endl;
     return ecode;
 }
 
@@ -94,7 +99,9 @@ int main(int argc, char *argv[]) {
     size_t bufsize(2*1024*1024), date(0), dcnt(1), mpts(3);
     const char* pIndir(0);
     const char* pOutdir(0);
+	bool process(false);
 	bool query(false);
+	bool progbar(true);
     if (argc == 1)
         return help(0);
     while ((ch = getopt(argc, argv, "b:d:hi:l:o:qt:vV")) != -1) {
@@ -131,6 +138,9 @@ int main(int argc, char *argv[]) {
         case 'o':
             pOutdir = optarg;
             break;
+		case 'p':
+			process = true;
+			break;
 		case 'q':
 			query = true;
 			break;
@@ -147,8 +157,14 @@ int main(int argc, char *argv[]) {
 		case 'v':
 			NZLogger::setLogLevel(NZ::WARNING);
 			break;
+		case 'P':
+			progbar = false;
+			break;
 		case 'V':
-			std::cout << "Version: 1.6, Oxnz" << endl;
+			std::cout << "Road Data (Pre) Processor 1.6" << std::endl
+				<< "Copyright (C) 2013 Oxnz,"
+				<< " All rights reserved" << std::endl
+			   	<< "Bug-report: <yunxinyi@gmail.com>" << std::endl;
 			return 0;
         case 'h':
             ch = 0;
@@ -184,7 +200,7 @@ int main(int argc, char *argv[]) {
 
     R::Processor *rdpp;
     try {
-        rdpp = new R::Processor(pIndir, pOutdir, mpts, bufsize, true);
+        rdpp = new R::Processor(pIndir, pOutdir, mpts, bufsize, process);
     } catch (std::logic_error& e) {
         NZLogger::log(NZ::ERROR, "logic error -> %s", e.what());
         return -1;
