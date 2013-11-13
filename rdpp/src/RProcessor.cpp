@@ -128,6 +128,8 @@ int R::Processor::processFileBuffer() {
             getchar();
         }
         if (!irec.valid || irec.status != NON_OCCUPIED) continue;
+		if (irec.time == 20121104092030 && irec.x == 1165044174)
+			NZLogger::log(NZ::ERROR,  "found it >>>>>>>>>>>>>>>>>>>>> rsid: %d,  tsi: %d",  RsidGen::get_rsid(irec.x,  irec.y), getTSIndex(m_nMinPerTS,  irec.time));
         // skip invalid ts index
 		if (abs(static_cast<int64_t>(irec.time - m_tsp)/10000)) {
 			continue;
@@ -135,9 +137,11 @@ int R::Processor::processFileBuffer() {
 			m_tsp = irec.time;
     	orec_key key(RsidGen::get_rsid(irec.x, irec.y));
 		if (key == RsidGen::INVALID_RSID) { // skip invalid rsid
+			/*
 			NZLogger::log(NZ::WARNING,
 					"invalid time stamp: %d, current tsp: %d",
 					irec.time, m_tsp);
+					*/
 			continue;
 		}
 		m_pTSPool[getTSIndex(m_nMinPerTS, irec.time)].insert(

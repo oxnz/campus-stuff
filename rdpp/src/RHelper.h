@@ -70,8 +70,10 @@ namespace RHelper {
 		NZ::NZLogger::log(NZ::DEBUG, "%d-%d-%d: %d(%d %d %d)", t/10000000000,
 			t/100000000%100, t/1000000%100, timeinfo->tm_wday,
 			timeinfo->tm_year, timeinfo->tm_mon, timeinfo->tm_mday);
-		if (!timeinfo->tm_wday) // sunday good condition
+		if (!timeinfo->tm_wday) { // sunday good condition
+			return 3; // bad condition
 			return 2;
+		}
 		else if (timeinfo->tm_wday == 6) // saturday good condition
 			return 1;
 		else if (timeinfo->tm_wday) // 1-5: weekdays good condition
