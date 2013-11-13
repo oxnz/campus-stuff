@@ -158,7 +158,7 @@ int RDP::RDPool::query(size_t mpts, const char* datadir) {
 		line[strlen(line)-1] = '\0';
 		p = 1 - exp(cnt*(-1.0)/RHelper::DCNT_OF_ENV[envi]);
 		printf("%s\t%.2f\t%.2lf\t%.3lf\n", line, p,
-				(1.0*RHelper::DCNT_OF_ENV[envi])*mpts/cnt,
+				cnt == 0 ? -1 : (1.0*RHelper::DCNT_OF_ENV[envi])*mpts/cnt,
 				(1.0*clock() - t0)/CLOCKS_PER_SEC);
 		cin.getline(line, 256);
 	}
