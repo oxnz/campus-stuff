@@ -173,6 +173,10 @@ void RHelper::print_progress(size_t percent, const char* hint) {
 	if (!hint || strlen(hint) > 20)
 		hint = "Progress:";
 	char buf[51] = "--------------------------------------------------";
+	/*
+	if (percent%2)
+		buf[(percent+1)>>1] = '>';
+	*/
 	for (size_t i = 0; i < percent; ++i) {
 		buf[i/2] = '=';
 	}
