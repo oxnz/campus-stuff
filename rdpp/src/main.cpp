@@ -251,7 +251,7 @@ int main(int argc, char *argv[]) {
 			};
 			for (size_t i = 0; i < 4; ++i) {
 				NZLogger::log(NZ::NOTICE, "process index: %d", i);
-				ret = rdpp->process(tlist[i], true);
+				ret = rdpp->process(tlist[i], progbar);
 				if (ret) {
 					NZLogger::log(NZ::ERROR, "process failed, start by %d",
 							tlist[i].front());
@@ -259,7 +259,7 @@ int main(int argc, char *argv[]) {
 				}
 			}
 			return 0;
-            ret = rdpp->process(date, dcnt, true);
+            ret = rdpp->process(date, dcnt, progbar);
 #endif
         } catch (std::exception& e) {
             NZLogger::log(NZ::FATAL, "RDPP process failed");
