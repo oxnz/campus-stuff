@@ -89,7 +89,10 @@ int help(int ecode = 0) {
         << "\t-l:\t1" << endl // \tprocess 1 single day" << endl
 		<< "\t-p:\tfalse" << endl
         << "\t-t:\t3" << endl //\ttime slot length: 3 minutes" << endl;
-		<< "\t-P:\tfalse" << endl;
+		<< "\t-P:\tfalse" << endl
+		<< "Copyright (C) 2013 Oxnz, All rights reserved" << endl
+		<< "Bug-report: Oxnz <yunxinyi@gmail.com>"
+		<< endl;
     return ecode;
 }
 
