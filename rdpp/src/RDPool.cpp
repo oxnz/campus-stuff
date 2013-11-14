@@ -147,7 +147,7 @@ int RDP::RDPool::query(size_t mpts, const char* datadir, size_t nsm) {
 		NZLogger::log(NZ::DEBUG, "%u, %u, %d, tsi = %d\n",
 				static_cast<gps_x>(x*10000000), static_cast<gps_y>(y*10000000),
 				t, tsi);
-		rsid = RsidGen::get_rsid(x*10000000, y*10000000, true);
+		rsid = RsidGen::get_rsid(x*10000000, y*10000000);
 		if (rsid == RsidGen::INVALID_RSID) {
 			NZLogger::log(NZ::WARNING, "invalid coordinates, %f %f", x, y);
 			continue;

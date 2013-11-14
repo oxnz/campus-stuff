@@ -161,7 +161,7 @@ int R::Processor::processFileBuffer() {
 		} else // update ts pointer
 			m_tsp = irec.time;
 		// CAUTION: true is equidisant
-    	orec_key key(RsidGen::get_rsid(irec.x, irec.y, true));
+    	orec_key key(RsidGen::get_rsid(irec.x, irec.y));
 		if (key == RsidGen::INVALID_RSID) { // skip invalid rsid
 			NZLogger::log(NZ::WARNING,
 					"invalid rsid: %d(coord: %d %d), skipped",
