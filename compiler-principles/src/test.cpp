@@ -1,0 +1,5 @@
+#include <microcc.h>
+
+int main() {
+	return 0;
+}
