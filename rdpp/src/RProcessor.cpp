@@ -46,6 +46,7 @@ using RHelper::getTSIndex;
  */
 R::Processor::Processor(const char* indir, const char* outdir,
                         size_t minPerTS, size_t bufsize, bool process)
+try
     : m_indir(indir),
       m_outdir(outdir),
       m_pTSPool(new set<orec_key>[24*60/minPerTS]),
@@ -70,6 +71,17 @@ R::Processor::Processor(const char* indir, const char* outdir,
         m_indir.append("/");
     if (*m_outdir.rbegin() != '/')
         m_outdir.append("/");
+} catch (...) {
+	/* handle the constructor exceptions
+	 * clean up and rethrow the exception
+	 */
+	if (m_pTSPool)
+		delete m_pTSPool;
+	if (m_pFileBuffer)
+		delete m_pFileBuffer;
+	if (m_pRDPool)
+		delete m_pRDPool;
+	throw;
 }
 
 /*
@@ -315,8 +327,11 @@ int R::Processor::process(uint32_t date, bool progbar) {
 int R::Processor::process(std::list<uint32_t>& dates, bool progbar) {
 	string indir;
 	int ret(0);
-	int fcnt(0);
+	//int fcnt(0);
 	while (!dates.empty()) {
+		process(dates.front(), progbar);
+		dates.pop_front();
+		/*
 		m_tsp = dates.front();
 		dates.pop_front();
 		indir = m_indir + to_string(m_tsp);
@@ -360,7 +375,7 @@ int R::Processor::process(std::list<uint32_t>& dates, bool progbar) {
         if (dumpRecords()) {
             NZLogger::log(NZ::FATAL, "dump to file failed");
             return -1;
-        }
+        }*/
 	}
 	NZLogger::log(NZ::NOTICE, "DO NOT FORGET TO UNCOMMENT THIS");
     if (m_bProcess && m_pRDPool->dump(m_outdir + to_string(m_tsp/1000000)

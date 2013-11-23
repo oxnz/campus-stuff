@@ -39,6 +39,7 @@ using std::string;
 using namespace std;
 
 RDP::RDPool::RDPool(size_t nrs, size_t nts, const char* fpath)
+	try
     : m_nrs(nrs),
       m_nts(nts),
       m_pp(new car_count[nrs*nts])
@@ -59,6 +60,10 @@ RDP::RDPool::RDPool(size_t nrs, size_t nts, const char* fpath)
 			*p = 0;
 	}
     NZLogger::log(NZ::DEBUG, "RDP created");
+} catch(...) {
+	if (m_pp)
+		delete m_pp;
+	throw;
 }
 
 car_count* RDP::RDPool::operator[](roadseg_id rsid) {
