@@ -60,13 +60,13 @@ try
                 : nullptr)
 {
     if (m_indir.length() * m_outdir.length() == 0)
-        throw logic_error("invalid parameter: indir or outdir is null");
+        throw invalid_argument("invalid parameter: indir or outdir is null");
     if (m_nMinPerTS < 2)
-        throw logic_error("invalid parameter: MinPerTS too small");
+        throw invalid_argument("invalid parameter: MinPerTS too small");
     else if (24*60%m_nMinPerTS)
-        throw logic_error("invalid paramter: 24*60 mod MinPerTS != 0");
+        throw invalid_argument("invalid paramter: 24*60 mod MinPerTS != 0");
     if (m_nBufSize <= 1024*1024)
-        throw logic_error("invalid paremter: buf size is too small");
+        throw invalid_argument("invalid paremter: buf size is too small");
     if (*m_indir.rbegin() != '/')
         m_indir.append("/");
     if (*m_outdir.rbegin() != '/')
