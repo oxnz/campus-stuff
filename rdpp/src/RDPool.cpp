@@ -39,6 +39,7 @@ using std::string;
 using namespace std;
 
 RDP::RDPool::RDPool(size_t nrs, size_t nts, const char* fpath)
+	throw(bad_alloc)
 	try
     : m_nrs(nrs),
       m_nts(nts),

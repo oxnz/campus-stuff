@@ -46,6 +46,7 @@ using RHelper::getTSIndex;
  */
 R::Processor::Processor(const char* indir, const char* outdir,
                         size_t minPerTS, size_t bufsize, bool process)
+throw(invalid_argument, bad_alloc)
 try
     : m_indir(indir),
       m_outdir(outdir),
@@ -255,10 +256,12 @@ int R::Processor::dumpRecords() {
         outfile.write(reinterpret_cast<const char*>(&x),
                       sizeof(roadseg_id));
         if (i % 10 == 0) {
-            cout << endl << setw(6) << left << i << "  ";
+            //cout << endl << setw(6) << left << i << "  ";
+            cout << endl << setw(6) << setfill('0') << i << "  ";
             outjson << endl;
         }
-        cout << setw(6) << setfill(' ') << left << cnt << " ";
+        //cout << setw(6) << setfill(' ') << left << cnt << " ";
+        cout << setw(6) << setfill(' ') << cnt << " ";
         outjson << cnt << ",";
     }
 	cout << endl <<

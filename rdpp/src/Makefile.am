@@ -5,23 +5,24 @@ bin_PROGRAMS = rdpp
 noinst_PROGRAMS = test
 
 rdpp_SOURCES = main.cpp \
+			   RExcept.h \
 			   RProcessor.cpp \
 			   RHelper.cpp \
 			   RDPool.cpp \
-			   NZLogger.cpp \
 			   RProcessor.h \
 			   RHelper.h \
 			   RDPool.h \
-			   NZLogger.h \
 			   RsidGen.h \
 			   RTypes.h \
-			   RConstant.h
+			   RConstant.h \
+			   NZLogger.h \
+			   NZLogger.cpp
 
 test_SOURCES = RTest.cpp \
 			   RHelper.h \
 			   RHelper.cpp \
 			   RDPool.h \
 			   RDPool.cpp \
+			   RsidGen.h \
 			   NZLogger.h \
-			   NZLogger.cpp \
-			   RsidGen.h
+			   NZLogger.cpp

@@ -75,7 +75,7 @@ namespace NZ {
 				return;
 			if (level >= ERROR)
 				printf("%s", "\x1B[31m");
-			std::clog << LOG_LEVEL_PREFIX[level];
+			//std::clog << LOG_LEVEL_PREFIX[level];
 			printf(s);
 			if (level >= ERROR)
 				printf("%s", "\x1B[0m");

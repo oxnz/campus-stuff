@@ -11,6 +11,7 @@
  * Last-update: 2013-11-07 22:10:12
  */
 
+#include "RExcept.h"
 #include "RProcessor.h"
 #include "RDPool.h"
 #include "NZLogger.h"
