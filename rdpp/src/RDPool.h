@@ -25,7 +25,8 @@ namespace RDP {
 		 * 	-i nrs: roadseg count
 		 * 	-i fpath: data file to be read in to memory
 		 */
-        RDPool(size_t nrs, size_t nts, const char* fpath = nullptr);
+        RDPool(size_t nrs, size_t nts, const char* fpath = nullptr)
+			throw(std::bad_alloc);
         car_count* operator[](roadseg_id);
         car_count& operator()(roadseg_id, ts_index);
         const car_count& operator()(roadseg_id, ts_index) const;

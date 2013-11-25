@@ -16,7 +16,8 @@ rdpp_SOURCES = main.cpp \
 			   RTypes.h \
 			   RConstant.h \
 			   NZLogger.h \
-			   NZLogger.cpp
+			   NZLogger.cpp \
+			   NZUtils.h
 
 test_SOURCES = RTest.cpp \
 			   RHelper.h \

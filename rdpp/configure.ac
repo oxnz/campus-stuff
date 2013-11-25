@@ -21,7 +21,11 @@ fi
 AC_PROG_CXX
 AC_PROG_CC
 
+AC_CONFIG_MACRO_DIR([m4])
+AM_PROG_AR
+
 # Checks for libraries.
+LT_INIT
 
 # Checks for header files.
 AC_CHECK_HEADERS([stdint.h stdio.h stdlib.h string.h unistd.h dirent.h errno.h sys/types.h])
@@ -44,5 +48,7 @@ AC_CHECK_FUNCS([regcomp strerror strstr strtoul strtoull])
 
 AC_CONFIG_FILES([Makefile
 				 src/Makefile
-                 tools/Makefile])
+                 tools/Makefile
+				 exp/Makefile
+				 ])
 AC_OUTPUT
