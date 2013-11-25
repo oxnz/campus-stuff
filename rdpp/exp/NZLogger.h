@@ -27,8 +27,9 @@ namespace NZ {
 		}
 		static int logImpl(LogLevel level, const char* file_,
 				const char* func, int line, const char* fmt, ...);
+	public:
+		static bool m_color;
 	private:
 		static LogLevel m_level;
-		static bool m_color;
 	};
 }
