@@ -122,7 +122,19 @@ int test_finder() {
 	return 0;
 }
 
+#include "NZLogger.h"
+int test_logger() {
+	using NZ::NZLogger;
+	log(NZLogger::LogLevel::DEBUG, "HELLO %s %c", "world", '!');
+	log(NZLogger::LogLevel::INFO, "HELLO %s %c", "world", '!');
+	log(NZLogger::LogLevel::WARNING, "HELLO");
+	log(NZLogger::LogLevel::ERROR, "HELLO");
+	log(NZLogger::LogLevel::FATAL, "HELLO");
+	return 0;
+}
+
 int main() {
+	return test_logger();
 	return test_finder();
 	assert(0 == 1);
 	return test_os();
