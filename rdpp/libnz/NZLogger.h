@@ -12,10 +12,10 @@
 #include <iostream>
 
 #ifdef NDEBUG
-#define log(...) ((void)0)
+#define NZLog(...) ((void)0)
 #else
-#define log(level, ...) \
-	NZ::NZLogger::logImpl(level, __FILE__, __FUNCTION__, __LINE__, __VA_ARGS__)
+#define NZLog(level, ...) \
+	NZ::NZLogger::log(level, __FILE__, __FUNCTION__, __LINE__, __VA_ARGS__)
 #endif
 
 namespace NZ {
@@ -25,11 +25,11 @@ namespace NZ {
 		static void setLogLevel(LogLevel level) {
 			m_level = level;
 		}
-		static int logImpl(LogLevel level, const char* file_,
+		static int log(LogLevel level, const char* file_,
 				const char* func, int line, const char* fmt, ...);
 	public:
-		static bool m_color;
+		static bool m_color; // default is true
 	private:
-		static LogLevel m_level;
+		static LogLevel m_level; // default is debug
 	};
 }

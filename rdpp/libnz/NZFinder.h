@@ -28,7 +28,6 @@ namespace NZ {
 	dirent* find();
 	private:
     private:
-	//struct __core;
 	struct __core* m_core;
     };
 }

@@ -52,8 +52,10 @@ namespace NZ {
 	/*
 	 * member functions
 	 */
-	int NZLogger::logImpl(NZLogger::LogLevel level, const char* file_,
+	int NZLogger::log(NZLogger::LogLevel level, const char* file_,
 				const char* func, int line, const char* fmt, ...) {
+		if (level < m_level)
+			return 0;
 		time_t t = time(NULL);
 		struct tm* pt = localtime(&t);
 		const char* lvlprefix;

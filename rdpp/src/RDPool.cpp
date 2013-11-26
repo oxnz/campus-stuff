@@ -13,7 +13,7 @@
 
 #include "RDPool.h"
 #include "RsidGen.h"
-#include "NZLogger.h"
+#include "../libnz/NZLogger.h"
 #include "RHelper.h"
 
 #include <cmath>
@@ -45,7 +45,7 @@ RDP::RDPool::RDPool(size_t nrs, size_t nts, const char* fpath)
       m_nts(nts),
       m_pp(new car_count[nrs*nts])
 {
-    NZLogger::log(NZ::DEBUG, "creating RDP (nts = %u, nrs = %u) ...",
+    NZLog(NZLogger::LogLevel::DEBUG, "creating RDP (nts = %u, nrs = %u) ...",
 			m_nts, m_nrs);
 	if (fpath) {
 		ifstream infile(fpath);
@@ -60,7 +60,7 @@ RDP::RDPool::RDPool(size_t nrs, size_t nts, const char* fpath)
 				++p)
 			*p = 0;
 	}
-    NZLogger::log(NZ::DEBUG, "RDP created");
+    NZLog(NZLogger::LogLevel::DEBUG, "RDP created");
 } catch(...) {
 	if (m_pp)
 		delete m_pp;
@@ -69,7 +69,7 @@ RDP::RDPool::RDPool(size_t nrs, size_t nts, const char* fpath)
 
 car_count* RDP::RDPool::operator[](roadseg_id rsid) {
     if (rsid <= 0 || rsid > m_nrs) {
-        NZLogger::log(NZ::FATAL, "invalid rsid: %u", rsid);
+        NZLog(NZLogger::LogLevel::FATAL, "invalid rsid: %u", rsid);
         return nullptr;
     }
     return m_pp + (rsid-1) * m_nts;
@@ -77,21 +77,21 @@ car_count* RDP::RDPool::operator[](roadseg_id rsid) {
 
 const car_count& RDP::RDPool::operator()(roadseg_id rsid, ts_index tsi) const {
     if (rsid <= 0 || rsid > m_nrs || tsi < 0 || tsi >= m_nts)
-        NZLogger::log(NZ::FATAL,
+        NZLog(NZLogger::LogLevel::FATAL,
 				"invalid rsid or TS index: rsid(%u), tsi(%u)", rsid, tsi);
 	return m_pp[(rsid-1)*m_nts+tsi];
 }
 
 car_count& RDP::RDPool::operator()(roadseg_id rsid, ts_index tsi) {
     if (rsid <= 0 || rsid > m_nrs || tsi < 0 || tsi >= m_nts)
-        NZLogger::log(NZ::FATAL,
+        NZLog(NZLogger::LogLevel::FATAL,
 				"invalid rsid or TS index: rsid(%u), tsi(%u)", rsid, tsi);
 	return m_pp[(rsid-1)*m_nts+tsi];
 }
 
 int RDP::RDPool::process(const std::set<orec_key>* ptsm) {
 	roadseg_id rsid;
-    NZLogger::log(NZ::INFO, "RDP processing ...");
+    NZLog(NZLogger::LogLevel::INFO, "RDP processing ...");
     for (ts_index i = 0; i < m_nts; ++i) {
         for (std::set<orec_key>::const_iterator it =
                  ptsm[i].begin(); it != ptsm[i].end(); ++it) {
@@ -100,7 +100,7 @@ int RDP::RDPool::process(const std::set<orec_key>* ptsm) {
 			 */
 			rsid = *it >> 32;
             if (rsid <= 0 || rsid >= m_nrs) {
-                NZLogger::log(NZ::ERROR, "invalid rsid: %u", *it);
+                NZLog(NZLogger::LogLevel::ERROR, "invalid rsid: %u", *it);
             } else {
                 ++((m_pp + (rsid-1) * m_nts)[i]);
 				/* debug use
@@ -111,7 +111,7 @@ int RDP::RDPool::process(const std::set<orec_key>* ptsm) {
 			}
         }
     }
-    NZLogger::log(NZ::INFO, "RDP process done");    
+    NZLog(NZLogger::LogLevel::INFO, "RDP process done");    
     return 0;
 }
 
@@ -123,8 +123,8 @@ int RDP::RDPool::query(size_t mpts, const char* datadir, size_t nsm) {
 	for (size_t i = 0; i < RHelper::MAX_ENVC_CNT; ++i) {
 		flist[i] = new ifstream(fpath + RHelper::FNAME_OF_ENV[i]);
 		if (!flist[i]->is_open()) {
-			NZLogger::log(NZ::ERROR, "%s: cannot open file %s", __FUNCTION__,
-					fpath + RHelper::FNAME_OF_ENV[i]);
+			NZLog(NZLogger::LogLevel::ERROR, "%s: cannot open file %s", __FUNCTION__,
+					(fpath + RHelper::FNAME_OF_ENV[i]).c_str());
 			return -1;
 		}
 		flist[i]->exceptions(ifstream::failbit | ifstream::badbit
@@ -150,12 +150,12 @@ int RDP::RDPool::query(size_t mpts, const char* datadir, size_t nsm) {
 		t0 = clock();
 		t = yy*10000000000 + mm*100000000 + dd*1000000 + h*10000 + m*100 + s;
 		tsi = RHelper::getTSIndex(mpts, t);
-		NZLogger::log(NZ::DEBUG, "%u, %u, %d, tsi = %d\n",
+		NZLog(NZLogger::LogLevel::DEBUG, "%u, %u, %d, tsi = %d\n",
 				static_cast<gps_x>(x*10000000), static_cast<gps_y>(y*10000000),
 				t, tsi);
 		rsid = RsidGen::get_rsid(x*10000000, y*10000000);
 		if (rsid == RsidGen::INVALID_RSID) {
-			NZLogger::log(NZ::WARNING, "invalid coordinates, %f %f", x, y);
+			NZLog(NZLogger::LogLevel::WARNING, "invalid coordinates, %f %f", x, y);
 			continue;
 		}
 		envi = RHelper::get_envi(t);
@@ -168,7 +168,7 @@ int RDP::RDPool::query(size_t mpts, const char* datadir, size_t nsm) {
 				flist[envi]->read(reinterpret_cast<char*>(&tmp),
 						sizeof(car_count));
 			} catch (ifstream::failure& e) {
-				NZLogger::log(NZ::FATAL, "%s: %s, error code: %d",
+				NZLog(NZLogger::LogLevel::FATAL, "%s: %s, error code: %d",
 						__FUNCTION__, e.what(), e.code());
 			}
 		}
@@ -190,7 +190,7 @@ car_count RDP::RDPool::query(const roadseg_id rsid, const ts_index tsi) const {
 	ifstream infile("out/20121101.rsd");
 	cout << "opening out/20121101.rsd" << endl;
 	if (!infile.is_open()) {
-		NZLogger::log(NZ::FATAL, "open file %s failed", fpath);
+		NZLog(NZLogger::LogLevel::FATAL, "open file %s failed", fpath);
 		return -1;
 	}
 	car_count cnt;
@@ -206,10 +206,10 @@ car_count RDP::RDPool::query(const roadseg_id rsid, const ts_index tsi) const {
 */
 
 int RDP::RDPool::dump(const string& fpath) {
-    NZLogger::log(NZ::NOTICE, "RDP dumping to file [%s]:", fpath);
+    NZLog(NZLogger::LogLevel::INFO, "RDP dumping to file [%s]:", fpath.c_str());
     ofstream outfile(fpath, ios::out|ios::binary);
     if (!outfile.is_open()) {
-        NZLogger::log(NZ::FATAL, "cannot open file [%s]", fpath);
+        NZLog(NZLogger::LogLevel::FATAL, "cannot open file [%s]", fpath.c_str());
         return -1;
     }
     for (roadseg_id i = 0; i < m_nrs; ++i) {
@@ -221,7 +221,7 @@ int RDP::RDPool::dump(const string& fpath) {
     }
     RHelper::print_progress(100);
     outfile.close();
-    NZLogger::log(NZ::INFO, "RDP dump success");
+    NZLog(NZLogger::LogLevel::INFO, "RDP dump success");
     return 0;
 }
 

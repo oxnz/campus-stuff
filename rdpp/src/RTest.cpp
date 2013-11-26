@@ -23,7 +23,7 @@ using namespace std;
 using namespace RHelper;
 
 #include <unistd.h>
-#include "NZLogger.h"
+#include "../libnz/NZLogger.h"
 using NZ::NZLogger;
 
 class T {
@@ -35,23 +35,23 @@ class T {
 
 int test_logger() {
 	T t;
-	NZLogger::log("T: %z", t);
-	NZLogger::log("HELLO< , IDONNOW");
-	NZLogger::log(NZ::NOTICE, "thi si s a notice");
-	NZLogger::log(NZ::FATAL, "*** fatal error");
-	NZLogger::log(NZ::WARNING, "warning: dist");
-	NZLogger::log(NZ::DEBUG, "test debug msg");
-	NZ::NZLogger::setLogLevel(NZ::INFO);
+	NZLog(NZLogger::LogLevel::INFO, "T: %z", t);
+	NZLog(NZLogger::LogLevel::DEBUG, "HELLO< , IDONNOW");
+	NZLog(NZLogger::LogLevel::INFO, "thi si s a notice");
+	NZLog(NZLogger::LogLevel::FATAL, "*** fatal error");
+	NZLog(NZLogger::LogLevel::WARNING, "warning: dist");
+	NZLog(NZLogger::LogLevel::DEBUG, "test debug msg");
+	NZ::NZLogger::setLogLevel(NZLogger::LogLevel::INFO);
 	for (int i = 0; i < 1000000; ++i) {
-		NZLogger::log(NZ::DEBUG, "This is a %s log%d%f", "debug", 123, 12.12);
+		NZLog(NZLogger::LogLevel::DEBUG, "This is a %s log%d%f", "debug", 123, 12.12);
 	}
-	NZLogger::log("IN LOGGER");
-	NZLogger::log(NZ::WARNING, "Warning test");
+	NZLog(NZLogger::LogLevel::INFO, "IN LOGGER");
+	NZLog(NZLogger::LogLevel::WARNING, "Warning test");
 	cout << "log end" << endl;
 	int i = 0;
-	NZLogger::log("abc %s %d %p end", "hello", 123, &i);
+	NZLog(NZLogger::LogLevel::INFO, "abc %s %d %p end", "hello", 123, &i);
 	cout << "log2 end" << endl;
-	NZLogger::log(NZ::ERROR, "This is  a error:%s", "hello");
+	NZLog(NZLogger::LogLevel::ERROR, "This is  a error:%s", "hello");
     return 0;
 }
 

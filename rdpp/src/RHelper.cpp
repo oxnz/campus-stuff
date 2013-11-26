@@ -61,7 +61,7 @@ int find_file_finish(void) {
 }
 
 #include "RHelper.h"
-#include "NZLogger.h"
+#include "../libnz/NZLogger.h"
 
 #include <iostream>
 #include <algorithm>
@@ -75,7 +75,7 @@ int RHelper::find_files(const char *path,
 	string fpath(path);
 	int ret = find_file_init(path, pattern);
 	if (ret) {
-		NZLogger::log(NZ::ERROR, "find_file_init(%s, %s): %s",
+		NZLog(NZLogger::LogLevel::ERROR, "find_file_init(%s, %s): %s",
 				path, pattern, strerror(ret));
 		return -1;
 	}
@@ -90,7 +90,7 @@ int RHelper::find_files(const char *path,
 		olist.push_back(fpath + "/" + fname);
 	}
 	if ((ret = find_file_finish()))
-		NZLogger::log(NZ::ERROR, "find_file_finish(): %s", strerror(ret));
+		NZLog(NZLogger::LogLevel::ERROR, "find_file_finish(): %s", strerror(ret));
     olist.sort();
     return cnt;
 }
@@ -100,7 +100,7 @@ int RHelper::find_files(const char* path,
                         vector<string>& ovec) {
     string fpath(path);
     if (find_file_init(path, pattern)) {
-		NZLogger::log(NZ::ERROR, "find_file_init(%s, %s): %s",
+		NZLog(NZLogger::LogLevel::ERROR, "find_file_init(%s, %s): %s",
 				path, pattern, strerror(errno));
         return -1;
     }
@@ -115,7 +115,8 @@ int RHelper::find_files(const char* path,
         ovec.push_back(fpath + "/" + fname);
     }
     if (find_file_finish())
-		NZLogger::log(NZ::ERROR, "find_file_finish(): %s", strerror(errno));
+		NZLog(NZLogger::LogLevel::ERROR, "find_file_finish(): %s",
+				strerror(errno));
     sort(ovec.begin(), ovec.end());
     return cnt;
 }
@@ -125,17 +126,18 @@ ssize_t readFileIntoMem(char* const pbuf,
                         const size_t capacity,
                         const char* fpath) {
     size_t size;
-    NZLogger::log(NZ::INFO, "reading [%s] ...", fpath);
+    NZLog(NZLogger::LogLevel::INFO, "reading [%s] ...", fpath);
     ifstream infile(fpath);
     if (!infile.is_open()) {
-        NZLogger::log(NZ::ERROR, "open file [%s] failed", fpath);
+        NZLog(NZLogger::LogLevel::ERROR,
+				"open file [%s] failed", fpath);
         return -1;
     }
     infile.seekg(0, ios::end);
     size = infile.tellg();
-    NZLogger::log(NZ::INFO, "file size: %u", size);
+    NZLog(NZLogger::LogLevel::INFO, "file size: %u", size);
     if (size > capacity) {
-        NZLogger::log(NZ::ERROR, "file size is larger than the capacity");
+        NZLog(NZLogger::LogLevel::ERROR, "file size is larger than the capacity");
         return -1;
     }
     infile.seekg(0, ios::beg);
@@ -151,17 +153,18 @@ ssize_t readFileIntoMem(char* const pbuf,
     int ret;
     char* const p = pbuf;
     while (flist.size()) {
-        NZLogger::log(NZ::INFO, "reading [%s] ...", flist.front());
+        NZLog(NZLogger::LogLevel::INFO, "reading [%s] ...",
+				flist.front().c_str());
         ret = readFileIntoMem(p, capacity - size, flist.front().c_str());
 
         if (ret) {
             flist.pop_front();
             size += ret;
         } else if (ret == 0) {
-            NZLogger::log(NZ::INFO, "capacity reached");
+            NZLog(NZLogger::LogLevel::INFO, "capacity reached");
             return size;
         } else {
-            NZLogger::log(NZ::ERROR,
+            NZLog(NZLogger::LogLevel::ERROR,
                           "an error occured while reading file into memory");
             return -1;
         }

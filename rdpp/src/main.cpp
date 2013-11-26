@@ -14,7 +14,9 @@
 #include "RExcept.h"
 #include "RProcessor.h"
 #include "RDPool.h"
-#include "NZLogger.h"
+//#include "NZLogger.h"
+
+#include "../libnz/NZLogger.h"
 
 #include <unistd.h>
 #include <signal.h>
@@ -42,10 +44,10 @@ void signal_handler(int signo, siginfo_t *info, void *ptr) {
     switch (signo) {
     case SIGINT:
         loop = false;
-        NZLogger::log(NZ::WARNING, "catch sigint, please wait a moment");
+        NZLog(NZLogger::LogLevel::WARNING, "catch sigint, please wait a moment");
         break;
     default:
-        NZLogger::log(NZ::ERROR, "unknown signal, signo = %d, skipped", signo);
+        NZLog(NZLogger::LogLevel::ERROR, "unknown signal, signo = %d, skipped", signo);
         break;
     }
 }
@@ -56,7 +58,7 @@ int reg_signal_handler() {
     sigemptyset(&action.sa_mask);
     action.sa_flags = 0;
     if (sigaction(SIGINT, &action, NULL) == -1) {
-		NZLogger::log(NZ::ERROR, "sigaction error: %s", strerror(errno));
+		NZLog(NZLogger::LogLevel::ERROR, "sigaction error: %s", strerror(errno));
         return -1;
     }
 	return 0;
@@ -98,7 +100,7 @@ int help(int ecode = 0) {
 }
 
 int main(int argc, char *argv[]) {
-	NZLogger::setLogLevel(NZ::WARNING);
+	NZLogger::setLogLevel(NZLogger::LogLevel::WARNING);
     int ch;
     size_t bufsize(2*1024*1024), date(0), dcnt(1), mpts(3);
     const char* pIndir(0);
@@ -115,7 +117,7 @@ int main(int argc, char *argv[]) {
             if (bufsize >= 2 && bufsize < 20)
                 bufsize *= 1024*1024;
             else {
-                NZLogger::log(NZ::ERROR, "bad buffer size must be in 2~20");
+                NZLog(NZLogger::LogLevel::ERROR, "bad buffer size must be in 2~20");
                 return -1;
             }
             break;
@@ -124,7 +126,7 @@ int main(int argc, char *argv[]) {
             if (date > 18000000 && date < 99999999)
                 break;
             else {
-                NZLogger::log(NZ::ERROR,
+                NZLog(NZLogger::LogLevel::ERROR,
                               "bad date, should be in 18000000~99999999");
                 return -1;
             }
@@ -136,7 +138,7 @@ int main(int argc, char *argv[]) {
             if (dcnt >= 1 && dcnt <= 31)
                 break;
             else {
-                NZLogger::log(NZ::ERROR, "bad day count, must be in 1~31");
+                NZLog(NZLogger::LogLevel::ERROR, "bad day count, must be in 1~31");
                 return -1;
             }
         case 'o':
@@ -153,13 +155,13 @@ int main(int argc, char *argv[]) {
             if (mpts >= 2 && mpts <= 59 && 24*60 % mpts == 0)
                 break;
             else {
-                NZLogger::log(NZ::ERROR,
+                NZLog(NZLogger::LogLevel::ERROR,
                               "bad minute per time slot, must be 2~59"
                               " && 24*60 mod minPerTS == 0");
                 return -1;
             }
 		case 'v':
-			NZLogger::setLogLevel(NZ::WARNING);
+			NZLogger::setLogLevel(NZLogger::LogLevel::WARNING);
 			break;
 		case 'P':
 			progbar = false;
@@ -182,23 +184,23 @@ int main(int argc, char *argv[]) {
     argv += optind;
 	if (query) {
 		if (!pIndir) {
-			NZLogger::log(NZ::ERROR, "data directory not specified");
+			NZLog(NZLogger::LogLevel::ERROR, "data directory not specified");
 			return -1;
 		}
 		return RDP::RDPool::query(mpts, pIndir);
 	}
     if (!pIndir || !pOutdir) {
-        NZLogger::log(NZ::ERROR, "indir or outdir is null");
+        NZLog(NZLogger::LogLevel::ERROR, "indir or outdir is null");
         return -1;
     }
     if (!date) {
-        NZLogger::log(NZ::ERROR, "start date not specified");
+        NZLog(NZLogger::LogLevel::ERROR, "start date not specified");
         return -1;
     }
-    NZLogger::log(NZ::DEBUG, "input dir: %s, output dir: %s\n",
+    NZLog(NZLogger::LogLevel::DEBUG, "input dir: %s, output dir: %s\n",
 			pIndir, pOutdir);
 	if (reg_signal_handler()) {
-		NZLogger::log(NZ::FATAL, "failed to register signal handler");
+		NZLog(NZLogger::LogLevel::FATAL, "failed to register signal handler");
 		return -1;
 	}
 
@@ -206,19 +208,19 @@ int main(int argc, char *argv[]) {
     try {
         rdpp = new R::Processor(pIndir, pOutdir, mpts, bufsize, process);
     } catch (std::logic_error& e) {
-        NZLogger::log(NZ::ERROR, "logic error -> %s", e.what());
+        NZLog(NZLogger::LogLevel::ERROR, "NZLogic error -> %s", e.what());
         return -1;
     } catch (std::bad_alloc& e) {
-        NZLogger::log(NZ::ERROR, "alloc error -> %s", e.what());
+        NZLog(NZLogger::LogLevel::ERROR, "alloc error -> %s", e.what());
         return -1;
     } catch (std::runtime_error& e) {
-        NZLogger::log(NZ::ERROR, "runtime error -> %s", e.what());
+        NZLog(NZLogger::LogLevel::ERROR, "runtime error -> %s", e.what());
         return -1;
     } catch (std::exception& e) {
-        NZLogger::log(NZ::ERROR, "unknown error -> ", e.what());
+        NZLog(NZLogger::LogLevel::ERROR, "unknown error -> ", e.what());
         return -1;
     } catch (...) {
-        NZLogger::log(NZ::ERROR, "Unknown error happend, construct failed");
+        NZLog(NZLogger::LogLevel::ERROR, "Unknown error happend, construct failed");
         return -1;
     }
 
@@ -251,10 +253,10 @@ int main(int argc, char *argv[]) {
 				good_weekday,
 			};
 			for (size_t i = 0; i < 4; ++i) {
-				NZLogger::log(NZ::NOTICE, "process index: %d", i);
+				NZLog(NZLogger::LogLevel::INFO, "process index: %d", i);
 				ret = rdpp->process(tlist[i], progbar);
 				if (ret) {
-					NZLogger::log(NZ::ERROR, "process failed, start by %d",
+					NZLog(NZLogger::LogLevel::ERROR, "process failed, start by %d",
 							tlist[i].front());
 					return ret;
 				}
@@ -263,18 +265,18 @@ int main(int argc, char *argv[]) {
             ret = rdpp->process(date, dcnt, progbar);
 #endif
         } catch (std::exception& e) {
-            NZLogger::log(NZ::FATAL, "RDPP process failed");
+            NZLog(NZLogger::LogLevel::FATAL, "RDPP process failed");
             ret = -1;
         } catch (...) {
-            NZLogger::log(NZ::FATAL, "unknown exception occured");
+            NZLog(NZLogger::LogLevel::FATAL, "unknown exception occured");
             ret = -1;
         }
         if (ret == -1) {
             loop = false;
-            NZLogger::log(NZ::ERROR, "RDPP process failed, error code: %d",
+            NZLog(NZLogger::LogLevel::ERROR, "RDPP process failed, error code: %d",
 					ret);
         } else if (ret == 1) {
-            NZLogger::log(NZ::INFO, "no more files to be processed");
+            NZLog(NZLogger::LogLevel::INFO, "no more files to be processed");
             loop = false;
             ret = 0;
         }

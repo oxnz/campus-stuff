@@ -15,6 +15,8 @@ AM_INIT_AUTOMAKE([-Wall -Werror])
 
 # Checks for programs.
 AC_CHECK_PROGS([CXX], [clang++ g++], [:])
+AC_CHECK_PROGS([CC], [clang gcc], [:])
+#AC_CHECK_PROGS([AR], [gnu-ar ar], [:])
 if test "$CXX" = :; then
 	AC_MSG_ERROR([This package needs clang++ or g++ to compile], [1])
 fi
@@ -26,6 +28,7 @@ AM_PROG_AR
 
 # Checks for libraries.
 LT_INIT
+AC_PROG_LIBTOOL
 
 # Checks for header files.
 AC_CHECK_HEADERS([stdint.h stdio.h stdlib.h string.h unistd.h dirent.h errno.h sys/types.h])
@@ -49,6 +52,6 @@ AC_CHECK_FUNCS([regcomp strerror strstr strtoul strtoull])
 AC_CONFIG_FILES([Makefile
 				 src/Makefile
                  tools/Makefile
-				 exp/Makefile
+				 libnz/Makefile
 				 ])
 AC_OUTPUT

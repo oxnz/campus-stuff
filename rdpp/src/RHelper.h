@@ -21,7 +21,7 @@
 #include <cerrno>
 #include "RTypes.h"
 
-#include "NZLogger.h"
+#include "../libnz/NZLogger.h"
 
 namespace RHelper {
 	const size_t MAX_ENVC_CNT(4);	// environ conditions count
@@ -58,7 +58,7 @@ namespace RHelper {
 	inline size_t get_envi(const gps_time& t) {
 		time_t rawtime;
 		if (time(&rawtime) == -1) {
-			NZ::NZLogger::log(NZ::ERROR, "%s: %s", __FUNCTION__,
+			NZLog(NZ::NZLogger::LogLevel::ERROR, "%s: %s", __FUNCTION__,
 					strerror(errno));
 			return -1;
 		}
@@ -67,7 +67,7 @@ namespace RHelper {
 		timeinfo->tm_mon = t/100000000%100 - 1;
 		timeinfo->tm_mday = t/1000000%100;
 		mktime(timeinfo);
-		NZ::NZLogger::log(NZ::DEBUG, "%d-%d-%d: %d(%d %d %d)", t/10000000000,
+		NZLog(NZ::NZLogger::LogLevel::DEBUG, "%d-%d-%d: %d(%d %d %d)", t/10000000000,
 			t/100000000%100, t/1000000%100, timeinfo->tm_wday,
 			timeinfo->tm_year, timeinfo->tm_mon, timeinfo->tm_mday);
 		if (!timeinfo->tm_wday) { // sunday good condition

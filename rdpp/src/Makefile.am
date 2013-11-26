@@ -15,15 +15,15 @@ rdpp_SOURCES = main.cpp \
 			   RsidGen.h \
 			   RTypes.h \
 			   RConstant.h \
-			   NZLogger.h \
-			   NZLogger.cpp \
 			   NZUtils.h
+
+rdpp_LDADD = ../libnz/libnz.a
 
 test_SOURCES = RTest.cpp \
 			   RHelper.h \
 			   RHelper.cpp \
 			   RDPool.h \
 			   RDPool.cpp \
-			   RsidGen.h \
-			   NZLogger.h \
-			   NZLogger.cpp
+			   RsidGen.h
+
+test_LDADD = ../libnz/libnz.a

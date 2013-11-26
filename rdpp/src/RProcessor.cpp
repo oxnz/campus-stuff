@@ -11,16 +11,12 @@
  * Last-update: 2013-11-07 22:10:12
  */
 
-#ifdef NDEBUG
-	#define NZLogger(...)
-#endif
-
 #include "RProcessor.h"
 #include "RsidGen.h"
 #include "RConstant.h"
 #include "RHelper.h"
 
-#include "NZLogger.h"
+#include "../libnz/NZLogger.h"
 
 #include <cstring>
 #include <iostream>
@@ -102,12 +98,12 @@ inline int R::Processor::processOrigRecord(const in_rec& rec, bool echo) {
     orec_key key(RsidGen::get_rsid(rec.x*10000000, rec.y*10000000, false));
      // @advice: skip the wrong road id
 	if (key == RsidGen::INVALID_RSID) {
-//        NZLogger::log(NZ::WARNING, "invalid road segment ID");
+//        NZLog(NZLogger::LogLevel::WARNING, "invalid road segment ID");
 		return 0;
 	}
 	key = (key << 32) | rec.cid;
     if (abs(static_cast<int64_t>(rec.time - m_tsp)/10000)) {
-        NZLogger::log(NZ::DEBUG, "invalid timestamp: " + to_string(rec.time)
+        NZLog(NZLogger::LogLevel::DEBUG, "invalid timestamp: " + to_string(rec.time)
                       + " - current time: " + to_string(m_tsp) + " = "
                       + to_string(abs(static_cast<int64_t>(rec.time - m_tsp)
                                       /10000)));
@@ -155,7 +151,7 @@ int R::Processor::processFileBuffer() {
             ;
         irec.valid = *(++p) - 0x30;
         if (*(++p) != 0x0d) { // simple check if EOL
-			NZLogger::log(NZ::ERROR,
+			NZLog(NZLogger::LogLevel::ERROR,
 					"parse buffer error(%d, %d, %d, %d, %d, %d, %d, %d, %d)"
 					", press s to skip or other to abort",
 					irec.cid, irec.event, irec.status, irec.time, irec.x,
@@ -168,7 +164,7 @@ int R::Processor::processFileBuffer() {
         if (!irec.valid || irec.status != NON_OCCUPIED) continue;
         // skip invalid ts index
 		if (abs(static_cast<int64_t>(irec.time - m_tsp)/10000)) {
-			NZLogger::log(NZ::WARNING, "invalid time stamp: %d(tsp=%d)",
+			NZLog(NZLogger::LogLevel::WARNING, "invalid time stamp: %d(tsp=%d)",
 					irec.time, m_tsp);
 			continue;
 		} else // update ts pointer
@@ -176,7 +172,7 @@ int R::Processor::processFileBuffer() {
 		// CAUTION: true is equidisant
     	orec_key key(RsidGen::get_rsid(irec.x, irec.y));
 		if (key == RsidGen::INVALID_RSID) { // skip invalid rsid
-			NZLogger::log(NZ::WARNING,
+			NZLog(NZLogger::LogLevel::WARNING,
 					"invalid rsid: %d(coord: %d %d), skipped",
 					key, irec.x, irec.y);
 			continue;
@@ -189,21 +185,21 @@ int R::Processor::processFileBuffer() {
 }
 
 ssize_t R::Processor::readFileIntoMem(const char* fpath) {
-    NZLogger::log(NZ::INFO, "reading [%s] ...", fpath);
+    NZLog(NZLogger::LogLevel::INFO, "reading [%s] ...", fpath);
     ifstream infile(fpath);
     if (!infile.is_open()) {
-        NZLogger::log(NZ::ERROR, "open file [%s] failed", fpath);
+        NZLog(NZLogger::LogLevel::ERROR, "open file [%s] failed", fpath);
         return -1;
     }
     infile.seekg(0, ios::end);
     size_t fsize = infile.tellg();
     if (fsize > m_nBufSize) {
-        NZLogger::log(NZ::ERROR, "file size is larger than the buffer size");
+        NZLog(NZLogger::LogLevel::ERROR, "file size is larger than the buffer size");
         return -1;
     }
     m_pFileBufEnd = m_pFileBuffer + fsize;
     m_pCurFBufPos = (char *)m_pFileBuffer;
-    NZLogger::log(NZ::INFO, "file size: %l", fsize);
+    NZLog(NZLogger::LogLevel::INFO, "file size: %l", fsize);
     infile.seekg(0, ios::beg);
     infile.read((char *)m_pFileBuffer, fsize);
     infile.close();
@@ -219,17 +215,18 @@ int R::Processor::dumpRecords() {
     string fpath = m_outdir + to_string(m_tsp/1000000) + ".dat";
     ofstream outfile(fpath.c_str(), ios::out|ios::binary);
     if (!outfile.is_open()) {
-        NZLogger::log(NZ::FATAL, "cannot open file [%s]", fpath);
+        NZLog(NZLogger::LogLevel::FATAL, "cannot open file [%s]", fpath.c_str());
         return -1;
     }
     ofstream outjson(fpath.append(".js").c_str(), ios::out);
     if (!outjson.is_open()) {
-        NZLogger::log(NZ::FATAL, "cannot open file [%s]", fpath+".js");
+        NZLog(NZLogger::LogLevel::FATAL, "cannot open file [%s]",
+				(fpath+".js").c_str());
         return -1;
     }
     outjson << "var data" << m_tsp/1000000 << " = new Array(" << endl;
-    NZLogger::log(NZ::INFO, "dumping to file [%s] ...", fpath);
-    NZLogger::log(NZ::INFO, "dumping to file [%s.js] ...", fpath);
+    NZLog(NZLogger::LogLevel::INFO, "dumping to file [%s] ...", fpath.c_str());
+    NZLog(NZLogger::LogLevel::INFO, "dumping to file [%s.js] ...", fpath.c_str());
 	
 	cout << "\t\t\tstatistics of day: " << m_tsp/1000000 << endl << 
 		"------------------------------------------------------------------------";
@@ -270,7 +267,8 @@ int R::Processor::dumpRecords() {
     outfile.close();
     outjson << ");" << endl;
     outjson.close();
-    NZLogger::log(NZ::INFO, "dump to file [%s] successfully", fpath);
+    NZLog(NZLogger::LogLevel::INFO, "dump to file [%s] successfully",
+			fpath.c_str());
     return 0;
 }
 
@@ -283,42 +281,43 @@ int R::Processor::dumpRecords() {
  * 	-o int: { 1: no file was found, 0: success, -1: error }
  */
 int R::Processor::process(uint32_t date, bool progbar) {
-	NZLogger::log(NZ::NOTICE, "processing day %u", date);
+	NZLog(NZLogger::LogLevel::INFO, "processing day %u", date);
 	int ret(0);
 	m_tsp = date*1000000;
 	string indir = m_indir + to_string(date);
 	ret = RHelper::find_files(indir.c_str(), to_string(date/100).c_str(),
 			m_fileList);
 	if (ret == -1) {
-		NZLogger::log(NZ::FATAL, "find files error");
+		NZLog(NZLogger::LogLevel::FATAL, "find files error");
 		return -1;
 	} else if (!ret) {
-		NZLogger::log(NZ::WARNING, "no file was found");
+		NZLog(NZLogger::LogLevel::WARNING, "no file was found");
 		return 1;
 	}
 	size_t fcnt(ret);
 	while (m_fileList.size()) {
 		if (progbar)
 			RHelper::print_progress((fcnt-m_fileList.size())*100/fcnt);
-		NZLogger::log(NZ::INFO, "processing %s", m_fileList.front());
+		NZLog(NZLogger::LogLevel::INFO, "processing %s",
+				m_fileList.front().c_str());
 		if (readFileIntoMem(m_fileList.front().c_str()) <= 0) {
-			NZLogger::log(NZ::ERROR, "read file failed");
+			NZLog(NZLogger::LogLevel::ERROR, "read file failed");
 			return -1;
 		}
 		m_fileList.pop_front();
 		ret = processFileBuffer();
 		if (ret == -1) {
-			NZLogger::log(NZ::ERROR, "process file buffer failed");
+			NZLog(NZLogger::LogLevel::ERROR, "process file buffer failed");
 			return -1;
 		}
 	}
 	if (progbar)
 		RHelper::print_progress(100);
 	if (m_bProcess && m_pRDPool->process(m_pTSPool)) {
-		NZLogger::log(NZ::FATAL, "RDP process failed, skipped");
+		NZLog(NZLogger::LogLevel::FATAL, "RDP process failed, skipped");
 	}
 	if (dumpRecords()) {
-		NZLogger::log(NZ::FATAL, "dump to file failed");
+		NZLog(NZLogger::LogLevel::FATAL, "dump to file failed");
 		return -1;
 	}
 	return 0;
@@ -343,13 +342,13 @@ int R::Processor::process(std::list<uint32_t>& dates, bool progbar) {
 				m_fileList);
 		m_tsp *= 1000000;
 		if (ret == -1) {
-			NZLogger::log(NZ::FATAL, "find files error");
+			NZLog(NZLogger::LogLevel::FATAL, "find files error");
             return -1;
         } else if (!ret) {
-            NZLogger::log(NZ::WARNING, "no file was found");
+            NZLog(NZLogger::LogLevel::WARNING, "no file was found");
             return 1;
         } else {
-            NZLogger::log(NZ::NOTICE, "processing day %u, %u files, m_tsp = %u",
+            NZLog(NZLogger::LogLevel::INFO, "processing day %u, %u files, m_tsp = %u",
 					m_tsp/1000000, ret, m_tsp);
         }
 
@@ -358,32 +357,32 @@ int R::Processor::process(std::list<uint32_t>& dates, bool progbar) {
             if (progbar) {
                 RHelper::print_progress((fcnt - m_fileList.size())*100/fcnt);
             }
-            NZLogger::log(NZ::INFO, "processing %s", m_fileList.front());
+            NZLog(NZLogger::LogLevel::INFO, "processing %s", m_fileList.front());
             if (readFileIntoMem(m_fileList.front().c_str()) <= 0) {
-                NZLogger::log(NZ::ERROR, "read file into memory failed");
+                NZLog(NZLogger::LogLevel::ERROR, "read file into memory failed");
                 return -1;
             }
             m_fileList.pop_front();
             ret = processFileBuffer();
             if (ret == -1) {
-                NZLogger::log(NZ::ERROR, "process file buffer failed");
+                NZLog(NZLogger::LogLevel::ERROR, "process file buffer failed");
                 return -1;
             }
         }
         if (progbar)
             RHelper::print_progress(100);
         if (m_bProcess && m_pRDPool->process(m_pTSPool)) {
-            NZLogger::log(NZ::FATAL, "RDP process failed, skipped");
+            NZLog(NZLogger::LogLevel::FATAL, "RDP process failed, skipped");
         }
         if (dumpRecords()) {
-            NZLogger::log(NZ::FATAL, "dump to file failed");
+            NZLog(NZLogger::LogLevel::FATAL, "dump to file failed");
             return -1;
         }*/
 	}
-	NZLogger::log(NZ::NOTICE, "DO NOT FORGET TO UNCOMMENT THIS");
+	NZLog(NZLogger::LogLevel::INFO, "DO NOT FORGET TO UNCOMMENT THIS");
     if (m_bProcess && m_pRDPool->dump(m_outdir + to_string(m_tsp/1000000)
                                       + ".rsd")) {
-        NZLogger::log(NZ::FATAL, "RDP dump failed");
+        NZLog(NZLogger::LogLevel::FATAL, "RDP dump failed");
         return ret;
     }
     
@@ -406,13 +405,13 @@ int R::Processor::process(uint32_t date, size_t len, bool progbar) {
                          to_string(date/100).c_str(),
                          m_fileList);
         if (ret == -1) {
-            NZLogger::log(NZ::FATAL, "find files error");
+            NZLog(NZLogger::LogLevel::FATAL, "find files error");
             return -1;
         } else if (!ret) {
-            NZLogger::log(NZ::WARNING, "no file was found");
+            NZLog(NZLogger::LogLevel::WARNING, "no file was found");
             return 1;
         } else {
-            NZLogger::log(NZ::NOTICE, "processing day %u, %u files, m_tsp = %u",
+            NZLog(NZLogger::LogLevel::INFO, "processing day %u, %u files, m_tsp = %u",
 					date, ret, m_tsp);
         }
 
@@ -421,32 +420,33 @@ int R::Processor::process(uint32_t date, size_t len, bool progbar) {
             if (progbar) {
                 RHelper::print_progress((fcnt - m_fileList.size())*100/fcnt);
             }
-            NZLogger::log(NZ::INFO, "processing %s", m_fileList.front());
+            NZLog(NZLogger::LogLevel::INFO, "processing %s",
+					m_fileList.front().c_str());
             if (readFileIntoMem(m_fileList.front().c_str()) <= 0) {
-                NZLogger::log(NZ::ERROR, "read file into memory failed");
+                NZLog(NZLogger::LogLevel::ERROR, "read file into memory failed");
                 return -1;
             }
             m_fileList.pop_front();
             ret = processFileBuffer();
             if (ret == -1) {
-                NZLogger::log(NZ::ERROR, "process file buffer failed");
+                NZLog(NZLogger::LogLevel::ERROR, "process file buffer failed");
                 return -1;
             }
         }
         if (progbar)
             RHelper::print_progress(100);
         if (m_bProcess && m_pRDPool->process(m_pTSPool)) {
-            NZLogger::log(NZ::FATAL, "RDP process failed, skipped");
+            NZLog(NZLogger::LogLevel::FATAL, "RDP process failed, skipped");
         }
         if (dumpRecords()) {
-            NZLogger::log(NZ::FATAL, "dump to file failed");
+            NZLog(NZLogger::LogLevel::FATAL, "dump to file failed");
             return -1;
         }
 	}
-	NZLogger::log(NZ::NOTICE, "DO NOT FORGET TO UNCOMMENT THIS");
+	NZLog(NZLogger::LogLevel::INFO, "DO NOT FORGET TO UNCOMMENT THIS");
     if (m_bProcess && m_pRDPool->dump(m_outdir + to_string(m_tsp/1000000)
                                       + ".rsd")) {
-        NZLogger::log(NZ::FATAL, "RDP dump failed");
+        NZLog(NZLogger::LogLevel::FATAL, "RDP dump failed");
         return ret;
     }
     

@@ -123,18 +123,20 @@ int test_finder() {
 }
 
 #include "NZLogger.h"
-int test_logger() {
+int test_NZLogger() {
 	using NZ::NZLogger;
-	log(NZLogger::LogLevel::DEBUG, "HELLO %s %c", "world", '!');
-	log(NZLogger::LogLevel::INFO, "HELLO %s %c", "world", '!');
-	log(NZLogger::LogLevel::WARNING, "HELLO");
-	log(NZLogger::LogLevel::ERROR, "HELLO");
-	log(NZLogger::LogLevel::FATAL, "HELLO");
+	NZLogger::setLogLevel(NZLogger::LogLevel::INFO);
+	NZLogger::m_color = false;
+	NZLog(NZLogger::LogLevel::DEBUG, "HELLO %s %c", "world", '!');
+	NZLog(NZLogger::LogLevel::INFO, "HELLO %s %c", "world", '!');
+	NZLog(NZLogger::LogLevel::WARNING, "HELLO");
+	NZLog(NZLogger::LogLevel::ERROR, "HELLO");
+	NZLog(NZLogger::LogLevel::FATAL, "HELLO");
 	return 0;
 }
 
 int main() {
-	return test_logger();
+	return test_NZLogger();
 	return test_finder();
 	assert(0 == 1);
 	return test_os();
