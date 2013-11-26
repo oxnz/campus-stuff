@@ -99,7 +99,7 @@ int test_str() {
 
 int test_os() {
 	char c = cout.fill('0');
-	assert(c == '0');
+	NZAssert(c == '0');
 	cout << setw(4) << 1 << endl;
 	return 0;
 }
@@ -138,6 +138,6 @@ int test_NZLogger() {
 int main() {
 	return test_NZLogger();
 	return test_finder();
-	assert(0 == 1);
+	NZAssert(0 == 1);
 	return test_os();
 }

@@ -1,16 +1,16 @@
 #pragma once
 
 #ifdef NDEBUG
-#define assert(cond) ((void)0)
+#define NZAssert(cond) ((void)0)
 #else
 
-#define assert(cond) \
-	((cond) ? (void)0 : NZUtils::assertImpl(#cond, __FILE__, __LINE__))
+#define NZAssert(cond) \
+	((cond) ? (void)0 : NZUtils::assert(#cond, __FILE__, __LINE__))
 #endif
 
 #include <iostream>
 namespace NZUtils {
-	inline void assertImpl(const char* cond, const char* file_, int line) {
+	inline void assert(const char* cond, const char* file_, int line) {
 		std::cout << "assert(" << cond << ") failed, file: " << file_
 			<< ", line: " << line << std::endl;
 		exit(1);
