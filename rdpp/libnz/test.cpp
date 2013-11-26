@@ -105,9 +105,10 @@ int test_os() {
 }
 
 #include "NZFinder.h"
+#include <vector>
 int test_finder() {
 	try {
-		NZ::NZFinder finder("./", "Except");
+		NZ::NZFinder finder("./", "e");
 		dirent* dp;
 		while ((dp = finder.find())) {
 			cout << dp->d_name << endl;
@@ -126,18 +127,28 @@ int test_finder() {
 int test_NZLogger() {
 	using NZ::NZLogger;
 	NZLogger::setLogLevel(NZLogger::LogLevel::INFO);
-	NZLogger::m_color = false;
 	NZLog(NZLogger::LogLevel::DEBUG, "HELLO %s %c", "world", '!');
 	NZLog(NZLogger::LogLevel::INFO, "HELLO %s %c", "world", '!');
 	NZLog(NZLogger::LogLevel::WARNING, "HELLO");
 	NZLog(NZLogger::LogLevel::ERROR, "HELLO");
 	NZLog(NZLogger::LogLevel::FATAL, "HELLO");
+	NZLogger::m_color = false;
+	NZLog(NZLogger::LogLevel::FATAL, "HELLO");
+	return 0;
+}
+
+int test_confirm() {
+	if (NZUtils::NZConfirm("Delete file: abc.test")) {
+		cout << "YES" << endl;
+	} else
+		cout << "NO" << endl;
 	return 0;
 }
 
 int main() {
-	return test_NZLogger();
-	return test_finder();
-	NZAssert(0 == 1);
-	return test_os();
+	test_NZLogger();
+	//test_confirm();
+	test_finder();
+	NZAssert(1 == 1);
+	test_os();
 }

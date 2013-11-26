@@ -30,4 +30,18 @@ namespace NZUtils {
 		if (percent == 100)
 			std::cout << std::endl;
 	}
+	inline bool NZConfirm(const std::string& prompt) {
+		std::cout << prompt << "? [Y/N]:";
+		char c;
+		while (std::cin >> c) {
+			if (c == 'Y' || c == 'y')
+				return true;
+			else if (c == 'N' || c == 'n')
+				return false;
+			else {
+				std::cout << "[Y/N]: ";
+			}
+		}
+		return false;
+	}
 }

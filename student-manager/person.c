@@ -26,7 +26,8 @@ static void* Person_ctor(void* __self, va_list* app)
 	self->gender = gender;
 	self->age = age;
 #ifndef NDEBUG
-	printf("Person name: [%s]\tage: [%d]\tgender:[%c]\n", self->name, (unsigned int)self->age, self->gender);
+	printf("Person name: [%s]\tage: [%d]\tgender:[%c]\n", self->name,
+			(unsigned int)self->age, self->gender);
 #endif
 	return self;
 }
@@ -56,7 +57,8 @@ static int Person_puto(void* __self, FILE *fp)
 {
 	const struct Person* self = __self;
 
-	fprintf(fp, "[%s]\t[%lu]\t[%c]\n", self->name, (unsigned long)self->age, self->gender);
+	fprintf(fp, "[%s]\t[%lu]\t[%c]\n", self->name, (unsigned long)self->age,
+			self->gender);
 	return 0;
 }
 

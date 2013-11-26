@@ -6,6 +6,7 @@ bin_PROGRAMS = microcc
 noinst_PROGRAMS = test
 
 microcc_SOURCES = main.cpp \
+				  errproc.cpp \
 				  microcc.cpp \
 				  token.cpp \
 				  preproc.cpp \
