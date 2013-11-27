@@ -16,29 +16,20 @@
  * 	4 Blink
  * 	5 Reverse
  * 	6 Hidden
- * {fg}:
- *  30 Black
- *  31 Red
- *  32 Green
- *  33 Yellow
- *  34 Blue
- *  35 Magenta
- *  36 Cyan
- *  37 White
- * {bg}
- *  40 Black
- *  41 Red
- *  42 Green
- *  43 Yellow
- *  44 Blue
- *  45 Magenta
- *  46 Cyan
- *  47 White
+ * {color	fg	bg}:
+ *  Black	30	40
+ *  Red		31	41
+ *  Green	32	42
+ *  Yellow	33	43
+ *  Blue	34	44
+ *  Magenta	35	45
+ *  Cyan	36	46
+ *  White	37	47
  * format: "\x1B[{attr};{fg};{bg}m\x1B[0m"
  */
 #include "NZLogger.h"
 
-//#include <stdarg.h>
+#include <cstdarg>
 #include <cstdio>
 #include <ctime>
 

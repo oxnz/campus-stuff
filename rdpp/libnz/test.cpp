@@ -145,7 +145,17 @@ int test_confirm() {
 	return 0;
 }
 
+int test_hexdump() {
+	const unsigned char a[] = "abcdefghijklmnopqrstuvwxyzabcdefghijkl"
+		"mnopqrstuvwxyzabc\00\01\02\12\x55\xFF";
+	cout << "tested " << setw(8) << sizeof(a)/sizeof(*a) << " elements" << endl;
+	NZUtils::NZHexDump(a, sizeof(a)/sizeof(*a), 16, 2, false);
+	cout << "tested " << setw(8) << sizeof(a)/sizeof(*a) << " elements" << endl;
+	return 0;
+}
+
 int main() {
+	return test_hexdump();
 	test_NZLogger();
 	//test_confirm();
 	test_finder();

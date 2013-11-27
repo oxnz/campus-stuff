@@ -21,7 +21,8 @@
 namespace NZ {
 	class NZLogger {
 	public:
-		enum class LogLevel { DEBUG, INFO, WARNING, ERROR, FATAL };
+		enum class LogLevel : unsigned int
+		{ DEBUG, INFO, WARNING, ERROR, FATAL };
 		static void setLogLevel(LogLevel level) {
 			m_level = level;
 		}
