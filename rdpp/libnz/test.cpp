@@ -132,7 +132,7 @@ int test_NZLogger() {
 	NZLog(NZLogger::LogLevel::WARNING, "HELLO");
 	NZLog(NZLogger::LogLevel::ERROR, "HELLO");
 	NZLog(NZLogger::LogLevel::FATAL, "HELLO");
-	NZLogger::m_color = false;
+	NZLogger::setColor(false);
 	NZLog(NZLogger::LogLevel::FATAL, "HELLO");
 	return 0;
 }
@@ -147,7 +147,7 @@ int test_confirm() {
 
 int test_hexdump() {
 	const unsigned char a[] = "abcdefghijklmnopqrstuvwxyzabcdefghijkl"
-		"mnopqrstuvwxyzabc\00\01\02\12\x55\xFF";
+		"mnopqrstuvwxyzabc\00\01\02\12\x55\xFF,之间的变换表";
 	cout << "tested " << setw(8) << sizeof(a)/sizeof(*a) << " elements" << endl;
 	NZUtils::NZHexDump(a, sizeof(a)/sizeof(*a), 16, 2, false);
 	cout << "tested " << setw(8) << sizeof(a)/sizeof(*a) << " elements" << endl;
@@ -155,7 +155,7 @@ int test_hexdump() {
 }
 
 int main() {
-	return test_hexdump();
+	test_hexdump();
 	test_NZLogger();
 	//test_confirm();
 	test_finder();

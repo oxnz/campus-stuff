@@ -5,6 +5,7 @@ noinst_LIBRARIES = libnz.a
 noinst_PROGRAMS = test
 
 libnz_a_SOURCES = NZUtils.h \
+			   NZUtils.cpp \
 			   NZExcept.h \
 			   NZFinder.h \
 			   NZFinder.cpp \

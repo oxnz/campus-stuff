@@ -26,11 +26,16 @@ namespace NZ {
 		static void setLogLevel(LogLevel level) {
 			m_level = level;
 		}
+		static inline void setColor(bool color) {
+			m_color = color;
+		}
+		static inline bool color() {
+			return m_color;
+		}
 		static int log(LogLevel level, const char* file_,
 				const char* func, int line, const char* fmt, ...);
-	public:
-		static bool m_color; // default is true
 	private:
+		static bool m_color; // default is true
 		static LogLevel m_level; // default is debug
 	};
 }
