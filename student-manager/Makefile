@@ -9,8 +9,10 @@ OBJS	=	main.o \
 		utility.o
 
 TARGET	=	stu-manager
+
 $(TARGET): $(OBJS)
-	$(CC) -o $@ $^ $(FLAGS)
+	$(CC) -o $@ $^ $(FLAGS) $(LDFLAGS)
+
 %.c.o:
 	$(CC) -c
 

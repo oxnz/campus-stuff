@@ -5,7 +5,7 @@ struct Person
 {
 	const void* class;
 	char *name;
-	int age;
+	unsigned int age;
 	char gender;
 };
 
