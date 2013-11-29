@@ -168,8 +168,12 @@ int RDP::RDPool::query(size_t mpts, const char* datadir, size_t nsm) {
 				flist[envi]->read(reinterpret_cast<char*>(&tmp),
 						sizeof(car_count));
 			} catch (ifstream::failure& e) {
+				/*
 				NZLog(NZLogger::LogLevel::FATAL, "%s: %s, error code: %d",
 						__FUNCTION__, e.what(), e.code());
+						*/
+				NZLog(NZLogger::LogLevel::FATAL, "%s: %s",
+						__FUNCTION__, e.what());
 			}
 		}
 		p = 1 - exp(cnt*(-1.0)/(RHelper::DCNT_OF_ENV[envi]*nsm));
