@@ -1,10 +1,27 @@
 #include "NZUtils.h"
 
 #include <cstddef>
+#include <cstring>
 #include <cctype>
 #include <iomanip>
 
 using namespace std;
+
+void NZUtils::printProgress(size_t percent, const char* hint) {
+	if (!hint || strlen(hint) > 20)
+		hint = "Progress:";
+	char buf[51] = "--------------------------------------------------";
+	/*
+	  if (percent%2)
+	  buf[(percent+1)>>1] = '>';
+	*/
+	for (size_t i = 0; i < percent; ++i) {
+		buf[i/2] = '=';
+	}
+	std::cout << '\r' << hint << ": [" << buf << "] " << percent << "%";
+	if (percent == 100)
+		std::cout << std::endl;
+}
 
 void NZUtils::NZHexDump(const uint8_t* p,
                         size_t len,
