@@ -4,6 +4,12 @@
 using namespace std;
 using namespace MICROCC;
 
+typedef struct Position {
+	uint32_t row;
+	uint32_t col;
+	uint32_t offset;
+} Position;
+
 int MICROCC::lex(const char* buf, size_t len, TokenTable& toktbl) {
 	for (size_t i = 0; i < len;) {
 		TokenType type;
@@ -155,12 +161,10 @@ int MICROCC::lex(const char* buf, size_t len, TokenTable& toktbl) {
 					break;
 				case ' ':
 				case '\t':
+				case '\r': // windows \r\n
 				case '\n':
-					if (toktbl.back().m_type == TokenType::SPACE) {
-						++i;
-						continue;
-					}
-					type = TokenType::SPACE;
+					/* skip any white space or newline */
+					++i; continue;
 					break;
 				case ',':
 					type = TokenType::COMMA;
