@@ -1,27 +1,33 @@
 /*
  * File: syntax.cpp
  */
+
 /*
+ * <microc> ::= <program> // accpet sign
  * <program> ::= <func><program> | <stmt><program> | <main_func>
- * <if_stmt> ::= if <condition> <stmt> (else <stmt>) fi
- * <for_stmt> ::= for (<declaration>; <condition>; <stmt>) <stmt>
- * <while_stmt> ::= while (<condition>) <stmt>
+ * <if_stmt> ::= if <condition> <stmt> [else <stmt>] fi
+ * <for_stmt> ::= for (<declaration>; <condition>; <stmt>) <block>
+ * <while_stmt> ::= while (<condition>) <block>
+ * <block> ::= '{' <stmts> '}'
  * <do_stmt> ::= do stmt while (<condition>);
- * <condition> ::= <expresstion> (>|>=|<|<=|!= <expr>)
- * <expr> ::= <expr>(+|-)<term> | -<term> | <term>
- * <term> ::= <term>(*|/|%)<factor> | <factor>
+ * <condition> ::= <expresstion> {>|>=|<|<=|!= <expr>}
+ * <expr> ::= <expr>+<term> | <term>-<term> | -<term> | <term>
+ * <term> ::= <term>*<factor> | <term>/<factor> | <term>%<factor> | <factor>
  * <factor> ::= (<expr>) | <id>
- * <stmt> ::= <expr>; | <do_stmt> | <for_stmt>
- * 				| <while_stmt> | <if_stmt> | { <stmts> }
+ * <stmt> ::= <decl> | <assign> | <do_stmt> | <for_stmt>
+ * 				| <while_stmt> | <if_stmt> | <block>
+ * <decl> ::= <type><assign> | <type><id>';'
+ * <assign> ::= <id> = {<id>|<num>|<expr>};
  * <stmts> ::= <stmt>*
- * <main_func> ::= int main() { <stmts> }
- * <function> ::= <type> <id>(<arg>(, <arg>)) { <stmt>* }
+ * <main_func> ::= int main'('')' <block>
+ * <function> ::= <type> <id>(<arg>(, <arg>)) <block>
  * <type> ::= int | double | bool
  * <id> ::= [a-zA-Z][a-zA-Z0-9_]*
  * <arg> ::= <type><id>
- * <args> ::= <arg>(, <arg>)*
+ * <args> ::= <arg>'(', <arg>')'*
  */
 #include "parser.h"
+#include "grammer.h"
 #include "token.h"
 #include "codegen.h"
 
