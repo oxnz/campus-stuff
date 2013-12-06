@@ -10,7 +10,8 @@ typedef struct Position {
 	uint32_t offset;
 } Position;
 
-int MICROCC::lex(const char* buf, size_t len, TokenTable& toktbl) {
+int
+MICROCC::lex(const char* buf, size_t len, TokenTable& toktbl) {
 	for (size_t i = 0; i < len;) {
 		TokenType type;
 		TokenValue val;

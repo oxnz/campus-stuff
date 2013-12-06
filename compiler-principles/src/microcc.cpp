@@ -20,7 +20,8 @@ MICROCC::Microcc::Microcc()
 MICROCC::Microcc::~Microcc() {
 }
 
-int MICROCC::Microcc::compile(const char* fpath) {
+int
+MICROCC::Microcc::compile(const char* fpath) {
 	fstream sf(fpath);
 	if (!sf.is_open()) {
 		cerr << "cannot open file: " << fpath << endl;

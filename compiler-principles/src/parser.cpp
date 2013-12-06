@@ -39,7 +39,8 @@ bool program() {
 	return false;
 }
 
-bool MICROCC::Parser::parse(const TokenTable& ttb, MCodeTable& mctbl) {
+bool
+MICROCC::Parser::parse(const TokenTable& ttb, MCodeTable& mctbl) {
 	cout << endl << "parsing" << endl;
 	MidCode mc;
 	mc.op = MICROCC::MidCode::OP::add;
@@ -52,8 +53,6 @@ bool MICROCC::Parser::parse(const TokenTable& ttb, MCodeTable& mctbl) {
 	return program();
 	return false;
 }
-
-
 
 bool if_stmt() {
 	return false;
