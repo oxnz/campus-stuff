@@ -24,10 +24,10 @@ MICROCC::CodeGen::CodeGen() {
 MICROCC::CodeGen::~CodeGen() {
 }
 
-int MICROCC::CodeGen::genMidCode() {
+int MICROCC::CodeGen::genMidCode(const TokenTable& toktbl, MCodeTable& mctbl) {
 	return 0;
 }
 
-int MICROCC::CodeGen::genObjCode() {
+int MICROCC::CodeGen::genObjCode(const MCodeTable& mctbl, OCodeTable& octbl) {
 	return 0;
 }
