@@ -30,6 +30,15 @@ namespace MICROCC {
 		Status stat;
 	};
 
+	struct ReduceItem {
+		int op1;
+		int op2;
+		int op;
+	};
+	ReduceItem ReduceTable[10] {
+		{1, 2, '+'},
+	};
+
 	AGItem ActionGotoTable[STATCNT][TOKTYPECNT] {
 		{
 			{AGOP::SHIFT, 1}, {AGOP::SHIFT, 1}, {AGOP::ACCEPT, 0},
