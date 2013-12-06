@@ -4,6 +4,7 @@
 #include <list>
 
 namespace MICROCC {
+	class TokenTable;
 	struct Ident {
 		uint8_t scopelvl;
 		std::string name;
@@ -43,8 +44,8 @@ namespace MICROCC {
 	public:
 		CodeGen();
 		~CodeGen();
-		int genMidCode();
-		int genObjCode();
+		int genMidCode(const TokenTable& toktbl, MCodeTable& mctbl);
+		int genObjCode(const MCodeTable& mctbl, OCodeTable& octbl);
 	private:
 	};
 }
