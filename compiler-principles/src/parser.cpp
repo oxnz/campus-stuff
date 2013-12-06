@@ -2,9 +2,8 @@
  * File: syntax.cpp
  */
 #include "parser.h"
-#include "midcode.h"
 #include "token.h"
-#include "ident.h"
+#include "codegen.h"
 
 using namespace std;
 

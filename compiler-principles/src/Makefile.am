@@ -11,10 +11,8 @@ microcc_SOURCES = main.cpp \
 				  token.cpp \
 				  preproc.cpp \
 				  lexical.cpp \
-				  ident.cpp \
 				  parser.cpp \
 				  semantic.cpp \
-				  midcode.cpp \
 				  optimize.cpp \
 				  codegen.cpp
 
