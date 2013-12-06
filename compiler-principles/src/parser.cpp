@@ -2,12 +2,29 @@
  * File: syntax.cpp
  */
 #include "parser.h"
+#include "midcode.h"
 #include "token.h"
+#include "ident.h"
 
 using namespace std;
 
-bool MICROCC::Parser::parse(const TokenTable& ttb) {
-	cout << "parsing" << endl;
+bool main_func();
+bool program() {
+	return main_func();
+	return false;
+}
+
+bool MICROCC::Parser::parse(const TokenTable& ttb, MCodeTable& mctbl) {
+	cout << endl << "parsing" << endl;
+	MidCode mc;
+	mc.op = MICROCC::MidCode::OP::add;
+	mc.operand1 = "a";
+	mc.operand2 = "b";
+	mc.result = "tmp1";
+	mctbl.push_back(mc);
+	mc.op = MICROCC::MidCode::OP::mul;
+	mctbl.push_back(mc);
+	return program();
 	return false;
 }
 /*
@@ -31,11 +48,6 @@ bool MICROCC::Parser::parse(const TokenTable& ttb) {
  * <args> ::= <arg>(, <arg>)*
  */
 
-bool main_func();
-bool program() {
-	return main_func();
-	return false;
-}
 
 bool if_stmt() {
 	return false;

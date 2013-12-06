@@ -16,9 +16,10 @@
 
 namespace MICROCC {
 	class TokenTable;
+	class MCodeTable;
 	class Parser {
 	public:
-		bool parse(const TokenTable&);
+		bool parse(const TokenTable&, MCodeTable&);
 	private:
 	};
 }

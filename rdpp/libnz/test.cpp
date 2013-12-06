@@ -154,7 +154,26 @@ int test_hexdump() {
 	return 0;
 }
 
+#include "NZHttpClient.h"
+int test_httpclient() {
+	try {
+		NZ::NZHttpClient hc("127.0.0.1", 8000);
+		hc.request("/", 4);
+	} catch (const NZ::NZHttpClient::NZSockExcept& e) {
+		cout << "sock error: " << e.what() << endl;
+		return -1;
+	} catch (const NZ::NZHttpClient::NZHttpExcept& e) {
+		cout << "http error: " << e.what() << endl;
+		return -1;
+	} catch (...) {
+		cout << "unknown error" << endl;
+		return -1;
+	}
+	return 0;
+}
+
 int main() {
+	return test_httpclient();
 	test_hexdump();
 	test_NZLogger();
 	//test_confirm();

@@ -69,15 +69,21 @@ map<TokenType, const string> ttname = {
 
 ostream& MICROCC::operator<<(ostream& os, const Token& t) {
 //	os << "token: [";
-	if (t.m_type == TokenType::POUND ||
-		t.m_type == TokenType::IDENTIFER ||
-		t.m_type == TokenType::INTVAL ||
-		t.m_type == TokenType::DOUBLEVAL ||
-		t.m_type == TokenType::CHARVAL ||
-		t.m_type == TokenType::STRVAL)
-		os << t.m_value;
-	else
-		os << ttname[t.m_type];
+	switch (t.m_type) {
+		case TokenType::POUND:
+		case TokenType::IDENTIFER:
+		case TokenType::INTVAL:
+		case TokenType::DOUBLEVAL:
+		case TokenType::CHARVAL:
+			os << t.m_value;
+			break;
+		case TokenType::STRVAL:
+			os << "str(" << t.m_value << ")";
+			break;
+		default:
+			os << ttname[t.m_type];
+			break;
+	}
 //	os << "]";
 	return os;
 }

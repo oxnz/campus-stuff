@@ -13,13 +13,13 @@ namespace NZ {
     class NZDirExcept : public NZExcept
     {
     public:
-    NZDirExcept(const std::string& s)
+    NZDirExcept(const char* s)
             : NZExcept(s) {}
     };
 	class NZRegexExcept : public NZExcept
 	{
 	public:
-	NZRegexExcept(const std::string& s)
+	NZRegexExcept(const char* s)
 		: NZExcept(s) {}
 	};
 
@@ -27,7 +27,6 @@ namespace NZ {
 	~NZFinder();
 	dirent* find();
 	private:
-    private:
-	struct __core* m_core;
+	struct __core* m_pcore;
     };
 }

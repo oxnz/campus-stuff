@@ -13,13 +13,13 @@ namespace NZ {
     class NZBadArg : public std::logic_error
     {
     public:
-    NZBadArg(const std::string& s)
+    NZBadArg(const char* s)
             : std::logic_error(s) {}
     };
     class NZExcept : public std::runtime_error
     {
     public:
-    NZExcept(const std::string& s)
+    NZExcept(const char* s)
             : std::runtime_error(s) {}
     };
 }

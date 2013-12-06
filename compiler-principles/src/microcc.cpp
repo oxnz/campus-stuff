@@ -40,9 +40,14 @@ int MICROCC::Microcc::compile(const char* fpath) {
 		return -1;
 	}
 	cout << "Token Table[" << toktbl.size() << "]:" << endl;
-	for_each (toktbl.begin(), toktbl.end(), [](const Token t)->void{
-		cout << t; });
-	m_pparser->parse(toktbl);
+	for_each (toktbl.begin(), toktbl.end(), [](const Token& t)->void {
+		cout << t << " "; });
+	MCodeTable mctbl;
+	m_pparser->parse(toktbl, mctbl);
+	cout << endl << "MidCode Table[" << mctbl.size() << "]:" << endl;
+	for_each (mctbl.begin(), mctbl.end(), [](const MidCode& mc)->void {
+		cout << mc << "\t"; });
+	cout << endl;
 
 	return 0;
 }

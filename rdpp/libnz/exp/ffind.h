@@ -2,6 +2,7 @@
 
 #ifdef __cpluscplus
 extern "C" {
+#endif
 	int find_file_init(const char *path, const char *pattern);
 	const char *find_first_file(void);
 	const char *find_next_file(void);

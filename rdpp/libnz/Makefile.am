@@ -10,12 +10,15 @@ libnz_a_SOURCES = NZUtils.h \
 			   NZFinder.h \
 			   NZFinder.cpp \
 			   NZLogger.h \
-			   NZLogger.cpp
+			   NZLogger.cpp \
+			   NZHttpClient.h \
+			   NZHttpClient.cpp
 
 test_SOURCES = test.cpp \
 			   NZUtils.h \
 			   NZFinder.h \
 			   NZExcept.h \
-			   NZLogger.h
+			   NZLogger.h \
+			   NZHttpClient.h
 
 test_LDADD = libnz.a
