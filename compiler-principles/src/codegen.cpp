@@ -12,6 +12,26 @@ const char* opname[] = {
 	"pop",
 };
 
+list<MICROCC::Ident>::iterator 
+MICROCC::IdentTable::lookup(const std::string& name) {
+			for (std::list<Ident>::iterator it = this->begin();
+					it != this->end(); ++it) {
+				if (it->name == name)
+					return it;
+			}
+			return this->end();
+}
+
+bool
+MICROCC::IdentTable::remove(const std::string& name) {
+	list<MICROCC::Ident>::iterator it = lookup(name);
+	if (it != this->end()) {
+		erase(it);
+		return true;
+	} else
+		return false;
+}
+
 ostream& MICROCC::operator<<(ostream& os, const MICROCC::MidCode& mc) {
 	os << opname[static_cast<uint8_t>(mc.op)] << "("
 		<< mc.operand1 << ", " << mc.operand2 << ") => " << mc.result;

@@ -15,11 +15,8 @@ namespace MICROCC {
 	public:
 		IdentTable();
 		~IdentTable();
-		Ident& insert(const std::string& name, int scopelvl, size_t addr);
-		Ident& lookup(const std::string& name);
-		bool update(const Ident& ident, int scopelvl, const std::string& name,
-				size_t addr);
-		bool remove(const Ident& ident);
+		std::list<Ident>::iterator lookup(const std::string& name);
+		bool remove(const std::string& name);
 	private:
 	};
 
