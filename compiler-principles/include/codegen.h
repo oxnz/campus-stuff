@@ -2,6 +2,9 @@
 
 #include <iostream>
 #include <list>
+#include <stack>
+
+#include "token.h"
 
 namespace MICROCC {
 	class TokenTable;
@@ -17,6 +20,27 @@ namespace MICROCC {
 		~IdentTable();
 		std::list<Ident>::iterator lookup(const std::string& name);
 		bool remove(const std::string& name);
+	private:
+	};
+
+	struct AttrToken : public Token {
+		AttrToken(const Token& t, int address = 0)
+			: Token(t),
+			addr(address)
+		{}
+		int addr;
+	};
+
+	struct StackNode : public AttrToken { // attributed token with status
+		StackNode(const AttrToken& atok, int status = 0)
+			: AttrToken(atok),
+			stat(status)
+		{}
+		int stat;
+	};
+
+	class ParseStack : public std::stack<StackNode> {
+	public:
 	private:
 	};
 
@@ -50,7 +74,11 @@ namespace MICROCC {
 	public:
 		CodeGen();
 		~CodeGen();
-		int genMidCode(const TokenTable& toktbl, MCodeTable& mctbl);
+		int genMidCode(ParseStack pstk,
+				MidCode::OP op,
+				int opcnt,
+				bool result,
+			   	MCodeTable& mctbl);
 		int genObjCode(const MCodeTable& mctbl, OCodeTable& octbl);
 	private:
 	};

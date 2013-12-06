@@ -1,5 +1,5 @@
 /*
- * File: syntax.cpp
+ * File: parser.cpp
  */
 
 /*
@@ -33,50 +33,59 @@
 
 using namespace std;
 
-bool main_func();
-bool program() {
-	return main_func();
-	return false;
-}
-
 bool
-MICROCC::Parser::parse(const TokenTable& ttb, MCodeTable& mctbl) {
+MICROCC::Parser::parse(const TokenTable& toktbl, MCodeTable& mctbl) {
 	cout << endl << "parsing" << endl;
-	MidCode mc;
-	mc.op = MICROCC::MidCode::OP::add;
-	mc.operand1 = "a";
-	mc.operand2 = "b";
-	mc.result = "tmp1";
-	mctbl.push_back(mc);
-	mc.op = MICROCC::MidCode::OP::mul;
-	mctbl.push_back(mc);
-	return program();
-	return false;
-}
+	ParseStack pstk;
+	CodeGen codegen;
+	struct ReduceItem {
+		MidCode::OP op;
+		int opcnt;
+		bool result;
+	};
+	
+	ReduceItem ReduceTable[10] = {
+		{MidCode::OP::add, 2, true},
+		{MidCode::OP::sub, 2, true},
+	};
 
-bool if_stmt() {
+	int stat = 0;
+	for (TokenTable::const_iterator it = toktbl.begin();
+			it != toktbl.end(); ++it) {
+		cout << "(" << stat << "," << static_cast<int>(it->m_type) << endl;
+		ActGoItem agit = ActGoTable[stat][static_cast<int>(it->m_type)];
+		switch (agit.op) {
+			case AGOP::ACCEPT:
+				if (!pstk.empty()) {
+					cout << "*** error: accepted before stack is empty" << endl;
+					goto errorproc;
+				}
+				return true;
+			case AGOP::SHIFT:
+				cout << "shift" << endl;
+				pstk.push(StackNode(*it, agit.stat));
+				break;
+			case AGOP::REDUCE:
+				cout << "reduce" << endl;
+				codegen.genMidCode(pstk, ReduceTable[agit.stat].op,
+						ReduceTable[agit.stat].opcnt,
+						ReduceTable[agit.stat].result, mctbl);
+				break;
+			case AGOP::GOTO:
+				cout << "goto" << endl;
+				pstk.top().stat = agit.stat;
+				break;
+			case AGOP::ERROR:
+				cout << "*** error: Unexpected token: " << *it << endl;
+				goto errorproc;
+				break;
+		}
+		pstk.push(StackNode(*it));
+		//cout << t << " ";
+	}
+errorproc:
+	while (!pstk.empty()) {
+		pstk.pop();
+	}
 	return false;
-}
-
-bool for_stmt() {
-	return false;
-}
-
-bool while_stmt() {
-	return false;
-}
-
-bool do_stmt() {
-	return false;
-}
-
-bool func() {
-	return false;
-}
-
-bool main_func() {
-	if ("main")
-		return func();
-	else
-		return false;
 }

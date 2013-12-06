@@ -1,5 +1,7 @@
 #pragma once
 
+#include "token.h"
+
 namespace MICROCC {
 	/*
 	 *               ACTION-GOTO TABLE
@@ -25,27 +27,26 @@ namespace MICROCC {
 	};
 
 	typedef int Status;
-	struct AGItem {
+	struct ActGoItem {
 		AGOP op;
 		Status stat;
 	};
 
-	struct ReduceItem {
-		int op1;
-		int op2;
-		int op;
-	};
-	ReduceItem ReduceTable[10] {
-		{1, 2, '+'},
-	};
-
-	AGItem ActionGotoTable[STATCNT][TOKTYPECNT] {
+	ActGoItem ActGoTable[STATCNT][static_cast<int>(TokenType::END)] {
 		{
-			{AGOP::SHIFT, 1}, {AGOP::SHIFT, 1}, {AGOP::ACCEPT, 0},
+			{AGOP::SHIFT, 1}, {AGOP::REDUCE, 1}, {AGOP::SHIFT, 0},
 			{AGOP::GOTO, 4}, {AGOP::GOTO, 4}, {AGOP::GOTO, 5},
 		},
 		{
-			{AGOP::REDUCE, 1}, {AGOP::ERROR, 1}, {AGOP::ERROR, 0},
+			{AGOP::ACCEPT, 1}, {AGOP::ERROR, 1}, {AGOP::ERROR, 0},
+			{AGOP::GOTO, 5}, {AGOP::GOTO, 3}, {AGOP::GOTO, 1},
+		},
+		{
+			{AGOP::ACCEPT, 1}, {AGOP::ERROR, 1}, {AGOP::ERROR, 0},
+			{AGOP::GOTO, 5}, {AGOP::GOTO, 3}, {AGOP::GOTO, 1},
+		},
+		{
+			{AGOP::ACCEPT, 1}, {AGOP::ERROR, 1}, {AGOP::ERROR, 0},
 			{AGOP::GOTO, 5}, {AGOP::GOTO, 3}, {AGOP::GOTO, 1},
 		},
 	};

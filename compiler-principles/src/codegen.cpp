@@ -1,4 +1,5 @@
 #include "codegen.h"
+#include "parser.h"
 
 using namespace std;
 
@@ -14,7 +15,7 @@ const char* opname[] = {
 
 list<MICROCC::Ident>::iterator 
 MICROCC::IdentTable::lookup(const std::string& name) {
-			for (std::list<Ident>::iterator it = this->begin();
+			for (IdentTable::iterator it = this->begin();
 					it != this->end(); ++it) {
 				if (it->name == name)
 					return it;
@@ -24,7 +25,7 @@ MICROCC::IdentTable::lookup(const std::string& name) {
 
 bool
 MICROCC::IdentTable::remove(const std::string& name) {
-	list<MICROCC::Ident>::iterator it = lookup(name);
+	IdentTable::iterator it = lookup(name);
 	if (it != this->end()) {
 		erase(it);
 		return true;
@@ -45,8 +46,13 @@ MICROCC::CodeGen::CodeGen() {
 MICROCC::CodeGen::~CodeGen() {
 }
 
-int
-MICROCC::CodeGen::genMidCode(const TokenTable& toktbl, MCodeTable& mctbl) {
+int MICROCC::CodeGen::genMidCode(MICROCC::ParseStack pstk,
+		MidCode::OP op,
+		int opcnt,
+		bool result,
+		MCodeTable& mctbl) {
+	cout << "gen..." << endl;
+	mctbl.push_back({op, "a", "b", "c"});
 	return 0;
 }
 

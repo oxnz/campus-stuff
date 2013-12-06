@@ -59,6 +59,8 @@ namespace MICROCC {
 		TAB,
 		EOL,
 		EOF_,
+		BEGIN,
+		END,
 	};
 
 	enum class Scope {
