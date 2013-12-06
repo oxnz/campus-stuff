@@ -2,6 +2,8 @@
 
 #include "token.h"
 
+class Parser;
+class CodeGen;
 namespace MICROCC {
 	class Microcc {
 	public:
@@ -11,6 +13,7 @@ namespace MICROCC {
 	private:
 		char* m_sf;
 		size_t m_sfsiz;
+		Parser* m_pparser;
 		//TokenTable m_toktbl;
 	};
 }

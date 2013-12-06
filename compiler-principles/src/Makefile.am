@@ -11,7 +11,7 @@ microcc_SOURCES = main.cpp \
 				  token.cpp \
 				  preproc.cpp \
 				  lexical.cpp \
-				  syntax.cpp \
+				  parser.cpp \
 				  semantic.cpp \
 				  midcode.cpp \
 				  optimize.cpp \

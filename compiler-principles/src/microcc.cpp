@@ -1,6 +1,6 @@
 #include "preproc.h"
 #include "lexical.h"
-#include "syntax.h"
+#include "parser.h"
 #include "semantic.h"
 #include "midcode.h"
 #include "optimize.h"
@@ -12,7 +12,9 @@
 
 using namespace std;
 
-MICROCC::Microcc::Microcc() {
+MICROCC::Microcc::Microcc()
+	: m_pparser(new Parser())
+{
 }
 
 MICROCC::Microcc::~Microcc() {
@@ -40,6 +42,7 @@ int MICROCC::Microcc::compile(const char* fpath) {
 	cout << "Token Table[" << toktbl.size() << "]:" << endl;
 	for_each (toktbl.begin(), toktbl.end(), [](const Token t)->void{
 		cout << t; });
+	m_pparser->parse(toktbl);
 
 	return 0;
 }
