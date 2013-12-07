@@ -73,8 +73,3 @@ MICROCC::IdentTable::remove(const std::string& name) {
 	return false;
 }
 
-/*
-Ident genTmp(enum class IdentType idtyp) {
-	Ident idt;
-}
-*/
