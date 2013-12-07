@@ -2,6 +2,22 @@
 
 using namespace std;
 
+MICROCC::Ident::Ident(const Token& tok, size_t scope, const string& name,
+		size_t addr)
+: Token(tok),
+m_scope(scope),
+m_name(name),
+m_addr(addr)
+{
+	if (tok.m_type == TokenType::IDENTIFIER) {
+		m_name = m_value;
+		//m_value = "nonset";
+	} else {
+		//cout << "-----> " << tok << endl;
+		//cout << "Ident ===> " << *this << endl;
+	}
+}
+
 MICROCC::Ident::Ident(size_t scope, IdentType idt, const std::string& name,
 				const std::string& value, size_t addr)
 : Token(static_cast<TokenType>(idt), value),
@@ -15,15 +31,16 @@ MICROCC::Ident::~Ident() {}
 
 std::ostream&
 MICROCC::operator<<(std::ostream& os, const Ident& ident) {
-	os << ident.m_scope << "\t" << ident.m_name << "\t" << ident.m_value
-		<< "\t" << ident.m_addr;
+	os << static_cast<Token>(ident) << "\t" << ident.m_scope << "\t"
+		<< ident.m_name << "\t" << static_cast<ssize_t>(
+				ident.m_addr == static_cast<size_t>(-1) ? -1 : ident.m_addr);
 	return os;
 }
 
 std::ostream&
 MICROCC::operator<<(std::ostream& os, const IdentTable& idtbl) {
 	os << "Identifier Table (size: " << idtbl.size() << "):\n"
-		<< "scope\tname\tvalue\taddr\n";
+		<< "position\tvalue\tscope\tname\taddr\n";
 
 	for_each(idtbl.begin(), idtbl.end(), [&os](const Ident& ident) {
 		os << ident << endl; });

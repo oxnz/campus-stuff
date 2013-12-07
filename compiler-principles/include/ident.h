@@ -15,6 +15,9 @@ namespace MICROCC {
 	};
 
 	struct Ident : public Token {
+		Ident(const Token& tok, size_t scope = 0,
+				const std::string& name = "nonset",
+				size_t addr = static_cast<size_t>(-1));
 		Ident(size_t scope, IdentType idt, const std::string& name,
 				const std::string& value, size_t addr);
 		~Ident();

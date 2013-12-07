@@ -67,7 +67,7 @@ MICROCC::syntaxError(const Token& tok, const char* fmt, ...) {
 
 void
 MICROCC::syntaxError(const StackNode& stknode, const char* fmt, ...) {
-	std::cerr << "*** syntax error " << stknode.m_pos << stknode.stat
+	std::cerr << "*** syntax error " << stknode.m_pos << stknode.m_stat
 		<< stknode;
 	va_list args;
 	va_start(args, fmt);

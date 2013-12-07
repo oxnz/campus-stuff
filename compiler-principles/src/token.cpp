@@ -11,6 +11,7 @@ Token::Token(TokenType type, const TokenValue& value, const Position& pos)
 {
 }
 
+namespace MICROCC {
 map<TokenType, const string> ttname = {
 	{TokenType::BOOL, "bool"},
 	{TokenType::INT, "int"},
@@ -67,20 +68,29 @@ map<TokenType, const string> ttname = {
 	{TokenType::EOL, "\\n"},
 	{TokenType::EOF_, "EOF"},
 
-	{TokenType::EXPR, "expression"},
+	{TokenType::EXPR, "expr"},
 	{TokenType::TERM, "term"},
 	{TokenType::FACTOR, "factor"},
 };
+}
 
-ostream& MICROCC::operator<<(ostream& os, const Token& t) {
-	os << t.m_pos.row << "\t" << t.m_pos.col << "\t"
-		<< static_cast<uint32_t>(t.m_type) << "\t";
+ostream&
+MICROCC::operator<<(ostream& os, const Position& pos) {
+	os << "(" << static_cast<ssize_t>(pos.row == -1 ? -1 : pos.row)
+		<< ", "
+		<< static_cast<ssize_t>(pos.col == -1 ? -1 : pos.col) << ")";
+	return os;
+}
+
+ostream&
+MICROCC::operator<<(ostream& os, const Token& t) {
+	os << t.m_pos << "\t\t";
 	switch (t.m_type) {
 		case TokenType::POUND:
-		case TokenType::IDENTIFIER:
 		case TokenType::INTVAL:
 		case TokenType::DOUBLEVAL:
 		case TokenType::CHARVAL:
+		case TokenType::IDENTIFIER:
 			os << t.m_value;
 			break;
 		case TokenType::STRVAL:
@@ -102,9 +112,11 @@ TokenTable::~TokenTable() {
 std::ostream&
 MICROCC::operator<<(std::ostream& os,
 		const TokenTable& toktbl) {
-	os << "Token Table (size: " << toktbl.size() << "):\n"
-		<< "line\tcolumn\ttype\ttoken\n";
+	os << "Token Table (size: " << toktbl.size()
+		<< "):\n-------------------------------------------\n"
+		<< "position\ttype\ttoken\n";
 	for_each (toktbl.begin(), toktbl.end(), [&os](const Token& t)->void {
 		os << t << endl; });
+	os << "===========================================\n";
 	return os;
 }

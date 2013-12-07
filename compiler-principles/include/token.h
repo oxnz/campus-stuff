@@ -78,10 +78,7 @@ namespace MICROCC {
 	struct Position {
 		size_t row;
 		size_t col;
-		friend std::ostream& operator<<(std::ostream& os, const Position& pos) {
-			os << "line: " << pos.row << ", column: " << pos.col;
-			return os;
-		}
+		friend std::ostream& operator<<(std::ostream& os, const Position& pos);
 	};
 
 	struct Token {

@@ -19,3 +19,8 @@ microcc_SOURCES = main.cpp \
 				  codegen.cpp
 
 test_SOURCES = test.cpp
+
+summary:
+	wc -l *.cpp $(top_srcdir)/include/*.h
+
+.PHONY: summary

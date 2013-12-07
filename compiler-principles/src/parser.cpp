@@ -31,18 +31,17 @@
 #include "grammer.h"
 #include "token.h"
 #include "codegen.h"
+#include <map>
 
 using namespace std;
 
 namespace MICROCC {
 	struct ReduceItem {
-		std::function<StackNode& (ParseStack& pstk,
-				CodeGen& codegen, IdentTable& idtbl,
-				MCodeTable& mctbl)> reduce;
+		std::function<void(ParseStack& pstk,
+				CodeGen& codegen)> reduce;
 	};
 	ReduceItem ReduceTable[6] = {
-		{[](ParseStack& pstk, CodeGen& codegen, IdentTable& idtbl,
-				MCodeTable& mctbl)->StackNode& { // 1
+		{[](ParseStack& pstk, CodeGen& codegen)->void { // 1
 			StackNode& term = pstk.top();
 			pstk.pop();
 			StackNode& op = pstk.top();
@@ -51,43 +50,35 @@ namespace MICROCC {
 			pstk.pop();
 			//cout << "E->E+T:" << expr << " -> " << expr << op << term << endl;
 			cout << "code: expr.addr = expr.addr + term.addr" << endl;
-			// genMidCode(expr.addr = expr.addr + term.addr)
+			//cout << "=====>" << term << expr << endl;
+			codegen.genMidCode(MidCode::OP::add, expr, term, expr);
 			expr.m_type = TokenType::EXPR;
-			return expr;
+			pstk.push(expr);
 												  }
 		},
-		{[](ParseStack& pstk, CodeGen& codegen, IdentTable& idtbl, MCodeTable& mctbl)->StackNode& { // 2
-			StackNode& term = pstk.top();
-			pstk.pop();
-			StackNode& expr = term;
-			expr.m_type = TokenType::EXPR;
+		{[](ParseStack& pstk, CodeGen& codegen)->void { // 2
+			pstk.top().m_type = TokenType::EXPR;
 			//cout << "E->T:"	<< expr << " -> " << term << endl;
-			return expr;
 							  }
 		},
-		{[](ParseStack& pstk, CodeGen& codegen, IdentTable& idtbl, MCodeTable& mctbl)->StackNode& { // 3
+		{[](ParseStack& pstk, CodeGen& codegen)->void { // 3
 			StackNode& factor = pstk.top();
 			pstk.pop();
 			StackNode& op = pstk.top();
 			pstk.pop();
+			pstk.top().m_type = TokenType::TERM;
 			StackNode& term = pstk.top();
-			pstk.pop();
 			//cout << "T->T*F:" << term << " -> " << term << op << factor << endl;
 			cout << "code: term.addr = term.addr * factor.addr" << endl;
-			// genMidCode(term.addr = term.addr * factor.addr)
-			term.m_type = TokenType::TERM;
-			return term;
+			codegen.genMidCode(MidCode::OP::mul, term, factor, term);
 							  }
 		},
-		{[](ParseStack& pstk, CodeGen& codegen, IdentTable& idtbl, MCodeTable& mctbl)->StackNode& { // 4
-			StackNode& term = pstk.top();
-			pstk.pop();
+		{[](ParseStack& pstk, CodeGen& codegen)->void { // 4
+			pstk.top().m_type = TokenType::TERM;
 			//cout << "T->F:"	<< term << " -> " << term << endl;
-			term.m_type = TokenType::TERM;
-			return term;
 							  }
 		},
-		{[](ParseStack& pstk, CodeGen& codegen, IdentTable& idtbl, MCodeTable& mctbl)->StackNode& { // 5
+		{[](ParseStack& pstk, CodeGen& codegen)->void { // 5
 			StackNode& rparen = pstk.top();
 			pstk.pop();
 			StackNode& expr = pstk.top();
@@ -101,66 +92,49 @@ namespace MICROCC {
 				*/
 			// genMidCode(factor.addr = expr.addr);
 			factor.m_type = TokenType::FACTOR;
-			return factor;
+			pstk.push(factor);
 							  }
 		},
-		{[](ParseStack& pstk, CodeGen& codegen, IdentTable& idtbl, MCodeTable& mctbl)->StackNode& { // 6
+		{[](ParseStack& pstk, CodeGen& codegen)->void { // 6
 			StackNode& id = pstk.top();
 			pstk.pop();
 			//cout << "F->id:" << id << " -> " << id << endl;
-			idtbl.push_back({0, IdentType::INT, id.m_value, "nonset",
-					idtbl.genAddr(IdentType::INT)});
-			StackNode& factor = id;
-			factor.m_type = TokenType::FACTOR;
-			return factor;
+			IdentTable& idt = codegen.identTable();
+			auto it = idt.lookup(id.m_value);
+			if (it != idt.end())
+				pstk.push(*it);
+			else {
+				idt.push_back({id, 0, id.m_value,
+						idt.genAddr(IdentType::INT)});
+				pstk.push(idt.back());
+			}
+			pstk.top().m_type = TokenType::FACTOR;
 							  }
 		},
+	};
+
+	map<TokenType, size_t> TypeTable {
+		{TokenType::IDENTIFIER, 0},
+		{TokenType::ADD, 1},
+		{TokenType::MUL, 2},
+		{TokenType::LPAREN, 3},
+		{TokenType::RPAREN, 4},
+		{TokenType::EOF_, 5},
+		{TokenType::EXPR, 6},
+		{TokenType::TERM, 7},
+		{TokenType::FACTOR, 8},
 	};
 }
 
 bool
-MICROCC::Parser::parse(TokenTable& toktbl, IdentTable& idtbl,
-		MCodeTable& mctbl) {
+MICROCC::Parser::parse(TokenTable& toktbl, CodeGen& codegen) {
 	ParseStack pstk;
-	CodeGen codegen;
 	int stat = 0;
-	int ttyp(0); // token type
 	while (!toktbl.empty()) {
+	//cout << "parsing " << endl;
 		Token& tok = toktbl.front();
 		//cout << "tok: " << tok << endl;
-		switch (tok.m_type) {
-			case TokenType::IDENTIFIER:
-				ttyp = 0;
-				break;
-			case TokenType::ADD:
-				ttyp = 1;
-				break;
-			case TokenType::MUL:
-				ttyp = 2;
-				break;
-			case TokenType::LPAREN:
-				ttyp = 3;
-				break;
-			case TokenType::RPAREN:
-				ttyp = 4;
-				break;
-			case TokenType::EOF_:
-				ttyp = 5;
-				break;
-			case TokenType::EXPR:
-				ttyp = 6;
-				break;
-			case TokenType::TERM:
-				ttyp = 7;
-				break;
-			case TokenType::FACTOR:
-				ttyp = 8;
-				break;
-			default:
-				syntaxError(tok, "unexpected token");
-				break;
-		}
-		ActGoItem agit = ActGoTable[stat][ttyp];
+		ActGoItem agit = ActGoTable[stat][TypeTable[tok.m_type]];
 		switch (agit.op) {
 			case AGOP::A:
 				cout << "accept" << endl;
@@ -178,9 +152,20 @@ MICROCC::Parser::parse(TokenTable& toktbl, IdentTable& idtbl,
 				break;
 			case AGOP::R:
 				//cout << "R" << agit.stat << ": " << endl;
+				/*
 				toktbl.push_front(ReduceTable[agit.stat-1].reduce(pstk,
-							codegen, idtbl, mctbl));
-				stat = pstk.empty() ? 0 : pstk.top().stat;
+							codegen));
+				stat = pstk.empty() ? 0 : pstk.top().m_stat;
+				*/
+				{
+					ReduceTable[agit.stat-1].reduce(pstk, codegen);
+					StackNode& node = pstk.top();
+					pstk.pop();
+					stat = pstk.empty() ? 0 : pstk.top().m_stat;
+					stat = ActGoTable[stat][TypeTable[node.m_type]].stat;
+					node.m_stat = stat;
+					pstk.push(node);
+				}
 				/*
 				codegen.genMidCode(pstk, ReduceTable[agit.stat].op,
 						ReduceTable[agit.stat].opcnt,
@@ -188,11 +173,13 @@ MICROCC::Parser::parse(TokenTable& toktbl, IdentTable& idtbl,
 						*/
 				break;
 			case AGOP::G:
-				//cout << "goto" << agit.stat << endl;
+				cout << "goto" << agit.stat << endl;
+				// FIXME: it is wrong to cast tok to stackNode
+				cerr << "*** error: unexpected GOTO" << endl;
 				toktbl.pop_front();
 				pstk.push(static_cast<StackNode>(tok));
 				stat = agit.stat;
-				pstk.top().stat = stat;
+				pstk.top().m_stat = stat;
 				break;
 			case AGOP::E:
 				syntaxError(tok, "unexpected token");

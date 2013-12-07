@@ -11,12 +11,12 @@
 namespace MICROCC {
 	class TokenTable;
 
-	struct StackNode : public Token { // attributed token with status
-		StackNode(const Token& tok, int status = 0)
-			: Token(tok),
-			stat(status)
+	struct StackNode : public Ident { // attributed token with status
+		StackNode(const Ident& id, int stat = 0)
+			: Ident(id),
+			m_stat(stat)
 		{}
-		int stat;
+		int m_stat;
 	};
 
 	class ParseStack : public std::stack<StackNode> {
@@ -32,13 +32,11 @@ namespace MICROCC {
 			mul,
 			div,
 			mod,
-			push,
-			pop,
 			jmp,
 		} op;
-		std::string operand1;
-		std::string operand2;
-		std::string result;
+		size_t src1;
+		size_t src2;
+		size_t dst;
 		friend std::ostream& operator<<(std::ostream& os, const MidCode& mc);
 	};
 
@@ -58,12 +56,15 @@ namespace MICROCC {
 	public:
 		CodeGen();
 		~CodeGen();
-		int genMidCode(ParseStack pstk,
-				MidCode::OP op,
-				int opcnt,
-				bool result,
-			   	MCodeTable& mctbl);
+		const IdentTable& identTable() const { return m_idt; }
+		IdentTable& identTable() { return m_idt; }
+		void dumpMCode(std::ostream& os);
+		int genMidCode(MidCode::OP op, const Ident& id1, const Ident& id2,
+				const Ident& ret);
 		int genObjCode(const MCodeTable& mctbl, OCodeTable& octbl);
 	private:
+		IdentTable m_idt;
+		MCodeTable m_mct;
+		OCodeTable m_oct;
 	};
 }
