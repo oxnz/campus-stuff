@@ -1,28 +1,29 @@
 #pragma once
 
 #include "common.h"
+#include "token.h"
 
 #include <list>
 #include <iostream>
 
 namespace MICROCC {
-	enum class IdentType : uint32_t {
-		FUNC,
-		INT,
-		DOUBLE,
-		BOOL
+	enum IdentType : uint32_t {
+		FUNC = static_cast<uint32_t>(TokenType::FUNC),
+		INT = static_cast<uint32_t>(TokenType::INT),
+		DOUBLE = static_cast<uint32_t>(TokenType::DOUBLE),
+		BOOL = static_cast<uint32_t>(TokenType::BOOL),
 	};
 
-	struct Ident {
-		size_t scplvl; // scope level
-		IdentType idt;
-		std::string name;
-		std::string val;
-		size_t addr;
-		friend std::ostream& operator<<(std::ostream& os,
-				const Ident& ident);
+	struct Ident : public Token {
+		Ident(size_t scope, IdentType idt, const std::string& name,
+				const std::string& value, size_t addr);
+		~Ident();
+		size_t m_scope;
+		std::string m_name;
+		size_t m_addr;
+		friend std::ostream& operator<<(std::ostream&,
+				const Ident&);
 	};
-
 	class IdentTable : public std::list<Ident> {
 	public:
 		IdentTable();

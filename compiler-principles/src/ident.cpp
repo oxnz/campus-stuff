@@ -2,10 +2,21 @@
 
 using namespace std;
 
+MICROCC::Ident::Ident(size_t scope, IdentType idt, const std::string& name,
+				const std::string& value, size_t addr)
+: Token(static_cast<TokenType>(idt), value),
+	m_scope(scope),
+	m_name(name),
+	m_addr(addr)
+{}
+
+
+MICROCC::Ident::~Ident() {}
+
 std::ostream&
 MICROCC::operator<<(std::ostream& os, const Ident& ident) {
-	os << ident.scplvl << "\t" << ident.name << "\t" << ident.val
-		<< "\t" << ident.addr;
+	os << ident.m_scope << "\t" << ident.m_name << "\t" << ident.m_value
+		<< "\t" << ident.m_addr;
 	return os;
 }
 
@@ -25,7 +36,9 @@ MICROCC::IdentTable::IdentTable()
 m_varAddr(0)
 {}
 
-MICROCC::IdentTable::~IdentTable() {}
+MICROCC::IdentTable::~IdentTable() {
+	this->clear();
+}
 
 size_t
 MICROCC::IdentTable::genAddr(IdentType idt) {
@@ -57,7 +70,7 @@ MICROCC::IdentTable::genTmp(MICROCC::IdentType idt) {
 std::list<MICROCC::Ident>::iterator
 MICROCC::IdentTable::lookup(const std::string& name) {
 	for (auto it = this->begin(); it != this->end(); ++it) {
-		if (it->name == name)
+		if (it->m_name == name)
 			return it;
 	}
 	return this->end();

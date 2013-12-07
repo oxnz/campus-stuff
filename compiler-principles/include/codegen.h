@@ -11,17 +11,9 @@
 namespace MICROCC {
 	class TokenTable;
 
-	struct AttrToken : public Token {
-		AttrToken(const Token& t, int address = 0)
-			: Token(t),
-			addr(address)
-		{}
-		int addr;
-	};
-
-	struct StackNode : public AttrToken { // attributed token with status
-		StackNode(const AttrToken& atok, int status = 0)
-			: AttrToken(atok),
+	struct StackNode : public Token { // attributed token with status
+		StackNode(const Token& tok, int status = 0)
+			: Token(tok),
 			stat(status)
 		{}
 		int stat;

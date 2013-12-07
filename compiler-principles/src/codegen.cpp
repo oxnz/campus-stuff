@@ -34,10 +34,9 @@ MICROCC::CodeGen::CodeGen() {
 MICROCC::CodeGen::~CodeGen() {
 }
 
-int MICROCC::CodeGen::genMidCode(MICROCC::ParseStack pstk,
-		MidCode::OP op,
-		int opcnt,
-		bool result,
+/*
+int MICROCC::CodeGen::genMidCode(MidCode::OP op,
+		StackNode& opr1, StackNode& opr2, Ident& result,
 		MCodeTable& mctbl) {
 	if (pstk.size() < opcnt) {
 		cout << "*** error: not enough oprands" << endl;
@@ -70,7 +69,7 @@ int MICROCC::CodeGen::genMidCode(MICROCC::ParseStack pstk,
 			break;
 	}
 	return 0;
-}
+}*/
 
 int
 MICROCC::CodeGen::genObjCode(const MCodeTable& mctbl, OCodeTable& octbl) {

@@ -65,25 +65,29 @@ namespace MICROCC {
 		END,
 
 		// non-terminals
+		FUNC,
+
 		EXPR,
 		TERM,
 		FACTOR,
-	};
 
-	enum class Scope {
-		GLOBAL = 0x80,
-		LOCAL = 0x00,
 	};
 
 	typedef std::string TokenValue;
 
 	struct Position {
-		uint32_t row;
-		uint32_t col;
+		size_t row;
+		size_t col;
+		friend std::ostream& operator<<(std::ostream& os, const Position& pos) {
+			os << "line: " << pos.row << ", column: " << pos.col;
+			return os;
+		}
 	};
 
 	struct Token {
-		Token(TokenType type, std::string val, const Position& p);
+		Token(TokenType type, const TokenValue& val = "nonset",
+				const Position& p = {static_cast<size_t>(-1),
+				static_cast<size_t>(-1)});
 		friend std::ostream& operator<<(std::ostream& os, const Token& t);
 		TokenType m_type;
 		TokenValue m_value;
