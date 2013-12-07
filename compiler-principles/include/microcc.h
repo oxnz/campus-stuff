@@ -1,6 +1,7 @@
 #pragma once
 
 #include "token.h"
+#include "common.h"
 
 class Parser;
 class CodeGen;

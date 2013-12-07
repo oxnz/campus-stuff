@@ -3,6 +3,8 @@
 #include <iostream>
 #include <list>
 
+#include "common.h"
+
 namespace MICROCC {
 	enum class TokenType : uint32_t {
 		// keywords

@@ -26,6 +26,7 @@
  * <arg> ::= <type><id>
  * <args> ::= <arg>'(', <arg>')'*
  */
+#include "errproc.h"
 #include "parser.h"
 #include "grammer.h"
 #include "token.h"
@@ -151,7 +152,8 @@ MICROCC::Parser::parse(TokenTable& toktbl, MCodeTable& mctbl) {
 				ttyp = 8;
 				break;
 			default:
-				cout << "*** error: unexpected token type: " << tok << endl;
+				syntaxError("unexpected token: (type: %d)",
+						static_cast<uint32_t>(tok.m_type));
 				break;
 		}
 		ActGoItem agit = ActGoTable[stat][ttyp];
@@ -159,8 +161,7 @@ MICROCC::Parser::parse(TokenTable& toktbl, MCodeTable& mctbl) {
 			case AGOP::A:
 				cout << "accept" << endl;
 				if (pstk.size() != 1) {
-					cout << "*** error: accepted before reduce to begin symbol"
-						<< endl;
+					syntaxError("accepted before reduce to begin symbol");
 					goto errorproc;
 				}
 				return true;
@@ -188,8 +189,8 @@ MICROCC::Parser::parse(TokenTable& toktbl, MCodeTable& mctbl) {
 				pstk.top().stat = stat;
 				break;
 			case AGOP::E:
-				cout << "*** error: unexpected token: " << tok
-					<< "(stat: " << stat << ")" << endl;
+				syntaxError("unexpected token: (type: %d, stat: %d)",
+						static_cast<int>(tok.m_type), stat);
 				goto errorproc;
 				break;
 		}

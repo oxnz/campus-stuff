@@ -14,6 +14,8 @@
  */
 #pragma once
 
+#include "common.h"
+
 namespace MICROCC {
 	class TokenTable;
 	class MCodeTable;

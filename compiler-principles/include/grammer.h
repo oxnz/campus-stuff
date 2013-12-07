@@ -1,6 +1,7 @@
 #pragma once
 
 #include "token.h"
+#include "common.h"
 
 namespace MICROCC {
 	/*

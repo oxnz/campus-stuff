@@ -4,6 +4,7 @@
 #include <list>
 #include <stack>
 
+#include "common.h"
 #include "token.h"
 
 namespace MICROCC {

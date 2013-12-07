@@ -1,4 +1,5 @@
 #include "token.h"
+#include "errproc.h"
 #include "lexical.h"
 
 using namespace std;
@@ -27,8 +28,7 @@ MICROCC::lex(const char* buf, size_t len, TokenTable& toktbl) {
 					val += buf[i];
 					++i;
 				} else {
-					cerr << "*** lexical error: extra dot after integer"
-						<< endl;
+					lexicalError("extra dot after integer");
 					return -1;
 				}
 			}
@@ -89,8 +89,7 @@ MICROCC::lex(const char* buf, size_t len, TokenTable& toktbl) {
 								++i)
 							; // cout << buf[i];
 						if (buf[i+1] == -1) {
-							cerr << "*** lexical error: '*/' not found"
-								<< endl;
+							lexicalError("'*/' not found");
 							return -1;
 						} else {
 							i += 2;
@@ -177,8 +176,7 @@ MICROCC::lex(const char* buf, size_t len, TokenTable& toktbl) {
 					type = TokenType::EOF_;
 					break;
 				default:
-					cerr << "*** lexical error: unexpected character: "
-						<< buf[i] << endl;
+					lexicalError("unexpected character: %c", buf[i]);
 					return -1;
 			}
 			++i;

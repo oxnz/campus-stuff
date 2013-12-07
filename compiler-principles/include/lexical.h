@@ -1,9 +1,9 @@
 #pragma once
 
-#include <cstddef>
 #include <list>
 
 #include "token.h"
+#include "common.h"
 
 namespace MICROCC {
 	class TokenTable;
