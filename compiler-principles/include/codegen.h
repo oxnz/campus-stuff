@@ -46,6 +46,7 @@ namespace MICROCC {
 
 	struct MidCode {
 		enum class OP : uint8_t {
+			assign,
 			add,
 			sub,
 			mul,

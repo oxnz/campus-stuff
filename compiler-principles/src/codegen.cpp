@@ -51,8 +51,36 @@ int MICROCC::CodeGen::genMidCode(MICROCC::ParseStack pstk,
 		int opcnt,
 		bool result,
 		MCodeTable& mctbl) {
-	cout << "gen..." << endl;
-	mctbl.push_back({op, "a", "b", "c"});
+	if (pstk.size() < opcnt) {
+		cout << "*** error: not enough oprands" << endl;
+		return -1;
+	}
+	AttrToken* poprand1(nullptr);
+	AttrToken* poprand2(nullptr);
+	AttrToken* presult(nullptr);
+	switch (op) {
+		case MidCode::OP::assign:
+			mctbl.push_back({op, "a", "", "=c"});
+			break;
+		case MidCode::OP::add:
+		case MidCode::OP::sub:
+		case MidCode::OP::mul:
+		case MidCode::OP::div:
+		case MidCode::OP::mod:
+			poprand1 = &pstk.top();
+			cout << presult->addr << endl;
+			pstk.pop();
+			poprand2 = &pstk.top();
+			pstk.pop();
+			presult = &pstk.top();
+			mctbl.push_back({op, "a", "b", to_string(presult->addr)});
+			break;
+		case MidCode::OP::push:
+		case MidCode::OP::pop:
+		case MidCode::OP::jmp:
+			mctbl.push_back({op, "addr", "", ""});
+			break;
+	}
 	return 0;
 }
 

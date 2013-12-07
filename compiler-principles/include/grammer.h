@@ -15,15 +15,15 @@ namespace MICROCC {
 	 *   1   |  r1  |   |   |   5    |   3    |    1     |
 	 * --------------------------------------------------;
 	 */
-	const int STATCNT(10);
-	const int TOKTYPECNT(6);
+	const int STATCNT(12); // statuc count
+	const int TOKTYPCNT(9); // token type count
 
 	enum class AGOP : int {
-		ACCEPT,
-		SHIFT,
-		REDUCE,
-		GOTO,
-		ERROR,
+		A, // accept
+		S, // shift
+		R, // reduce
+		G, // goto
+		E, // error
 	};
 
 	typedef int Status;
@@ -32,22 +32,66 @@ namespace MICROCC {
 		Status stat;
 	};
 
-	ActGoItem ActGoTable[STATCNT][static_cast<int>(TokenType::END)] {
-		{
-			{AGOP::SHIFT, 1}, {AGOP::REDUCE, 1}, {AGOP::SHIFT, 0},
-			{AGOP::GOTO, 4}, {AGOP::GOTO, 4}, {AGOP::GOTO, 5},
+	ActGoItem ActGoTable[STATCNT][TOKTYPCNT] {
+		{ // 0
+			{AGOP::S, 5}, {AGOP::E, 0}, {AGOP::E, 0},
+			{AGOP::S, 4}, {AGOP::E, 0}, {AGOP::E, 0},
+			{AGOP::G, 1}, {AGOP::G, 2}, {AGOP::G, 3},
 		},
-		{
-			{AGOP::ACCEPT, 1}, {AGOP::ERROR, 1}, {AGOP::ERROR, 0},
-			{AGOP::GOTO, 5}, {AGOP::GOTO, 3}, {AGOP::GOTO, 1},
+		{ // 1
+			{AGOP::E, 0}, {AGOP::S, 6}, {AGOP::E, 0},
+			{AGOP::E, 0}, {AGOP::E, 0}, {AGOP::A, 0},
+			{AGOP::E, 0}, {AGOP::E, 0}, {AGOP::E, 0},
 		},
-		{
-			{AGOP::ACCEPT, 1}, {AGOP::ERROR, 1}, {AGOP::ERROR, 0},
-			{AGOP::GOTO, 5}, {AGOP::GOTO, 3}, {AGOP::GOTO, 1},
+		{ // 2
+			{AGOP::E, 0}, {AGOP::R, 2}, {AGOP::S, 7},
+			{AGOP::E, 0}, {AGOP::R, 2}, {AGOP::R, 2},
+			{AGOP::E, 0}, {AGOP::E, 0}, {AGOP::E, 0},
 		},
-		{
-			{AGOP::ACCEPT, 1}, {AGOP::ERROR, 1}, {AGOP::ERROR, 0},
-			{AGOP::GOTO, 5}, {AGOP::GOTO, 3}, {AGOP::GOTO, 1},
+		{ // 3
+			{AGOP::E, 0}, {AGOP::R, 4}, {AGOP::R, 4},
+			{AGOP::E, 0}, {AGOP::R, 4}, {AGOP::R, 4},
+			{AGOP::E, 0}, {AGOP::E, 0}, {AGOP::E, 0},
+		},
+		{ // 4
+			{AGOP::S, 5}, {AGOP::E, 0}, {AGOP::E, 0},
+			{AGOP::S, 4}, {AGOP::E, 0}, {AGOP::E, 0},
+			{AGOP::G, 8}, {AGOP::G, 2}, {AGOP::G, 3},
+		},
+		{ // 5
+			{AGOP::E, 0}, {AGOP::R, 6}, {AGOP::R, 6},
+			{AGOP::E, 0}, {AGOP::R, 6}, {AGOP::R, 6},
+			{AGOP::E, 0}, {AGOP::E, 0}, {AGOP::E, 0},
+		},
+		{ // 6
+			{AGOP::S, 5}, {AGOP::R, 4}, {AGOP::R, 4},
+			{AGOP::S, 4}, {AGOP::R, 4}, {AGOP::R, 4},
+			{AGOP::E, 0}, {AGOP::G, 9}, {AGOP::G, 3},
+		},
+		{ // 7
+			{AGOP::S, 5}, {AGOP::E, 0}, {AGOP::E, 0},
+			{AGOP::S, 4}, {AGOP::E, 0}, {AGOP::E, 0},
+			{AGOP::E, 0}, {AGOP::E, 0}, {AGOP::G, 10},
+		},
+		{ // 8
+			{AGOP::E, 0}, {AGOP::S, 6}, {AGOP::E, 0},
+			{AGOP::E, 0}, {AGOP::S, 11}, {AGOP::E, 0},
+			{AGOP::E, 0}, {AGOP::E, 0}, {AGOP::E, 0},
+		},
+		{ // 9
+			{AGOP::E, 0}, {AGOP::R, 1}, {AGOP::S, 7},
+			{AGOP::E, 0}, {AGOP::R, 1}, {AGOP::R, 1},
+			{AGOP::E, 0}, {AGOP::E, 0}, {AGOP::E, 0},
+		},
+		{ // 10
+			{AGOP::E, 0}, {AGOP::R, 3}, {AGOP::R, 3},
+			{AGOP::E, 0}, {AGOP::R, 3}, {AGOP::R, 3},
+			{AGOP::E, 0}, {AGOP::E, 0}, {AGOP::E, 0},
+		},
+		{ // 11
+			{AGOP::E, 0}, {AGOP::R, 5}, {AGOP::R, 5},
+			{AGOP::E, 0}, {AGOP::R, 5}, {AGOP::R, 5},
+			{AGOP::E, 0}, {AGOP::E, 0}, {AGOP::E, 0},
 		},
 	};
 }

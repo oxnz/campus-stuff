@@ -65,13 +65,17 @@ map<TokenType, const string> ttname = {
 	{TokenType::TAB, "\\t"},
 	{TokenType::EOL, "\\n"},
 	{TokenType::EOF_, "EOF"},
+
+	{TokenType::EXPR, "expression"},
+	{TokenType::TERM, "term"},
+	{TokenType::FACTOR, "factor"},
 };
 
 ostream& MICROCC::operator<<(ostream& os, const Token& t) {
 //	os << "token: [";
 	switch (t.m_type) {
 		case TokenType::POUND:
-		case TokenType::IDENTIFER:
+		case TokenType::IDENTIFIER:
 		case TokenType::INTVAL:
 		case TokenType::DOUBLEVAL:
 		case TokenType::CHARVAL:

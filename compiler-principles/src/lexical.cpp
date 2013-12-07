@@ -62,7 +62,7 @@ MICROCC::lex(const char* buf, size_t len, TokenTable& toktbl) {
 			else if (val == "fi")
 				type = TokenType::FI;
 			else
-				type = TokenType::IDENTIFER;
+				type = TokenType::IDENTIFIER;
 		} else {
 			switch (buf[i]) {
 				case '=':

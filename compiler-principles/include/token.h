@@ -17,7 +17,7 @@ namespace MICROCC {
 		CASE, IN, ESAC,
 
 		// identifer
-		IDENTIFER,
+		IDENTIFIER,
 
 		// operators
 		ASSIGN, // =
@@ -61,6 +61,11 @@ namespace MICROCC {
 		EOF_,
 		BEGIN,
 		END,
+
+		// non-terminals
+		EXPR,
+		TERM,
+		FACTOR,
 	};
 
 	enum class Scope {
