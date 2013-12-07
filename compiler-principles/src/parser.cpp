@@ -36,10 +36,13 @@ using namespace std;
 
 namespace MICROCC {
 	struct ReduceItem {
-		std::function<StackNode&(ParseStack& pstk)> reduce;
+		std::function<StackNode& (ParseStack& pstk,
+				CodeGen& codegen, IdentTable& idtbl,
+				MCodeTable& mctbl)> reduce;
 	};
 	ReduceItem ReduceTable[6] = {
-		{[](ParseStack& pstk)->StackNode& { // 1
+		{[](ParseStack& pstk, CodeGen& codegen, IdentTable& idtbl,
+				MCodeTable& mctbl)->StackNode& { // 1
 			StackNode& term = pstk.top();
 			pstk.pop();
 			StackNode& op = pstk.top();
@@ -53,7 +56,7 @@ namespace MICROCC {
 			return expr;
 												  }
 		},
-		{[](ParseStack& pstk)->StackNode& { // 2
+		{[](ParseStack& pstk, CodeGen& codegen, IdentTable& idtbl, MCodeTable& mctbl)->StackNode& { // 2
 			StackNode& term = pstk.top();
 			pstk.pop();
 			StackNode& expr = term;
@@ -62,7 +65,7 @@ namespace MICROCC {
 			return expr;
 							  }
 		},
-		{[](ParseStack& pstk)->StackNode& { // 3
+		{[](ParseStack& pstk, CodeGen& codegen, IdentTable& idtbl, MCodeTable& mctbl)->StackNode& { // 3
 			StackNode& factor = pstk.top();
 			pstk.pop();
 			StackNode& op = pstk.top();
@@ -76,7 +79,7 @@ namespace MICROCC {
 			return term;
 							  }
 		},
-		{[](ParseStack& pstk)->StackNode& { // 4
+		{[](ParseStack& pstk, CodeGen& codegen, IdentTable& idtbl, MCodeTable& mctbl)->StackNode& { // 4
 			StackNode& term = pstk.top();
 			pstk.pop();
 			//cout << "T->F:"	<< term << " -> " << term << endl;
@@ -84,7 +87,7 @@ namespace MICROCC {
 			return term;
 							  }
 		},
-		{[](ParseStack& pstk)->StackNode& { // 5
+		{[](ParseStack& pstk, CodeGen& codegen, IdentTable& idtbl, MCodeTable& mctbl)->StackNode& { // 5
 			StackNode& rparen = pstk.top();
 			pstk.pop();
 			StackNode& expr = pstk.top();
@@ -101,10 +104,12 @@ namespace MICROCC {
 			return factor;
 							  }
 		},
-		{[](ParseStack& pstk)->StackNode& { // 6
+		{[](ParseStack& pstk, CodeGen& codegen, IdentTable& idtbl, MCodeTable& mctbl)->StackNode& { // 6
 			StackNode& id = pstk.top();
 			pstk.pop();
 			//cout << "F->id:" << id << " -> " << id << endl;
+			idtbl.push_back({0, IdentType::INT, id.m_value, "nonset",
+					idtbl.genAddr(IdentType::INT)});
 			StackNode& factor = id;
 			factor.m_type = TokenType::FACTOR;
 			return factor;
@@ -114,8 +119,8 @@ namespace MICROCC {
 }
 
 bool
-MICROCC::Parser::parse(TokenTable& toktbl, MCodeTable& mctbl) {
-	cout << endl << "parsing" << endl;
+MICROCC::Parser::parse(TokenTable& toktbl, IdentTable& idtbl,
+		MCodeTable& mctbl) {
 	ParseStack pstk;
 	CodeGen codegen;
 	int stat = 0;
@@ -173,7 +178,8 @@ MICROCC::Parser::parse(TokenTable& toktbl, MCodeTable& mctbl) {
 				break;
 			case AGOP::R:
 				//cout << "R" << agit.stat << ": " << endl;
-				toktbl.push_front(ReduceTable[agit.stat-1].reduce(pstk));
+				toktbl.push_front(ReduceTable[agit.stat-1].reduce(pstk,
+							codegen, idtbl, mctbl));
 				stat = pstk.empty() ? 0 : pstk.top().stat;
 				/*
 				codegen.genMidCode(pstk, ReduceTable[agit.stat].op,

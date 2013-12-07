@@ -41,8 +41,10 @@ MICROCC::Microcc::compile(const char* fpath) {
 		return -1;
 	}
 	cout << toktbl << flush;
+	IdentTable idtbl;
 	MCodeTable mctbl;
-	m_pparser->parse(toktbl, mctbl);
+	m_pparser->parse(toktbl, idtbl, mctbl);
+	cout << idtbl << flush;
 	cout << mctbl << flush;
 
 	return 0;
