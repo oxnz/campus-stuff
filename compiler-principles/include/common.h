@@ -2,3 +2,6 @@
 
 
 #include <cstddef>
+
+namespace MICROCC {
+}

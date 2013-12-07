@@ -77,11 +77,17 @@ namespace MICROCC {
 
 	typedef std::string TokenValue;
 
+	struct Position {
+		uint32_t row;
+		uint32_t col;
+	};
+
 	struct Token {
-		Token(TokenType type, std::string val);
+		Token(TokenType type, std::string val, const Position& p);
 		friend std::ostream& operator<<(std::ostream& os, const Token& t);
 		TokenType m_type;
 		TokenValue m_value;
+		Position m_pos;
 	};
 
 	class TokenTable : public std::list<Token> {

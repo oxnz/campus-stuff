@@ -4,9 +4,10 @@
 using namespace std;
 using namespace MICROCC;
 
-Token::Token(TokenType type, TokenValue value)
+Token::Token(TokenType type, TokenValue value, const Position& pos)
 	: m_type(type),
-	m_value(value)
+	m_value(value),
+	m_pos(pos)
 {
 }
 

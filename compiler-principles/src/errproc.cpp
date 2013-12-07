@@ -1,4 +1,6 @@
 #include "errproc.h"
+#include "token.h"
+#include "codegen.h"
 
 #include <cstdarg>
 #include <cstdio>
@@ -42,24 +44,47 @@ namespace MICROCC {
 	}
 }
 
-void MICROCC::lexicalError(const char* fmt, ...) {
+
+void
+MICROCC::lexicalError(const Position& pos, const char* fmt, ...) {
+	std::fprintf(stderr, "*** lexical error (line: %d, column: %d): ",
+			pos.row, pos.col);
 	va_list args;
 	va_start(args, fmt);
-	MICROCC::errproc(ErrType::LexicalErr, fmt, args);
+	std::vfprintf(stderr, fmt, args);
 	va_end(args);
+	std::fprintf(stderr, "\n");
 }
 
-
-void MICROCC::syntaxError(const char* fmt, ...) {
+void
+MICROCC::syntaxError(const Token& tok, const char* fmt, ...) {
+	std::fprintf(stderr, "*** syntax error (line: %d, column: %d, token: ",
+			tok.m_pos.row, tok.m_pos.col);
+	std::cerr << tok << "): ";
 	va_list args;
 	va_start(args, fmt);
-	MICROCC::errproc(ErrType::SyntaxErr, fmt, args);
+	std::vfprintf(stderr, fmt, args);
 	va_end(args);
+	std::fprintf(stderr, "\n");
 }
 
+void
+MICROCC::syntaxError(const StackNode& stknode, const char* fmt, ...) {
+	std::fprintf(stderr, "*** syntax error (line: %d, column: %d, stat: %d): ",
+			stknode.m_pos.row, stknode.m_pos.col, stknode.stat);
+	std::cerr << "token: " << stknode;
+	va_list args;
+	va_start(args, fmt);
+	std::vfprintf(stderr, fmt, args);
+	va_end(args);
+	std::cerr << std::endl;
+}
+
+/*
 void MICROCC::semanticError(const char* fmt, ...) {
 	va_list args;
 	va_start(args, fmt);
 	MICROCC::errproc(ErrType::SemanticErr, fmt, args);
 	va_end(args);
 }
+*/

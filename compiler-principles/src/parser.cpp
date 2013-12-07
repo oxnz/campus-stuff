@@ -152,8 +152,7 @@ MICROCC::Parser::parse(TokenTable& toktbl, MCodeTable& mctbl) {
 				ttyp = 8;
 				break;
 			default:
-				syntaxError("unexpected token: (type: %d)",
-						static_cast<uint32_t>(tok.m_type));
+				syntaxError(tok, "unexpected token");
 				break;
 		}
 		ActGoItem agit = ActGoTable[stat][ttyp];
@@ -161,7 +160,8 @@ MICROCC::Parser::parse(TokenTable& toktbl, MCodeTable& mctbl) {
 			case AGOP::A:
 				cout << "accept" << endl;
 				if (pstk.size() != 1) {
-					syntaxError("accepted before reduce to begin symbol");
+					syntaxError(pstk.top(),
+							"accepted before reduce to begin symbol");
 					goto errorproc;
 				}
 				return true;
@@ -189,8 +189,7 @@ MICROCC::Parser::parse(TokenTable& toktbl, MCodeTable& mctbl) {
 				pstk.top().stat = stat;
 				break;
 			case AGOP::E:
-				syntaxError("unexpected token: (type: %d, stat: %d)",
-						static_cast<int>(tok.m_type), stat);
+				syntaxError(tok, "unexpected token");
 				goto errorproc;
 				break;
 		}

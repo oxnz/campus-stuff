@@ -5,14 +5,9 @@
 using namespace std;
 using namespace MICROCC;
 
-typedef struct Position {
-	uint32_t row;
-	uint32_t col;
-	uint32_t offset;
-} Position;
-
 int
 MICROCC::lex(const char* buf, size_t len, TokenTable& toktbl) {
+	Position pos = {0, 0};
 	for (size_t i = 0; i < len;) {
 		TokenType type;
 		TokenValue val;
@@ -21,25 +16,29 @@ MICROCC::lex(const char* buf, size_t len, TokenTable& toktbl) {
 			while (isdigit(buf[i])) {
 				val += buf[i];
 				++i;
+				++pos.col;
 			}
 			if (buf[i] == '.') {
 				if (isdigit(buf[i+1])) {
 					type = TokenType::DOUBLEVAL;
 					val += buf[i];
 					++i;
+					++pos.col;
 				} else {
-					lexicalError("extra dot after integer");
+					lexicalError(pos, "extra dot after integer");
 					return -1;
 				}
 			}
 			while (isdigit(buf[i])) {
 				val += buf[i];
 				++i;
+				++pos.col;
 			}
 		} else if (isalpha(buf[i])) { // identifer
 			while (isalnum(buf[i])) {
 				val += buf[i];
 				++i;
+				++pos.col;
 			}
 			if (val == "int")
 				type = TokenType::INT;
@@ -80,19 +79,21 @@ MICROCC::lex(const char* buf, size_t len, TokenTable& toktbl) {
 				case '/':
 					if (buf[i+1] == '/') { // line comment
 						while (buf[++i] != '\n')
-							; // cout << buf[i];
+							++pos.col; // cout << buf[i];
 						++i;
+						pos.col += 2;
 						continue;
 					} else if (buf[i+1] == '*') { // block comment
 						for (i += 2; (buf[i] != '*' || buf[i+1] != '/') &&
 								buf[i+1] != -1;
-								++i)
+								++i, ++pos.col)
 							; // cout << buf[i];
 						if (buf[i+1] == -1) {
-							lexicalError("'*/' not found");
+							lexicalError(pos, "'*/' not found");
 							return -1;
 						} else {
 							i += 2;
+							pos.col += 2;
 							continue;
 						}
 					}
@@ -131,8 +132,11 @@ MICROCC::lex(const char* buf, size_t len, TokenTable& toktbl) {
 					break;
 				case '#':
 					type = TokenType::POUND;
-					while (buf[++i] != '\n')
+					while (buf[++i] != '\n') {
 						val += buf[i];
+						++pos.col;
+					}
+					++pos.col;
 					continue;
 					break;
 				case '[':
@@ -160,11 +164,23 @@ MICROCC::lex(const char* buf, size_t len, TokenTable& toktbl) {
 					type = TokenType::TILDE;
 					break;
 				case ' ':
+					++pos.col;
+					++i;
+					continue;
 				case '\t':
+					pos.col += 8;
+					++i;
+					continue;
 				case '\r': // windows \r\n
+					pos.col = 0;
+					++i;
+					continue;
 				case '\n':
+					pos.col = 0;
+					++pos.row;
 					/* skip any white space or newline */
-					++i; continue;
+					++i;
+					continue;
 					break;
 				case ',':
 					type = TokenType::COMMA;
@@ -176,12 +192,13 @@ MICROCC::lex(const char* buf, size_t len, TokenTable& toktbl) {
 					type = TokenType::EOF_;
 					break;
 				default:
-					lexicalError("unexpected character: %c", buf[i]);
+					lexicalError(pos, "unexpected character: %c", buf[i]);
 					return -1;
 			}
 			++i;
+			++pos.col;
 		}
-		toktbl.push_back(Token(type, val));
+		toktbl.push_back(Token(type, val, pos));
 	}
 	return 0;
 }
