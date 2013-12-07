@@ -102,8 +102,8 @@ TokenTable::~TokenTable() {
 std::ostream&
 MICROCC::operator<<(std::ostream& os,
 		const TokenTable& toktbl) {
-	os << "Token Table (size: " << toktbl.size() << "):" << endl;
-	os << "line\tcolumn\ttype\ttoken" << endl;
+	os << "Token Table (size: " << toktbl.size() << "):\n"
+		<< "line\tcolumn\ttype\ttoken\n";
 	for_each (toktbl.begin(), toktbl.end(), [&os](const Token& t)->void {
 		os << t << endl; });
 	return os;

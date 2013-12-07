@@ -2,4 +2,6 @@
 
 #include "common.h"
 
-int preprocess(char* buf, size_t len);
+namespace MICROCC {
+	int preprocess(char* buf, size_t len);
+}

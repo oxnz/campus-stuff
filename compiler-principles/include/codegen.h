@@ -6,23 +6,10 @@
 
 #include "common.h"
 #include "token.h"
+#include "ident.h"
 
 namespace MICROCC {
 	class TokenTable;
-	struct Ident {
-		uint8_t scopelvl;
-		std::string name;
-		size_t addr;
-	};
-
-	class IdentTable : public std::list<Ident> {
-	public:
-		IdentTable();
-		~IdentTable();
-		std::list<Ident>::iterator lookup(const std::string& name);
-		bool remove(const std::string& name);
-	private:
-	};
 
 	struct AttrToken : public Token {
 		AttrToken(const Token& t, int address = 0)

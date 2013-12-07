@@ -3,6 +3,8 @@
 /*
  * not implemented yet
  */
-int preprocess(char* buf, size_t len) {
+
+int
+MICROCC::preprocess(char* buf, size_t len) {
 	return 0;
 }
