@@ -94,6 +94,8 @@ namespace MICROCC {
 		public:
 			TokenTable();
 			virtual ~TokenTable();
+			friend std::ostream& operator<<(std::ostream& os,
+					const TokenTable& toktbl);
 		private:
 	};
 }

@@ -73,7 +73,8 @@ map<TokenType, const string> ttname = {
 };
 
 ostream& MICROCC::operator<<(ostream& os, const Token& t) {
-//	os << "token: [";
+	os << t.m_pos.row << "\t" << t.m_pos.col << "\t"
+		<< static_cast<uint32_t>(t.m_type) << "\t";
 	switch (t.m_type) {
 		case TokenType::POUND:
 		case TokenType::IDENTIFIER:
@@ -89,7 +90,6 @@ ostream& MICROCC::operator<<(ostream& os, const Token& t) {
 			os << ttname[t.m_type];
 			break;
 	}
-//	os << "]";
 	return os;
 }
 
@@ -97,4 +97,14 @@ TokenTable::TokenTable() {}
 
 TokenTable::~TokenTable() {
 	this->clear();
+}
+
+std::ostream&
+MICROCC::operator<<(std::ostream& os,
+		const TokenTable& toktbl) {
+	os << "Token Table (size: " << toktbl.size() << "):" << endl;
+	os << "line\tcolumn\ttype\ttoken" << endl;
+	for_each (toktbl.begin(), toktbl.end(), [&os](const Token& t)->void {
+		os << t << endl; });
+	return os;
 }

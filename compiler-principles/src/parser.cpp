@@ -193,8 +193,6 @@ MICROCC::Parser::parse(TokenTable& toktbl, MCodeTable& mctbl) {
 				goto errorproc;
 				break;
 		}
-		//pstk.push(StackNode(*it));
-		//cout << t << " ";
 	}
 errorproc:
 	while (!pstk.empty()) {

@@ -67,6 +67,9 @@ namespace MICROCC {
 	};
 
 	class MCodeTable : public std::list<MidCode> {
+	public:
+		friend std::ostream& operator<<(std::ostream& os,
+				const MCodeTable& mctbl);
 	};
 
 	class OCodeTable : public std::list<ObjCode> {

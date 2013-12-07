@@ -40,6 +40,14 @@ MICROCC::operator<<(ostream& os, const MICROCC::MidCode& mc) {
 	return os;
 }
 
+ostream&
+MICROCC::operator<<(ostream& os, const MICROCC::MCodeTable& mctbl) {
+	os << "MidCode Table (size: " << mctbl.size() << "):" << endl;
+	for_each(mctbl.begin(), mctbl.end(), [&os](const MidCode& mc)->void {
+			os << mc << endl; });
+	return os;
+}
+
 MICROCC::CodeGen::CodeGen() {
 }
 
