@@ -18,3 +18,9 @@ MICROCC::operator<<(std::ostream& os, const IdentTable& idtbl) {
 
 	return os;
 }
+
+/*
+Ident genTmp(enum class IdentType idtyp) {
+	Ident idt;
+}
+*/

@@ -10,6 +10,7 @@ microcc_SOURCES = main.cpp \
 				  errproc.cpp \
 				  microcc.cpp \
 				  token.cpp \
+				  ident.cpp \
 				  preproc.cpp \
 				  lexical.cpp \
 				  parser.cpp \
