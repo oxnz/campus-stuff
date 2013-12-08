@@ -5,11 +5,10 @@
 #include <stack>
 
 #include "common.h"
-#include "token.h"
 #include "ident.h"
 
 namespace MICROCC {
-	class TokenTable;
+	//class TokenTable;
 
 	struct StackNode : public Ident { // attributed token with status
 		StackNode(const Ident& id, int stat = 0)
@@ -58,10 +57,11 @@ namespace MICROCC {
 		~CodeGen();
 		const IdentTable& identTable() const { return m_idt; }
 		IdentTable& identTable() { return m_idt; }
-		void dumpMCode(std::ostream& os);
 		int genMidCode(MidCode::OP op, const Ident& id1, const Ident& id2,
 				const Ident& ret);
+		int dumpMCode(std::ostream& os);
 		int genObjCode(const MCodeTable& mctbl, OCodeTable& octbl);
+		int dumpOCode(std::ostream& os);
 	private:
 		IdentTable m_idt;
 		MCodeTable m_mct;

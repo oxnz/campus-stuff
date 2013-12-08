@@ -42,10 +42,8 @@ MICROCC::operator<<(std::ostream& os, const IdentTable& idtbl) {
 	os << "====> Identifier Table (size: " << idtbl.size() <<
 		"):\n----------------------------------------------------------\n"
 		<< "position\ttype\tvalue\tscope\tname\taddr\n";
-		
-
-	for_each(idtbl.begin(), idtbl.end(), [&os](const Ident& ident) {
-		os << ident << endl; });
+	for (const auto id : idtbl)
+		os << id << endl;
 	os << "==========================================================\n";
 
 	return os;

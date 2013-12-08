@@ -127,8 +127,8 @@ MICROCC::operator<<(std::ostream& os,
 	os << "====> Token Table (size: " << toktbl.size()
 		<< "):\n-------------------------------------------\n"
 		<< "position\ttype\tvalue\n";
-	for_each (toktbl.begin(), toktbl.end(), [&os](const Token& t)->void {
-		os << t << endl; });
+	for (const auto tok : toktbl)
+		os << tok << endl;
 	os << "===========================================\n";
 	return os;
 }
