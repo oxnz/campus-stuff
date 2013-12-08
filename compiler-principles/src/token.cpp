@@ -12,66 +12,78 @@ Token::Token(TokenType type, const TokenValue& value, const Position& pos)
 }
 
 namespace MICROCC {
-map<TokenType, const string> ttname = {
-	{TokenType::BOOL, "bool"},
-	{TokenType::INT, "int"},
-	{TokenType::DOUBLE, "double"},
-	{TokenType::CHAR, "char"},
-	{TokenType::STR, "str"},
-	{TokenType::TRUE, "true"},
-	{TokenType::FALSE, "false"},
+	map<TokenType, const string> ttname = {
+		{TokenType::BOOL, "BOOL"},
+		{TokenType::INT, "INT"},
+		{TokenType::DOUBLE, "DBLE"},
+		{TokenType::CHAR, "CHAR"},
+		{TokenType::STR, "STR"},
+		{TokenType::TRUE, "TRUE"},
+		{TokenType::FALSE, "FALSE"},
 
-	{TokenType::IF, "if"},
-	{TokenType::ELIF, "elif"},
-	{TokenType::ELSE, "else"},
-	{TokenType::FI, "fi"},
+		{TokenType::INTVAL, "(INT)"},
+		{TokenType::DOUBLEVAL, "(DBLE)"},
+		{TokenType::CHARVAL, "(CHAR)"},
+		{TokenType::STRVAL, "(STR)"},
 
-	{TokenType::CASE, "case"},
-	{TokenType::IN, "in"},
-	{TokenType::ESAC, "esac"},
+		{TokenType::IF, "IF"},
+		{TokenType::ELIF, "ELIF"},
+		{TokenType::ELSE, "ELSE"},
+		{TokenType::FI, "FI"},
 
-	{TokenType::ASSIGN, "="},
-	{TokenType::ADD, "+"},
-	{TokenType::SUB, "-"},
-	{TokenType::MUL, "*"},
-	{TokenType::DIV, "/"},
-	{TokenType::LT, "<"},
-	{TokenType::LE, "<="},
-	{TokenType::NE, "!="},
-	{TokenType::EQ, "=="},
-	{TokenType::GT, ">"},
-	{TokenType::GE, ">="},
-	{TokenType::NOT, "!"},
+		{TokenType::CASE, "CASE"},
+		{TokenType::IN, "IN"},
+		{TokenType::ESAC, "ESAC"},
 
-	{TokenType::COLON, ":"},
-	{TokenType::AMP, "&"},
-	{TokenType::CARET, "^"},
-	{TokenType::UNDERSCORE, "_"},
-	{TokenType::BACKSLASH, "\\"},
-	{TokenType::DOT, "."},
-	{TokenType::PIPE, "|"},
-	{TokenType::POUND, "#"},
+		{TokenType::IDENTIFIER, "ID"},
 
-	{TokenType::LPAREN, "("},
-	{TokenType::RPAREN, ")"},
-	{TokenType::QUOTE, "\""},
-	{TokenType::TILDE, "~"},
-	{TokenType::LSUBSCRIPT, "["},
-	{TokenType::RSUBSCRIPT, "]"},
-	{TokenType::LBRACKET, "{"},
-	{TokenType::RBRACKET, "}"},
+		{TokenType::ASSIGN, "ASSIGN"},
+		{TokenType::ADD, "ADD"},
+		{TokenType::SUB, "SUB"},
+		{TokenType::MUL, "MUL"},
+		{TokenType::DIV, "DIV"},
+		{TokenType::LT, "LT"},
+		{TokenType::LE, "LE"},
+		{TokenType::NE, "NE"},
+		{TokenType::EQ, "EQ"},
+		{TokenType::GT, "GT"},
+		{TokenType::GE, "GE"},
+		{TokenType::NOT, "NOT"},
 
-	{TokenType::COMMA, ","},
-	{TokenType::SEMICOLON, ";"},
-	{TokenType::SPACE, " "},
-	{TokenType::TAB, "\\t"},
-	{TokenType::EOL, "\\n"},
-	{TokenType::EOF_, "EOF"},
+		{TokenType::COLON, "COLON"},
+		{TokenType::AMP, "AMP"},
+		{TokenType::CARET, "CARET"},
+		{TokenType::UNDERSCORE, "UNDERSCORE"},
+		{TokenType::BACKSLASH, "BLACKSLASH"},
+		{TokenType::DOT, "DOT"},
+		{TokenType::PIPE, "PIPE"},
+		{TokenType::POUND, "POUND"},
 
-	{TokenType::EXPR, "expr"},
-	{TokenType::TERM, "term"},
-	{TokenType::FACTOR, "factor"},
-};
+		{TokenType::LSUBSCRIPT, "LSUBSPT"},
+		{TokenType::RSUBSCRIPT, "RSUBSPT"},
+
+		{TokenType::LPAREN, "LPAREN"},
+		{TokenType::RPAREN, "RPAREN"},
+		{TokenType::LBRACKET, "LBRACKT"},
+		{TokenType::RBRACKET, "RBRACKT"},
+		{TokenType::QUOTE, "QUOTE"},
+		{TokenType::TILDE, "TILDE"},
+
+		{TokenType::COMMA, "COMMA"},
+		{TokenType::SEMICOLON, "SEMICLN"},
+		{TokenType::SPACE, "SPACE"},
+		{TokenType::TAB, "TAB"},
+		{TokenType::EOL, "EOF"},
+		{TokenType::EOF_, "EOF"},
+		{TokenType::BEGIN, "BEGIN"},
+		{TokenType::END, "END"},
+
+		{TokenType::FUNC, "FUNC"},
+
+		{TokenType::EXPR, "EXPR"},
+		{TokenType::TERM, "TERM"},
+		{TokenType::FACTOR, "FACTOR"},
+	};
 }
 
 ostream&
@@ -84,7 +96,7 @@ MICROCC::operator<<(ostream& os, const Position& pos) {
 
 ostream&
 MICROCC::operator<<(ostream& os, const Token& t) {
-	os << t.m_pos << "\t\t";
+	os << t.m_pos << "  \t" << ttname[t.m_type] << "\t";
 	switch (t.m_type) {
 		case TokenType::POUND:
 		case TokenType::INTVAL:
@@ -94,10 +106,10 @@ MICROCC::operator<<(ostream& os, const Token& t) {
 			os << t.m_value;
 			break;
 		case TokenType::STRVAL:
-			os << "str(" << t.m_value << ")";
+			os << "\"" << t.m_value << "\"";
 			break;
 		default:
-			os << ttname[t.m_type];
+			os << "nonset";
 			break;
 	}
 	return os;
@@ -112,9 +124,9 @@ TokenTable::~TokenTable() {
 std::ostream&
 MICROCC::operator<<(std::ostream& os,
 		const TokenTable& toktbl) {
-	os << "Token Table (size: " << toktbl.size()
+	os << "====> Token Table (size: " << toktbl.size()
 		<< "):\n-------------------------------------------\n"
-		<< "position\ttype\ttoken\n";
+		<< "position\ttype\tvalue\n";
 	for_each (toktbl.begin(), toktbl.end(), [&os](const Token& t)->void {
 		os << t << endl; });
 	os << "===========================================\n";

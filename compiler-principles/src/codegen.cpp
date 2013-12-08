@@ -24,7 +24,7 @@ MICROCC::operator<<(ostream& os, const MICROCC::MidCode& mc) {
 
 ostream&
 MICROCC::operator<<(ostream& os, const MICROCC::MCodeTable& mctbl) {
-	os << "MidCode Table (size: " << mctbl.size() <<
+	os << "====> MidCode Table (size: " << mctbl.size() <<
 		"):\n----------------------------------\n";
 	for_each(mctbl.begin(), mctbl.end(), [&os](const MidCode& mc)->void {
 			os << mc << endl; });
@@ -42,6 +42,10 @@ int
 MICROCC::CodeGen::genMidCode(MidCode::OP op, const Ident& id1,
 		const Ident& id2,
 		const Ident& ret) {
+	cout << id1.m_name << "(" << static_cast<ssize_t>(id1.m_addr) << ") "
+		<< opname[static_cast<uint8_t>(op)] << " " << id2.m_name << "("
+		<< static_cast<ssize_t>(id2.m_addr) << ") => " << ret.m_name
+		<< "(" << static_cast<ssize_t>(ret.m_addr) << ")\n";
 	/*
 	cout << "id1: " << id1 << "\n" << "id2: " << id2 << "\n" << "ret: " << ret
 		<< "\n";

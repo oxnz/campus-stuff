@@ -39,14 +39,14 @@ MICROCC::operator<<(std::ostream& os, const Ident& ident) {
 
 std::ostream&
 MICROCC::operator<<(std::ostream& os, const IdentTable& idtbl) {
-	os << "Identifier Table (size: " << idtbl.size() <<
-		"):\n--------------------------------------------\n"
-		<< "position\tvalue\tscope\tname\taddr\n";
+	os << "====> Identifier Table (size: " << idtbl.size() <<
+		"):\n----------------------------------------------------------\n"
+		<< "position\ttype\tvalue\tscope\tname\taddr\n";
 		
 
 	for_each(idtbl.begin(), idtbl.end(), [&os](const Ident& ident) {
 		os << ident << endl; });
-	os << "============================================\n";
+	os << "==========================================================\n";
 
 	return os;
 }

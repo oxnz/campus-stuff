@@ -4,28 +4,27 @@
 
 /*
  * <microc> ::= <prog> // accpet sign
- * <prog> ::= <func><prog> | <stmt><prog> | <main_func>
- * <if_stmt> ::= if <cond> <stmt> [else <stmt>] fi
- * <for_stmt> ::= for (<decl>; <cond>; <stmt>) <block>
- * <while_stmt> ::= while (<cond>) <block>
+ * <prog> ::= <func><prog> | <stmt><prog> | <func>
+ * <if> ::= if <cond> <stmt> [else <stmt>] fi
+ * <for> ::= for (<decl>; <cond>; <stmt>) <stmt>
+ * <while> ::= while (<cond>) <stmt>
  * <block> ::= '{' <stmts> '}'
- * <do_stmt> ::= do stmt while (<cond>);
- * <cond> ::= <expr> {>|>=|<|<=|!= <expr>} | <expr>
- * <expr> ::= <expr>+<term> | <term>-<term> | -<term> | <term>
+ * <do> ::= do stmt while '('<cond>')'
+ * <cond> ::= <expr> {>|>=|<|<=|!=} <expr> | <expr>
+ * <expr> ::= <expr>+<term> | <expr>-<term> | -<term> | <term>
  * <term> ::= <term>*<factor> | <term>/<factor> | <term>%<factor> | <factor>
- * <factor> ::= (<expr>) | <id>
- * <stmt> ::= <decl> | <assign> | <do_stmt> | <for_stmt>
- * 				| <while_stmt> | <if_stmt> | <block>
- * <decl> ::= <type><assign> | <type><id>';' | <decl>, <id>
+ * <factor> ::= (<expr>) | <id> | <num>
+ * <stmt> ::= <decl> | <assign> | <do> | <for> | <while> | <if> | <block>
+ * <decl> ::= <type><assign> | <type><id> | <decl>, <id>
  * <assign> ::= <id> = {<id>|<num>|<expr>};
- * <stmts> ::= <stmt>*
- * <main_func> ::= int main'('')' <block>
- * <function> ::= <type> <id>(<arg>(, <arg>)) <block>
+ * <stmts> ::= <stmts>*
+ * <func> ::= <type> <id>(<args>) <block>
  * <type> ::= int | double | bool
  * <id> ::= [a-zA-Z][a-zA-Z0-9_]*
  * <arg> ::= <type><id>
- * <args> ::= <arg>'(', <arg>')'*
+ * <args> ::= <arg>(, <arg>)*
  */
+
 #include "errproc.h"
 #include "parser.h"
 #include "grammer.h"
@@ -45,6 +44,9 @@ namespace MICROCC {
 			StackNode& term = pstk.top();
 			pstk.pop();
 			StackNode& op = pstk.top();
+			if (op.m_type != TokenType::ADD) {
+				syntaxError(op,	"expected operator ADD, not found");
+			}
 			pstk.pop();
 			StackNode& expr = pstk.top();
 			pstk.pop();
@@ -67,6 +69,9 @@ namespace MICROCC {
 			StackNode& factor = pstk.top();
 			pstk.pop();
 			StackNode& op = pstk.top();
+			if (op.m_type != TokenType::MUL) {
+				syntaxError(op, "expected operator MUL, not found");
+			}
 			pstk.pop();
 			pstk.top().m_type = TokenType::TERM;
 			StackNode& term = pstk.top();
@@ -88,10 +93,14 @@ namespace MICROCC {
 		{[](ParseStack& pstk, CodeGen& codegen)->void { // 5
 			StackNode& rparen = pstk.top();
 			pstk.pop();
+			if (rparen.m_type != TokenType::RPAREN)
+				syntaxError(rparen, "expected RPAREN, not found");
 			StackNode& expr = pstk.top();
 			pstk.pop();
 			StackNode& lparen = pstk.top();
 			pstk.pop();
+			if (lparen.m_type != TokenType::LPAREN)
+				syntaxError(lparen, "expected LPAREN, not found");
 			StackNode& factor = expr;
 			/*
 			cout << "F->(E):"
