@@ -3,20 +3,20 @@
  */
 
 /*
- * <microc> ::= <program> // accpet sign
- * <program> ::= <func><program> | <stmt><program> | <main_func>
- * <if_stmt> ::= if <condition> <stmt> [else <stmt>] fi
- * <for_stmt> ::= for (<declaration>; <condition>; <stmt>) <block>
- * <while_stmt> ::= while (<condition>) <block>
+ * <microc> ::= <prog> // accpet sign
+ * <prog> ::= <func><prog> | <stmt><prog> | <main_func>
+ * <if_stmt> ::= if <cond> <stmt> [else <stmt>] fi
+ * <for_stmt> ::= for (<decl>; <cond>; <stmt>) <block>
+ * <while_stmt> ::= while (<cond>) <block>
  * <block> ::= '{' <stmts> '}'
- * <do_stmt> ::= do stmt while (<condition>);
- * <condition> ::= <expresstion> {>|>=|<|<=|!= <expr>}
+ * <do_stmt> ::= do stmt while (<cond>);
+ * <cond> ::= <expr> {>|>=|<|<=|!= <expr>} | <expr>
  * <expr> ::= <expr>+<term> | <term>-<term> | -<term> | <term>
  * <term> ::= <term>*<factor> | <term>/<factor> | <term>%<factor> | <factor>
  * <factor> ::= (<expr>) | <id>
  * <stmt> ::= <decl> | <assign> | <do_stmt> | <for_stmt>
  * 				| <while_stmt> | <if_stmt> | <block>
- * <decl> ::= <type><assign> | <type><id>';'
+ * <decl> ::= <type><assign> | <type><id>';' | <decl>, <id>
  * <assign> ::= <id> = {<id>|<num>|<expr>};
  * <stmts> ::= <stmt>*
  * <main_func> ::= int main'('')' <block>
@@ -51,9 +51,11 @@ namespace MICROCC {
 			//cout << "E->E+T:" << expr << " -> " << expr << op << term << endl;
 			cout << "code: expr.addr = expr.addr + term.addr" << endl;
 			//cout << "=====>" << term << expr << endl;
-			codegen.genMidCode(MidCode::OP::add, expr, term, expr);
-			expr.m_type = TokenType::EXPR;
-			pstk.push(expr);
+			IdentTable& idt = codegen.identTable();
+			Ident& dstexpr = idt.genTmp(IdentType::INT);
+			codegen.genMidCode(MidCode::OP::add, expr, term, dstexpr);
+			dstexpr.m_type = TokenType::EXPR;
+			pstk.push(dstexpr);
 												  }
 		},
 		{[](ParseStack& pstk, CodeGen& codegen)->void { // 2
@@ -68,9 +70,14 @@ namespace MICROCC {
 			pstk.pop();
 			pstk.top().m_type = TokenType::TERM;
 			StackNode& term = pstk.top();
+			pstk.pop();
+			IdentTable& idt = codegen.identTable();
+			Ident& dstterm = idt.genTmp(IdentType::INT);
+			dstterm.m_type = TokenType::TERM;
 			//cout << "T->T*F:" << term << " -> " << term << op << factor << endl;
 			cout << "code: term.addr = term.addr * factor.addr" << endl;
-			codegen.genMidCode(MidCode::OP::mul, term, factor, term);
+			codegen.genMidCode(MidCode::OP::mul, term, factor, dstterm);
+			pstk.push(dstterm);
 							  }
 		},
 		{[](ParseStack& pstk, CodeGen& codegen)->void { // 4
@@ -131,7 +138,6 @@ MICROCC::Parser::parse(TokenTable& toktbl, CodeGen& codegen) {
 	ParseStack pstk;
 	int stat = 0;
 	while (!toktbl.empty()) {
-	//cout << "parsing " << endl;
 		Token& tok = toktbl.front();
 		//cout << "tok: " << tok << endl;
 		ActGoItem agit = ActGoTable[stat][TypeTable[tok.m_type]];
