@@ -2,28 +2,6 @@
  * File: parser.cpp
  */
 
-/*
- * <microc> ::= <prog> // accpet sign
- * <prog> ::= <func><prog> | <stmt><prog> | <func>
- * <if> ::= if <cond> <stmt> [else <stmt>] fi
- * <for> ::= for (<decl>; <cond>; <stmt>) <stmt>
- * <while> ::= while (<cond>) <stmt>
- * <block> ::= '{' <stmts> '}'
- * <do> ::= do stmt while '('<cond>')'
- * <cond> ::= <expr> {>|>=|<|<=|!=} <expr> | <expr>
- * <expr> ::= <expr>+<term> | <expr>-<term> | -<term> | <term>
- * <term> ::= <term>*<factor> | <term>/<factor> | <term>%<factor> | <factor>
- * <factor> ::= (<expr>) | <id> | <num>
- * <stmt> ::= <decl> | <assign> | <do> | <for> | <while> | <if> | <block>
- * <decl> ::= <type><assign> | <type><id> | <decl>, <id>
- * <assign> ::= <id> = {<id>|<num>|<expr>};
- * <stmts> ::= <stmts>*
- * <func> ::= <type> <id>(<args>) <block>
- * <type> ::= int | double | bool
- * <id> ::= [a-zA-Z][a-zA-Z0-9_]*
- * <arg> ::= <type><id>
- * <args> ::= <arg>(, <arg>)*
- */
 
 #include "errproc.h"
 #include "parser.h"
