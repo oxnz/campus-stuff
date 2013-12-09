@@ -29,5 +29,7 @@ AC_CHECK_FUNCS([pow])
 
 AC_CONFIG_FILES([Makefile
 				 src/Makefile
+				 tools/Makefile
+				 exp/Makefile
                  test/Makefile])
 AC_OUTPUT
