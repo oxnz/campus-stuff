@@ -40,6 +40,14 @@ namespace MICROCC {
 	};
 
 	struct ObjCode {
+		size_t size;
+		union {
+			uint8_t v8;
+			uint16_t v16;
+			uint32_t v32;
+			uint64_t v64;
+		} value;
+		friend std::ostream& operator<<(std::ostream& os, const ObjCode& oc);
 	};
 
 	class MCodeTable : public std::list<MidCode> {
