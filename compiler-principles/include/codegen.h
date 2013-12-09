@@ -56,8 +56,7 @@ namespace MICROCC {
 				const MCodeTable& mctbl);
 	};
 
-	class OCodeTable : public std::list<ObjCode> {
-	};
+	class OCodeTable : public std::list<ObjCode> {};
 
 	class CodeGen {
 	public:

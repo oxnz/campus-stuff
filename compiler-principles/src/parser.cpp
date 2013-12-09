@@ -14,9 +14,9 @@ using namespace std;
 
 namespace MICROCC {
 	struct ReduceItem {
-		std::function<void(ParseStack& pstk,
-				CodeGen& codegen)> reduce;
+		std::function<void(ParseStack& pstk, CodeGen& codegen)> reduce;
 	};
+
 	ReduceItem ReduceTable[6] = {
 		{[](ParseStack& pstk, CodeGen& codegen)->void { // 1
 			StackNode& term = pstk.top();
@@ -167,12 +167,10 @@ MICROCC::Parser::parse(TokenTable& toktbl, CodeGen& codegen) {
 				break;
 			case AGOP::G:
 				cout << "goto" << agit.stat << endl;
-				// FIXME: it is wrong to cast tok to stackNode
 				cerr << "*** error: unexpected GOTO" << endl;
 				toktbl.pop_front();
-				pstk.push(static_cast<StackNode>(tok));
 				stat = agit.stat;
-				pstk.top().m_stat = stat;
+				pstk.push({tok, stat});
 				break;
 			case AGOP::E:
 				syntaxError(tok, "unexpected token");
