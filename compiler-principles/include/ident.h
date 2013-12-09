@@ -24,6 +24,7 @@ namespace MICROCC {
 		size_t m_scope;
 		std::string m_name;
 		size_t m_addr;
+		bool m_init; // initialized or not
 		friend std::ostream& operator<<(std::ostream&,
 				const Ident&);
 	};

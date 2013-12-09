@@ -7,7 +7,8 @@ MICROCC::Ident::Ident(const Token& tok, size_t scope, const string& name,
 : Token(tok),
 m_scope(scope),
 m_name(name),
-m_addr(addr)
+m_addr(addr),
+m_init(false)
 {
 	if (tok.m_type == TokenType::IDENTIFIER) {
 		m_name = m_value;

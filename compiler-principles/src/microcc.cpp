@@ -29,14 +29,14 @@ MICROCC::Microcc::compile(const char* fpath) {
 	}
 	sf.seekg(0, ios::end);
 	m_sfsiz = sf.tellg();
-	m_sf = new char[++m_sfsiz];
+	m_psf = new char[++m_sfsiz];
 	sf.seekg(0, ios::beg);
-	sf.read(m_sf, m_sfsiz);
+	sf.read(m_psf, m_sfsiz);
 	sf.close();
-	m_sf[m_sfsiz-1] = -1;
+	m_psf[m_sfsiz-1] = -1;
 
 	TokenTable toktbl;
-	if (lex(m_sf, m_sfsiz, toktbl) == -1) {
+	if (lex(m_psf, m_sfsiz, toktbl) == -1) {
 		cerr << "lex parse error" << endl;
 		return -1;
 	}

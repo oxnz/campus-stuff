@@ -8,9 +8,7 @@
 #include "ident.h"
 
 namespace MICROCC {
-	//class TokenTable;
-
-	struct StackNode : public Ident { // attributed token with status
+	struct StackNode : public Ident {
 		StackNode(const Ident& id, int stat = 0)
 			: Ident(id),
 			m_stat(stat)

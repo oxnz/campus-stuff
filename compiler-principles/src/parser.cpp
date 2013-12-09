@@ -108,29 +108,29 @@ namespace MICROCC {
 	};
 
 	map<TokenType, size_t> TypeTable {
-		{TokenType::IDENTIFIER, 0},
-		{TokenType::ADD, 1},
-		{TokenType::MUL, 2},
-		{TokenType::LPAREN, 3},
-		{TokenType::RPAREN, 4},
-		{TokenType::EOF_, 5},
-		{TokenType::EXPR, 6},
-		{TokenType::TERM, 7},
-		{TokenType::FACTOR, 8},
+		{TokenType::IDENTIFIER,	0},
+		{TokenType::ADD,		1},
+		{TokenType::MUL,		2},
+		{TokenType::LPAREN,		3},
+		{TokenType::RPAREN,		4},
+		{TokenType::EOF_,		5},
+		{TokenType::EXPR,		6},
+		{TokenType::TERM,		7},
+		{TokenType::FACTOR,		8},
 	};
 }
 
 bool
 MICROCC::Parser::parse(TokenTable& toktbl, CodeGen& codegen) {
 	ParseStack pstk;
-	int stat = 0;
+	size_t stat = 0;
 	while (!toktbl.empty()) {
 		Token& tok = toktbl.front();
 		//cout << "tok: " << tok << endl;
 		ActGoItem agit = ActGoTable[stat][TypeTable[tok.m_type]];
 		switch (agit.op) {
 			case AGOP::A:
-				cout << "accept" << endl;
+				//cout << "accept" << endl;
 				if (pstk.size() != 1) {
 					syntaxError(pstk.top(),
 							"accepted before reduce to begin symbol");
@@ -140,16 +140,11 @@ MICROCC::Parser::parse(TokenTable& toktbl, CodeGen& codegen) {
 			case AGOP::S:
 				//cout << "S" << agit.stat << ": " << endl;
 				toktbl.pop_front();
-				pstk.push(StackNode(tok, agit.stat));
 				stat = agit.stat;
+				pstk.push({tok, stat});
 				break;
 			case AGOP::R:
 				//cout << "R" << agit.stat << ": " << endl;
-				/*
-				toktbl.push_front(ReduceTable[agit.stat-1].reduce(pstk,
-							codegen));
-				stat = pstk.empty() ? 0 : pstk.top().m_stat;
-				*/
 				{
 					ReduceTable[agit.stat-1].reduce(pstk, codegen);
 					StackNode& node = pstk.top();
@@ -159,11 +154,6 @@ MICROCC::Parser::parse(TokenTable& toktbl, CodeGen& codegen) {
 					node.m_stat = stat;
 					pstk.push(node);
 				}
-				/*
-				codegen.genMidCode(pstk, ReduceTable[agit.stat].op,
-						ReduceTable[agit.stat].opcnt,
-						ReduceTable[agit.stat].result, mctbl);
-						*/
 				break;
 			case AGOP::G:
 				cout << "goto" << agit.stat << endl;
