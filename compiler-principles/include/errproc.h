@@ -9,5 +9,6 @@ namespace MICROCC {
 	void syntaxError(const Token& tok, const char* fmt, ...);
 	struct StackNode;
 	void syntaxError(const StackNode& stknode, const char* fmt, ...);
+	void semanticError(const char* fmt, ...);
 	int errproc(const char* fmt, ...);
 }

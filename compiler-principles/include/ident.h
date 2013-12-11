@@ -20,6 +20,7 @@ namespace MICROCC {
 				size_t addr = static_cast<size_t>(-1));
 		Ident(size_t scope, IdentType idt, const std::string& name,
 				const std::string& value, size_t addr);
+		//Ident(const Ident&) = delete;
 		~Ident();
 		size_t m_scope;
 		std::string m_name;

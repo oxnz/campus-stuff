@@ -8,6 +8,8 @@
 #include "ident.h"
 
 namespace MICROCC {
+	/* FIXME: This is a has-a other than an is-a relationship
+	 */
 	struct StackNode : public Ident {
 		StackNode(const Ident& id, int stat = 0)
 			: Ident(id),
