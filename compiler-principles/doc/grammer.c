@@ -1,3 +1,14 @@
+/* notes:
+ * <cond> ::= <bool> && <bool> | <bool> || <bool> | '!' <bool> | <bool>
+ * <bool> ::= <expr>
+ * 如何检测语法可以正确归约?
+ * bool表达式是否应该和算数表达式分开?
+ * 算术表达式可以转换为bool表达式，反之则不行。
+ * 下面哪种是正确的?
+ * <prog> ::= <prog><func> | <prog><stmt> | <func>
+ * <prog> ::= <func><prog> | <stmt><func> | <func>
+ */
+
 G[<microc>]:
 <microc> ::= <prog> // accpet sign
 <prog> ::= <func><prog>
@@ -6,11 +17,14 @@ G[<microc>]:
 <if> ::= "if" <cond> <stmt> "fi"
 <if> ::= "if" <cond> <stmt> "else" <stmt> "fi"
 <for> ::= "for" '('<decl>';' <cond>';' <stmt>')' <stmt>
-<for> ::= "for" '('<assign>)';' <cond>';' <stmt>')' <stmt>
+<for> ::= "for" '('<assign> ')';' <cond>';' <stmt>')' <stmt>
 <while> ::= "while" (<cond>) <stmt>
 <block> ::= '{' <stmts> '}'
 <do> ::= "do" <stmt> "while" '('<cond>')'';'
 <cond> ::= <expr>
+<cond> ::= <cond> "&&" <cond>
+<cond> ::= <cond> "||" <cond>
+<cond> ::= '(' <cond> ')'
 <cond> ::= <expr> '>' <expr>
 <cond> ::= <expr> '>=' <expr>
 <cond> ::= <expr> '<' <expr>
@@ -683,3 +697,149 @@ _<cond> ::= <expr> '-' <term> _
 _<term> ::= <term> _ '*' <factor>
 _<term> ::= <term> _ '/' <factor>
 _<term> ::= <term> _ '%' <factor>
+
+[I52 + <factor>]::= I59
+[I52 + '(']::= I60
+[I52 + <id>]::= I61
+[I52 + <num>]::= I62
+[I53 + <expr>]::= I44
+[I53 + '-']::= I34
+[I54 + <expr>]::= I44
+[I54 + '-']::= I34
+[I55 + <expr>]::= I44
+[I55 + '-']::= I34
+[I56 + <expr>]::= I44
+[I56 + '-']::= I34
+[I57 + <expr>]::= I44
+[I57 + '-']::= I34
+
+I81:[I58 + '*']:
+_<term> ::= <term> '*' _<factor>
+_<factor> ::= ...
+
+I82:[I58 + '/']:
+_<term> ::= <term> '/' _<factor>
+_<factor> ::= ...
+
+I82:[I58 + '%']:
+_<term> ::= <term> '%' _<factor>
+_<factor> ::= ...
+
+I83:[I60 + <expr>]:
+_<factor> ::= '(' <expr> _')'
+_<expr> ::= <expr> _'+' <term>
+_<expr> ::= <expr> _'-' <term>
+
+[I60 + '-']::= I34
+
+I84:[I64 + <stmt>]:
+_<stmts> ::= <stmts><stmt>_
+
+I85:[I64 + <decl>]:
+_<stmt> ::= <decl> _
+_<decl> ::= <decl> _ ',' <id>
+
+[I64 + <assign>]::= I25
+[I64 + <do>]::= I11
+[I64 + <for>]::= I12
+[I64 + <while>]::= I13
+[I64 + <if>]::= I14
+[I64 + <block>]::= I15
+[I64 + <type>]::= I39
+[I64 + <id>]::= I16
+[I64 + "do"]::= I17
+[I64 + "for"]::= I18
+[I64 + "while"]::= I19
+[I64 + "if"]::= I20
+[I64 + '{']::= I21
+
+[I67 + '=']::= I28
+
+I86:[I69 + ')']:
+_<func> ::= <type><id> '(' <args> ')' _<block>
+_<block> ::= ...
+
+I87:[I69 + <arg>]:
+_<args> ::= <args><arg>_
+
+[I69 + <args>]::= I70
+
+I88:[I69 + <type>]:
+_<arg> ::= <type>_<id>
+
+[I70 + <arg>]::= I87
+[I70 + <type>]::= I88
+
+I89:[I73 + <cond>]:
+_<do> ::= "do" <stmt> "whlie" '(' <cond> _ ')' ';'
+
+I90:[I74 + <cond>]:
+_<for> ::= "for" '(' <decl> ';' <cond> _ ';' <stmt> ')' <stmt>
+
+I91:[I75 + <stmt>]:
+_<while> ::= "while" '(' <cond> ')' <stmt> _
+
+I92:[I77 + <stmt>]:
+_<if> ::= "if" <cond> <stmt> "else" <stmt> _ "fi"
+
+[I78 + '*']::= I81
+[I78 + '/']::= I82
+[I78 + '%']::= I83
+
+I93:[I79 + <expr>]:
+_<factor> ::= '(' <expr> _ ')'
+
+[I80 + '*']::= I81
+[I80 + '/']::= I82
+[I80 + '%']::= I83
+
+I94:[I81 + <factor>]:
+_<term> ::= <term> '*' <factor> _
+I95:[I82 + <factor>]:
+_<term> ::= <term> '/' <factor> _
+I95:[I83 + <factor>]:
+_<term> ::= <term> '%' <factor> _
+
+I96:[I83 + ')']:
+_<factor> ::= '(' <expr> ')' _
+
+[I83 + '+']::= I51
+[I83 + '-']::= I52
+
+I97:[I85 + ',']:
+_<decl> ::= <decl> ',' _<id>
+
+I98:[I86 + <block>]:
+_<func> ::= <type><id> '(' <args> ')' <block>_
+
+I99:[I88 + <id>]:
+_<arg> ::= <type><id> _
+
+I100:[I89 + <')']:
+_<do> ::= "do" <stmt> "while" '(' <cond> ')' _ ';'
+
+I101:[I90 + ';']:
+_<for> ::= "for" '(' <decl> ';' <cond> ';' _<stmt> ')' <stmt>
+_<stmt> ::= ...
+
+I102:[I92 + "fi"]:
+_<if> ::= "if" <cond> <stmt> "else" <stmt> "fi" _
+
+I103:[I93 + ')']:
+_<factor> ::= '(' <expr> ')' _
+
+I104:[I97 + <id>]:
+_<decl> ::= <decl> ',' <id> _
+
+I105:[I100 + ';']:
+_<do> ::= "do" <stmt> "while" '(' <cond> ')' ';' _
+
+I106:[I101 + <stmt>]:
+_<for> ::= "for" '(' <decl> ';' <cond> ';' <stmt> _ ')' <stmt>
+
+I107:[I106 + ')']:
+_<for> ::= "for" '(' <decl> ';' <cond> ';' <stmt>  ')' _<stmt>
+_<stmt> ::= ...
+
+I108:[I107 + <stmt>]:
+_<for> ::= "for" '(' <decl> ';' <cond> ';' <stmt>  ')' <stmt> _
